@@ -469,7 +469,7 @@
                   id="genmedia-gemini-omni-1-1"
                   title="GenMedia con Gemini: De una Idea a una Producción Multimedia"
                   environment="web"
-                  feedback-link="https://github.com/alarcon7a/gemini_media/issues">
+                  feedback-link="https://github.com/alarcon7a/codelabs_workshops/issues">
 
     <!-- PASO 1: INTRODUCCIÓN Y ARQUITECTURA -->
     <google-codelab-step label="1. Introducción y Arquitectura GenMedia" duration="5">
@@ -700,14 +700,14 @@ class CampaignBrief(BaseModel):
     music_prompt: str = Field(description="Prompt con instrumentos, tempo y género para Lyria 3")
     video_timeline: str = Field(description="Timeline descriptiva [0-2s], [2-4s], [4-5s] para Omni")
 
-# Llamada a la Interactions API
+# Llamada a la Interactions API con response_format
 interaction = client.interactions.create(
     model="gemini-3.7-flash",
     input="Crea el brief cinematográfico de una guardiana glacial esculpida en hielo cristalino y escarcha.",
-    generation_config={
-        "response_mime_type": "application/json",
-        "response_schema": CampaignBrief,
-        "temperature": 0.7
+    response_format={
+        "type": "text",
+        "mime_type": "application/json",
+        "schema": CampaignBrief.model_json_schema()
     }
 )
 
@@ -1054,58 +1054,22 @@ print(f"✓ Video transformado generado con ID: {interaction.id}")</code></pre>
       <!-- HERO LAUNCH CARD -->
       <div class="colab-hero">
         <h3>Laboratorio Interactivo Oficial</h3>
-        <p>Abre el notebook preconfigurado con todo el código, librerías, modelos y flujo end-to-end de GenMedia en Vertex AI Colab Enterprise.</p>
+        <p>Abre el notebook preconfigurado con todo el código, librerías, modelos y flujo end-to-end de GenMedia en Vertex AI Colab Enterprise o Google Colab.</p>
         
         <div class="btn-actions">
           <a class="colab-btn-primary" 
              target="_blank" 
-             href="https://console.cloud.google.com/vertex-ai/colab/import/https%3A%2F%2Fraw.githubusercontent.com%2Falarcon7a%2Fgemini_media%2Fmain%2Ftutorial_genmedia_gemini_omni.ipynb">
+             href="https://console.cloud.google.com/vertex-ai/colab/import/https%3A%2F%2Fraw.githubusercontent.com%2Falarcon7a%2Fcodelabs_workshops%2Fmain%2Fcodelab-genmedia-001%2Ftutorial_genmedia_gemini_omni.ipynb">
             <span class="material-icons">open_in_new</span>
-            Abrir en Colab Enterprise (GitHub)
+            Abrir en Colab Enterprise
           </a>
 
           <a class="colab-btn-secondary" 
              target="_blank" 
-             href="https://console.cloud.google.com/vertex-ai/colab">
-            <span class="material-icons">cloud_upload</span>
-            Ir a Consola Colab Enterprise
+             href="https://colab.research.google.com/github/alarcon7a/codelabs_workshops/blob/main/codelab-genmedia-001/tutorial_genmedia_gemini_omni.ipynb">
+            <span class="material-icons">code</span>
+            Abrir en Google Colab
           </a>
-        </div>
-      </div>
-
-      <div class="callout callout-warning">
-        <span class="material-icons">help_outline</span>
-        <div class="callout-content">
-          <b>¿Por qué aparece error 404 al hacer clic en el botón?</b><br>
-          Colab Enterprise intenta descargar el archivo desde GitHub. Si tu repositorio <code>alarcon7a/gemini_media</code> aún no ha sido publicado como <b>público</b> en GitHub, utiliza la <b>Opción 1 (Subida directa)</b> a continuación o publica tu repositorio.
-        </div>
-      </div>
-
-      <h2 is-upgraded>Métodos para Cargar el Notebook</h2>
-      
-      <div class="card-grid">
-        <div class="card">
-          <div class="card-header">
-            <span class="material-icons icon" style="color:#1a73e8;">upload_file</span>
-            <h4 class="card-title">Método 1: Subida Directa (Inmediato)</h4>
-          </div>
-          <p>1. Entra a la consola de <a href="https://console.cloud.google.com/vertex-ai/colab" target="_blank">Google Cloud Colab Enterprise</a>.<br>
-             2. Selecciona tu proyecto y haz clic en <b>"Subir notebook" (Upload notebook)</b>.<br>
-             3. Selecciona tu archivo local <code>tutorial_genmedia_gemini_omni.ipynb</code> y haz clic en Abrir.</p>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <span class="material-icons icon" style="color:#0f9d58;">public</span>
-            <h4 class="card-title">Método 2: Publicar en GitHub</h4>
-          </div>
-          <p>Para que el enlace directo funcione para ti o tus alumnos con un solo clic, crea el repositorio público en GitHub y sube el archivo:</p>
-          <pre style="margin:8px 0 !important;padding:10px !important;"><code style="font-size:12px !important;">git init
-git add tutorial_genmedia_gemini_omni.ipynb
-git commit -m "Add notebook"
-git branch -M main
-git remote add origin https://github.com/alarcon7a/gemini_media.git
-git push -u origin main</code></pre>
         </div>
       </div>
 
@@ -1117,11 +1081,11 @@ git push -u origin main</code></pre>
           <pre><code>gcloud services enable aiplatform.googleapis.com</code></pre>
         </li>
         <li>
-          <strong>Conexión Segura (Enterprise Identity)</strong>:
+          <strong>Conexión Segura (Enterprise Identity o Gemini API Key)</strong>:
           Colab Enterprise utiliza tu identidad de Google Cloud automáticamente, sin necesidad de exponer ni pegar API Keys en texto plano:
           <pre><code class="language-python">from google import genai
 
-# Conexión nativa Enterprise
+# Conexión nativa Enterprise (Vertex AI)
 client = genai.Client(
     enterprise=True,
     project=PROJECT_ID,
@@ -1131,13 +1095,13 @@ client = genai.Client(
         <li>
           <strong>Flujo de Celdas del Notebook</strong>:
           <ul>
-            <li><strong>Bloque 1 · Setup</strong>: Instalación de <code>google-genai &gt;= 2.20.0</code>, Pillow y dependencias multimedia.</li>
-            <li><strong>Bloque 2 · Gemini 3.7 Flash</strong>: Generación del Brief JSON estructurado con la historia y prompts.</li>
-            <li><strong>Bloque 3 · Nano Banana 2</strong>: Creación del Keyframe 16:9 en alta resolución.</li>
-            <li><strong>Bloque 4 · Gemini TTS</strong>: Síntesis de voz con dirección actoral en formato WAV mediante Voice Director.</li>
+            <li><strong>Bloque 1 · Setup</strong>: Instalación de <code>google-genai &gt;= 2.20.0</code>, Pydantic, Pillow y utilidades.</li>
+            <li><strong>Bloque 2 · Gemini 3.7 Flash</strong>: Generación del Brief JSON estructurado con la historia y prompts coordinados.</li>
+            <li><strong>Bloque 3 · Nano Banana 2</strong>: Creación del Keyframe 16:9 en alta resolución con la técnica de 5 capas.</li>
+            <li><strong>Bloque 4 · Voice Director TTS</strong>: Síntesis de voz con dirección actoral y emotion tags en formato WAV.</li>
             <li><strong>Bloque 5 · Lyria 3</strong>: Creación de la banda sonora instrumental de 30 segundos.</li>
-            <li><strong>Bloque 6 · Gemini Omni Flash</strong>: Animación First-Frame y generación de video con audio sincronizado.</li>
-            <li><strong>Bloque 7 · Entregables</strong>: Empaquetado de todos los archivos generados en el directorio <code>media/taller_genmedia/</code>.</li>
+            <li><strong>Bloque 6 · Gemini Omni Flash</strong>: Animación First-Frame y reemplazo de personaje en video.</li>
+            <li><strong>Bloque 7 · Entregables</strong>: Empaquetado y verificación de todos los archivos generados en <code>media/taller_genmedia/</code>.</li>
           </ul>
         </li>
       </ol>

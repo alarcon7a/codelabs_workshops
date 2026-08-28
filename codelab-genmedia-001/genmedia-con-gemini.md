@@ -4,7 +4,7 @@ id: genmedia-gemini-omni-1-1
 categories: ai, googlecloud, genmedia, vertexai
 environments: Web
 status: Published
-feedback link: https://github.com/alarcon7a/gemini_media/issues
+feedback link: https://github.com/alarcon7a/codelabs_workshops/issues
 
 # GenMedia con Gemini: De una Idea a una Producción Multimedia
 
@@ -139,10 +139,10 @@ class CreativeBrief(BaseModel):
 interaction = client.interactions.create(
     model="gemini-3.7-flash",
     input="Crea el brief para una pieza cinemática sobre una guardiana ártica esculpida en hielo cristalino.",
-    generation_config={
-        "response_mime_type": "application/json",
-        "response_schema": CreativeBrief,
-        "temperature": 0.7,
+    response_format={
+        "type": "text",
+        "mime_type": "application/json",
+        "schema": CreativeBrief.model_json_schema()
     }
 )
 
@@ -378,30 +378,19 @@ Duration: 15
 ### Ejecuta el Taller Completo en la Nube
 Para consolidar todo lo aprendido y ejecutar el pipeline multimedia de extremo a extremo sin instalar nada localmente, abre el notebook oficial del taller en **Google Cloud Colab Enterprise**.
 
-### Opciones para Abrir el Notebook:
-
-#### Opción A · Importación Directa desde la Interfaz de Colab Enterprise (Recomendada para uso local)
-1. Ingresa a la consola de [Google Cloud Vertex AI Colab Enterprise](https://console.cloud.google.com/vertex-ai/colab).
-2. Selecciona tu **Proyecto de Google Cloud** en la barra superior.
-3. En la sección de Notebooks, haz clic en **"Subir notebook" (Upload notebook)**.
-4. Selecciona tu archivo local `tutorial_genmedia_gemini_omni.ipynb`.
-5. Selecciona el runtime de computación y conéctate.
-
-#### Opción B · Enlace Directo desde GitHub (Requiere repositorio público)
-Si tienes el repositorio publicado públicamente en GitHub:
+### Abre el Notebook en la Nube:
 
 <div style="text-align: center; margin: 25px 0;">
-  <a href="https://console.cloud.google.com/vertex-ai/colab/import/https%3A%2F%2Fraw.githubusercontent.com%2Falarcon7a%2Fgemini_media%2Fmain%2Ftutorial_genmedia_gemini_omni.ipynb" target="_blank" style="background-color: #1a73e8; color: white; padding: 14px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 15px; display: inline-block;">
-    🚀 Abrir en Google Cloud Colab Enterprise (GitHub)
+  <a href="https://console.cloud.google.com/vertex-ai/colab/import/https%3A%2F%2Fraw.githubusercontent.com%2Falarcon7a%2Fcodelabs_workshops%2Fmain%2Fcodelab-genmedia-001%2Ftutorial_genmedia_gemini_omni.ipynb" target="_blank" style="background-color: #1a73e8; color: white; padding: 14px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 15px; display: inline-block;">
+    🚀 Abrir en Google Cloud Colab Enterprise
   </a>
 </div>
 
-> **Nota**: Si al hacer clic recibes un error `404`, asegúrate de haber creado el repositorio público `alarcon7a/gemini_media` en GitHub y haber realizado el push de la rama `main`:
-> ```bash
-> git remote add origin https://github.com/alarcon7a/gemini_media.git
-> git branch -M main
-> git push -u origin main
-> ```
+<div style="text-align: center; margin-bottom: 25px;">
+  <a href="https://colab.research.google.com/github/alarcon7a/codelabs_workshops/blob/main/codelab-genmedia-001/tutorial_genmedia_gemini_omni.ipynb" target="_blank" style="color: #5f6368; text-decoration: none; font-size: 14px;">
+    O abrir en Google Colab Estándar ↗
+  </a>
+</div>
 
 ### Paso a Paso para la Ejecución:
 
