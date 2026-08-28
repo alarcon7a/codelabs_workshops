@@ -1,0 +1,36 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "updated": "2026-08-28T00:00:00-05:00",
+  "id": "genmedia-gemini-omni-1-1",
+  "duration": 78,
+  "title": "GenMedia con Gemini: De una Idea a una Producción Multimedia",
+  "authors": "Álvaro Alarcón",
+  "summary": "Taller completo de Google GenMedia: exploración en interfaces web (Gemini App, AI Studio, Google Flow), Interactions API, Nano Banana, Voice Director TTS, Lyria, Gemini Omni Flash (animación y reemplazo de personajes) y ejecución final en Colab Enterprise.",
+  "source": "genmedia-con-gemini.md",
+  "theme": "google-blue",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "ai",
+    "googlecloud",
+    "genmedia",
+    "vertexai"
+  ],
+  "tags": [
+    "gemini",
+    "interactions-api",
+    "nano-banana",
+    "google-flow",
+    "voice-director",
+    "tts",
+    "lyria",
+    "omni-flash",
+    "character-swap",
+    "colab-enterprise"
+  ],
+  "feedback": "https://github.com/alarcon7a/gemini_media/issues",
+  "url": "genmedia-gemini-omni-1-1"
+}

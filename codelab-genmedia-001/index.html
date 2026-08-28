@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#1a73e8">
+  <title>GenMedia con Gemini: De una Idea a una Producción Multimedia</title>
+  <base href="./">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Google+Sans:400,500,700|Roboto:300,400,400i,500,700|Roboto+Mono:400,500">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/claat-public/codelab-elements.css">
+  <style>
+    :root {
+      --google-blue: #1a73e8;
+      --google-blue-hover: #1557b0;
+      --google-blue-surface: #e8f0fe;
+      --google-green: #1e8e3e;
+      --google-green-surface: #e6f4ea;
+      --google-yellow: #f9ab00;
+      --google-yellow-surface: #fef7e0;
+      --google-red: #d93025;
+      --google-red-surface: #fce8e6;
+      --google-purple: #8e24aa;
+      --google-purple-surface: #f3e5f5;
+      --google-grey-900: #202124;
+      --google-grey-800: #3c4043;
+      --google-grey-700: #5f6368;
+      --google-grey-200: #e8eaed;
+      --google-grey-100: #f1f3f4;
+      --google-grey-50: #f8f9fa;
+      --code-bg: #1e2430;
+    }
+
+    body {
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      color: var(--google-grey-800);
+      line-height: 1.65;
+      background-color: #fff;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Google Sans', 'Roboto', sans-serif !important;
+      color: var(--google-grey-900);
+      font-weight: 500;
+    }
+
+    h2 {
+      margin-top: 28px !important;
+      margin-bottom: 14px !important;
+      font-size: 1.45rem !important;
+      border-bottom: 1px solid var(--google-grey-200);
+      padding-bottom: 8px;
+    }
+
+    h3 {
+      font-size: 1.2rem !important;
+      margin-top: 22px !important;
+      margin-bottom: 10px !important;
+    }
+
+    p, li {
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    /* Google Badges & Chips */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+      margin: 2px 4px 2px 0;
+      background: var(--google-grey-100);
+      color: var(--google-grey-800);
+      border: 1px solid var(--google-grey-200);
+    }
+    .chip.blue { background: var(--google-blue-surface); color: var(--google-blue); border-color: #c2e7ff; }
+    .chip.green { background: var(--google-green-surface); color: var(--google-green); border-color: #c4eed0; }
+    .chip.yellow { background: var(--google-yellow-surface); color: #b06000; border-color: #fde293; }
+    .chip.red { background: var(--google-red-surface); color: var(--google-red); border-color: #fad2cf; }
+    .chip.purple { background: var(--google-purple-surface); color: var(--google-purple); border-color: #e1bee7; }
+
+    /* Tag Cloud */
+    .tag-badge {
+      display: inline-block;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 12px;
+      background: #f1f3f4;
+      color: #1a73e8;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin: 3px 3px 3px 0;
+      border: 1px solid #dadce0;
+    }
+    .tag-badge.action { color: #d93025; background: #fce8e6; border-color: #fad2cf; }
+    .tag-badge.pause { color: #5f6368; background: #f8f9fa; border-color: #e8eaed; }
+
+    /* Cards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--google-grey-200);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(60,64,67, 0.08);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      box-shadow: 0 4px 12px rgba(60,64,67, 0.14);
+      transform: translateY(-2px);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .card-header .icon {
+      font-size: 28px;
+      margin-right: 12px;
+      color: var(--google-blue);
+    }
+    .card-title {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--google-grey-900);
+      margin: 0;
+    }
+    .card p {
+      margin: 0 0 10px 0;
+      color: var(--google-grey-700);
+      font-size: 14px;
+    }
+    .card-link {
+      display: inline-flex;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--google-blue);
+      text-decoration: none;
+      margin-top: 6px;
+    }
+    .card-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Callout Boxes */
+    .callout {
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 20px 0;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .callout .material-icons {
+      font-size: 24px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .callout-info {
+      background: var(--google-blue-surface);
+      border-left: 4px solid var(--google-blue);
+      color: #174ea6;
+    }
+    .callout-info .material-icons { color: var(--google-blue); }
+    .callout-success {
+      background: var(--google-green-surface);
+      border-left: 4px solid var(--google-green);
+      color: #0d652d;
+    }
+    .callout-success .material-icons { color: var(--google-green); }
+    .callout-warning {
+      background: var(--google-yellow-surface);
+      border-left: 4px solid var(--google-yellow);
+      color: #904c00;
+    }
+    .callout-warning .material-icons { color: var(--google-yellow); }
+    .callout-purple {
+      background: var(--google-purple-surface);
+      border-left: 4px solid var(--google-purple);
+      color: #6a1b9a;
+    }
+    .callout-purple .material-icons { color: var(--google-purple); }
+    .callout-content {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .callout-content b {
+      color: inherit;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 14px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(60,64,67,0.08);
+      border: 1px solid var(--google-grey-200);
+    }
+    th {
+      background: var(--google-grey-50);
+      color: var(--google-grey-900);
+      font-family: 'Google Sans', sans-serif;
+      font-weight: 600;
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 2px solid var(--google-grey-200);
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--google-grey-200);
+      color: var(--google-grey-800);
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr:hover td {
+      background-color: #fafbfc;
+    }
+
+    /* Code Snippets & Pre */
+    code {
+      font-family: 'Roboto Mono', monospace !important;
+      font-size: 13px !important;
+      background: var(--google-grey-100) !important;
+      color: #1a73e8 !important;
+      padding: 2px 6px !important;
+      border-radius: 4px !important;
+      border: 1px solid var(--google-grey-200) !important;
+    }
+
+    pre {
+      background: var(--code-bg) !important;
+      border-radius: 8px !important;
+      padding: 18px 20px !important;
+      margin: 18px 0 !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
+      overflow-x: auto !important;
+      border: 1px solid #2d3748 !important;
+    }
+
+    pre code {
+      background: transparent !important;
+      border: none !important;
+      color: #e2e8f0 !important;
+      padding: 0 !important;
+      font-size: 13.5px !important;
+      line-height: 1.6 !important;
+    }
+
+    /* Prompt Box with Highlight */
+    .prompt-box {
+      background: #f8fafd;
+      border: 1px solid #c2e7ff;
+      border-left: 5px solid var(--google-blue);
+      border-radius: 8px;
+      padding: 18px;
+      margin: 20px 0;
+      position: relative;
+    }
+    .prompt-box.purple {
+      background: #fcf8ff;
+      border-color: #e1bee7;
+      border-left-color: var(--google-purple);
+    }
+    .prompt-box.purple .prompt-box-header {
+      color: var(--google-purple);
+    }
+    .prompt-box-header {
+      font-family: 'Google Sans', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--google-blue);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .prompt-text {
+      font-family: 'Roboto', sans-serif;
+      font-size: 14.5px;
+      line-height: 1.65;
+      color: var(--google-grey-900);
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 14px;
+      margin-top: 8px;
+      white-space: pre-wrap;
+    }
+
+    /* Transformation Flow Visual */
+    .transform-flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 24px 0;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border: 1px solid var(--google-grey-200);
+    }
+    .transform-node {
+      background: #ffffff;
+      border: 1px solid var(--google-grey-200);
+      border-radius: 8px;
+      padding: 14px 18px;
+      text-align: center;
+      min-width: 160px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .transform-node .title {
+      font-family: 'Google Sans', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--google-grey-900);
+      margin-top: 4px;
+    }
+    .transform-node .desc {
+      font-size: 12px;
+      color: var(--google-grey-700);
+    }
+
+    /* Timeline & Pipeline */
+    .pipeline-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin: 24px 0;
+      padding: 16px;
+      background: var(--google-grey-50);
+      border-radius: 10px;
+      border: 1px solid var(--google-grey-200);
+    }
+    .pipeline-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid var(--google-grey-200);
+      padding: 12px 16px;
+      border-radius: 8px;
+      min-width: 110px;
+      text-align: center;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .pipeline-step .icon {
+      color: var(--google-blue);
+      margin-bottom: 4px;
+    }
+    .pipeline-step .step-title {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--google-grey-900);
+    }
+    .pipeline-step .step-model {
+      font-size: 11px;
+      color: var(--google-grey-700);
+    }
+    .pipeline-arrow {
+      color: var(--google-grey-700);
+      font-size: 20px;
+    }
+
+    /* Colab Enterprise Hero Launch Card */
+    .colab-hero {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: #ffffff;
+      border-radius: 12px;
+      padding: 36px 30px;
+      margin: 30px 0;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      border: 1px solid #334155;
+    }
+    .colab-hero h3 {
+      color: #ffffff !important;
+      font-size: 1.8rem !important;
+      margin-top: 0 !important;
+      margin-bottom: 12px !important;
+    }
+    .colab-hero p {
+      color: #cbd5e1;
+      font-size: 16px;
+      max-width: 680px;
+      margin: 0 auto 24px auto;
+    }
+    .colab-btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background-color: #1a73e8;
+      color: #ffffff !important;
+      font-family: 'Google Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 16px 32px;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(26, 115, 232, 0.4);
+      transition: all 0.2s ease;
+    }
+    .colab-btn-primary:hover {
+      background-color: #1557b0;
+      box-shadow: 0 6px 20px rgba(26, 115, 232, 0.6);
+      transform: translateY(-2px);
+    }
+    .colab-btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: rgba(255,255,255,0.1);
+      color: #e2e8f0 !important;
+      font-family: 'Google Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 12px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      margin-left: 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: all 0.2s ease;
+    }
+    .colab-btn-secondary:hover {
+      background-color: rgba(255,255,255,0.2);
+      color: #ffffff !important;
+    }
+
+    .btn-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .pipeline-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .pipeline-arrow {
+        transform: rotate(90deg);
+        text-align: center;
+      }
+      .transform-flow {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  id="genmedia-gemini-omni-1-1"
+                  title="GenMedia con Gemini: De una Idea a una Producción Multimedia"
+                  environment="web"
+                  feedback-link="https://github.com/alarcon7a/gemini_media/issues">
+
+    <!-- PASO 1: INTRODUCCIÓN Y ARQUITECTURA -->
+    <google-codelab-step label="1. Introducción y Arquitectura GenMedia" duration="5">
+      <p class="chip blue"><span class="material-icons" style="font-size:14px;margin-right:4px;">palette</span> Taller GenMedia Oficial</p>
+      <p class="chip green"><span class="material-icons" style="font-size:14px;margin-right:4px;">timer</span> 60 - 75 Minutos</p>
+      <p class="chip yellow"><span class="material-icons" style="font-size:14px;margin-right:4px;">cloud</span> Google Cloud & Vertex AI</p>
+
+      <h2 is-upgraded>Bienvenido a la Creación Multimedia con Google AI</h2>
+      <p>En este codelab aprenderás cómo transformar un concepto creativo simple en una <b>producción audiovisual publicitaria o cinematográfica completa</b> utilizando el conjunto especializado de modelos generativos de Google.</p>
+      
+      <p>Generaremos y coordinaremos 5 modalidades multimedia:</p>
+      <div class="pipeline-container">
+        <div class="pipeline-step">
+          <span class="material-icons icon">description</span>
+          <span class="step-title">1. Brief & Guion</span>
+          <span class="step-model">Gemini 3.7 Flash</span>
+        </div>
+        <span class="material-icons pipeline-arrow">arrow_forward</span>
+        <div class="pipeline-step">
+          <span class="material-icons icon">image</span>
+          <span class="step-title">2. Keyframe 16:9</span>
+          <span class="step-model">Nano Banana / Flow</span>
+        </div>
+        <span class="material-icons pipeline-arrow">arrow_forward</span>
+        <div class="pipeline-step">
+          <span class="material-icons icon">record_voice_over</span>
+          <span class="step-title">3. Voice Director</span>
+          <span class="step-model">Gemini TTS</span>
+        </div>
+        <span class="material-icons pipeline-arrow">arrow_forward</span>
+        <div class="pipeline-step">
+          <span class="material-icons icon">music_note</span>
+          <span class="step-title">4. Soundtrack</span>
+          <span class="step-model">Lyria 3</span>
+        </div>
+        <span class="material-icons pipeline-arrow">arrow_forward</span>
+        <div class="pipeline-step">
+          <span class="material-icons icon">movie</span>
+          <span class="step-title">5. Video Clip & Swap</span>
+          <span class="step-model">Gemini Omni Flash</span>
+        </div>
+      </div>
+
+      <h2 is-upgraded>El Ecosistema: Gemini no es un solo modelo</h2>
+      <p>Para lograr calidad profesional y consistencia artística, Google provee modelos especializados para cada tarea:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Modalidad</th>
+            <th>Modelo Oficial</th>
+            <th>Propósito en la Producción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Dirección Creativa</strong></td>
+            <td><code>gemini-3.7-flash</code></td>
+            <td>Estructura el Brief maestro en JSON, genera sinopsis y redacta los prompts coordinados.</td>
+          </tr>
+          <tr>
+            <td><strong>Generación Visual</strong></td>
+            <td><code>gemini-3.1-flash-image</code> (Nano Banana 2)</td>
+            <td>Crea keyframes 16:9 de alta resolución y detalles fotorrealistas con la técnica de 5 capas.</td>
+          </tr>
+          <tr>
+            <td><strong>Voz y Voice Director</strong></td>
+            <td><code>gemini-3.1-flash-tts-preview</code></td>
+            <td>Actuación de voz dirigida (Voice Director Framework), matices emocionales, pausas y acentos.</td>
+          </tr>
+          <tr>
+            <td><strong>Banda Sonora</strong></td>
+            <td><code>lyria-3-clip-preview</code> (Lyria 3)</td>
+            <td>Composición instrumental original adaptada al tempo (BPM) y atmósfera del video.</td>
+          </tr>
+          <tr>
+            <td><strong>Video Cinemático</strong></td>
+            <td><code>gemini-omni-flash-preview</code> (Omni 1.1 Flash)</td>
+            <td>Animación first-frame, reemplazo de personajes (Video+Foto) y edición de audio sincronizado.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 is-upgraded>La Filosofía: Single Source of Truth (SSoT)</h2>
+      <p>El desafío más común en la producción con IA es la desalineación de estilos. Si generas la imagen con un prompt y luego el video con otro no relacionado, se pierde la coherencia de iluminación, personaje y narrativa.</p>
+      
+      <div class="callout callout-info">
+        <span class="material-icons">info</span>
+        <div class="callout-content">
+          <b>Patrón de Diseño de este Codelab</b>: <code>Gemini 3.7 Flash</code> genera un único <b>Brief JSON</b> maestro. Todos los prompts subsiguientes (imagen, audio con Voice Director, música y video Omni) se alimentan directamente de los campos de este JSON.
+        </div>
+      </div>
+    </google-codelab-step>
+
+    <!-- PASO 2: EXPLORACIÓN EN HERRAMIENTAS WEB DE GOOGLE -->
+    <google-codelab-step label="2. Exploración en Herramientas Web de Google" duration="8">
+      <p class="chip blue">Prototipado Visual</p>
+      <p class="chip yellow">Google Labs & Flow</p>
+
+      <h2 is-upgraded>Validación y Descubrimiento en las Interfaces Web</h2>
+      <p>Antes de pasar a la automatización programática con código y APIs, el flujo de trabajo moderno de GenMedia comienza explorando e iterando en las <b>interfaces web oficiales de Google</b>. Esto permite afinar ideas estéticas y conceptos en segundos.</p>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons icon" style="color:#1a73e8;">chat</span>
+            <h4 class="card-title">1. Gemini App</h4>
+          </div>
+          <p>La interfaz conversacional directa para ideación rápida, lluvia de conceptos, refinamiento de arcos argumentales y generación de guiones base.</p>
+          <a href="https://gemini.google.com" target="_blank" class="card-link">Abrir Gemini App ↗</a>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons icon" style="color:#8e24aa;">auto_awesome</span>
+            <h4 class="card-title">2. Google AI Studio</h4>
+          </div>
+          <p>El entorno definitivo para desarrolladores: prueba modelos (<code>gemini-3.7-flash</code>), define <i>System Instructions</i>, esquemas Structured Outputs (JSON) y exporta el código listo con el botón <b>Get Code</b>.</p>
+          <a href="https://aistudio.google.com" target="_blank" class="card-link">Abrir Google AI Studio ↗</a>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons icon" style="color:#1a73e8;">view_quilt</span>
+            <h4 class="card-title">3. Google Flow</h4>
+          </div>
+          <p>El estudio visual interactivo para la creación y experimentación fluida de concept art y assets de imagen. Explora encuadres, materiales e iluminación en tiempo real.</p>
+          <a href="https://aistudio.google.com" target="_blank" class="card-link">Explorar Google Flow ↗</a>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons icon" style="color:#0f9d58;">graphic_eq</span>
+            <h4 class="card-title">4. MusicFX (Lyria)</h4>
+          </div>
+          <p>Estudio de música generativa por texto impulsado por Lyria. Diseña loops instrumentales continuos, ajusta tempo y experimenta con géneros híbridos.</p>
+          <a href="https://aitestkitchen.withgoogle.com/tools/music-fx" target="_blank" class="card-link">Abrir MusicFX en Labs ↗</a>
+        </div>
+      </div>
+
+      <h2 is-upgraded>Matriz de Decisión: ¿Cuándo usar Web UI vs. API?</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Caso de Uso</th>
+            <th>Superficie Recomendada</th>
+            <th>Ventaja Principal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Brainstorming creativo y concepto de marca</td>
+            <td><strong>Gemini App</strong></td>
+            <td>Interacción natural inmediata y sugerencias ágiles.</td>
+          </tr>
+          <tr>
+            <td>Diseño de prompts, schemas JSON y ajuste de Temperature</td>
+            <td><strong>Google AI Studio</strong></td>
+            <td>Parámetros avanzados y exportación a código Python/JS.</td>
+          </tr>
+          <tr>
+            <td>Generación visual interactiva y exploración conceptual</td>
+            <td><strong>Google Flow</strong></td>
+            <td>Control visual táctil sin fricción de código.</td>
+          </tr>
+          <tr>
+            <td>Composición interactiva de música y loops</td>
+            <td><strong>MusicFX</strong></td>
+            <td>Ajustes de tempo en tiempo real y variaciones DJ.</td>
+          </tr>
+          <tr>
+            <td>Pipelines automatizados, procesamiento en lote y microservicios</td>
+            <td><strong>Interactions API (SDK)</strong></td>
+            <td>Escalabilidad programática, orquestación y testing.</td>
+          </tr>
+          <tr>
+            <td>Experimentación con identidad de empresa y gobierno Cloud</td>
+            <td><strong>Colab Enterprise</strong></td>
+            <td>Seguridad sin API Keys expuestas, integración Vertex AI y GPUs.</td>
+          </tr>
+        </tbody>
+      </table>
+    </google-codelab-step>
+
+    <!-- PASO 3: GEMINI TEXT & INTERACTIONS API -->
+    <google-codelab-step label="3. Gemini Text & La Nueva Interactions API" duration="10">
+      <p class="chip blue">SDK Oficial</p>
+      <p class="chip green">Interactions API</p>
+
+      <h2 is-upgraded>La Nueva Arquitectura: Interactions API</h2>
+      <p>Google ha presentado la <b>Interactions API</b> como la interfaz recomendada para interactuar con los modelos Gemini en Python y TypeScript utilizando el SDK oficial <code>google-genai</code> (versión ≥ 2.3.0).</p>
+
+      <div class="callout callout-warning">
+        <span class="material-icons">warning</span>
+        <div class="callout-content">
+          <b>Aviso de Migración</b>: Métodos antiguos como <code>generateContent</code> y librerías heredadas como <code>google-generativeai</code> están obsoletas. La nueva API unifica texto, pensamiento (Thinking), herramientas y multimodalidad en un modelo basado en <b>Steps tipados</b>.
+        </div>
+      </div>
+
+      <h2 is-upgraded>Estructura de un Turno de Interacción</h2>
+      <pre><code>client.interactions.create(
+    model="gemini-3.7-flash",
+    input="Tu prompt o contenido multimodal..."
+)</code></pre>
+
+      <p>Cada respuesta contiene una lista ordenada de <b>Steps</b>:</p>
+      <ul>
+        <li><code>user_input</code>: Contenido enviado por el usuario (texto, imágenes, audio).</li>
+        <li><code>thought</code>: Razonamiento explícito del modelo (Chain of Thought).</li>
+        <li><code>model_output</code>: Salida final (texto, JSON, imagen o audio generado).</li>
+      </ul>
+
+      <h2 is-upgraded>Código: Generación del Brief Maestro con Salida Estructurada</h2>
+      <p>Utilizamos <code>Pydantic</code> y <code>response_schema</code> para asegurar que <code>gemini-3.7-flash</code> entregue un JSON estrictamente tipado que controlará el resto de las modalidades:</p>
+
+      <pre><code class="language-python">from google import genai
+from pydantic import BaseModel, Field
+
+client = genai.Client()
+
+# Esquema de salida para orquestar la campaña
+class CampaignBrief(BaseModel):
+    title: str = Field(description="Título cinematográfico de la pieza")
+    synopsis: str = Field(description="Sinopsis narrativa en 2 oraciones")
+    visual_prompt: str = Field(description="Prompt en 5 capas para Nano Banana / Google Flow")
+    voiceover_script: str = Field(description="Texto exacto de la locución en español con audio tags")
+    voice_direction: str = Field(description="Estructura Voice Director: Profile, Scene, Director Notes")
+    music_prompt: str = Field(description="Prompt con instrumentos, tempo y género para Lyria 3")
+    video_timeline: str = Field(description="Timeline descriptiva [0-2s], [2-4s], [4-5s] para Omni")
+
+# Llamada a la Interactions API
+interaction = client.interactions.create(
+    model="gemini-3.7-flash",
+    input="Crea el brief cinematográfico de una guardiana glacial esculpida en hielo cristalino y escarcha.",
+    generation_config={
+        "response_mime_type": "application/json",
+        "response_schema": CampaignBrief,
+        "temperature": 0.7
+    }
+)
+
+print(interaction.output_text)</code></pre>
+    </google-codelab-step>
+
+    <!-- PASO 4: GENERACIÓN DE IMÁGENES CON NANO BANANA -->
+    <google-codelab-step label="4. Generación de Imágenes con Nano Banana y Google Flow" duration="10">
+      <p class="chip blue">Nano Banana 2</p>
+      <p class="chip yellow">Google Flow</p>
+
+      <h2 is-upgraded>Modelos Visuales: Nano Banana 2 & Nano Banana Pro</h2>
+      <p>Para la generación de keyframes visuales 16:9 y concept art cinematográfico, Google cuenta con dos modelos clave:</p>
+      <ul>
+        <li><code>gemini-3.1-flash-image</code> (<strong>Nano Banana 2</strong>): Ultrarrápido, excelente precisión en el seguimiento de instrucciones y renderizado veloz.</li>
+        <li><code>gemini-3-pro-image</code> (<strong>Nano Banana Pro</strong>): Máxima fidelidad microtexturizada, acabados fotorrealistas y renderizado de alta resolución.</li>
+      </ul>
+
+      <h2 is-upgraded>La Técnica de las 5 Capas de Prompting Visual</h2>
+      <p>Para evitar imágenes genéricas o poco enfocadas, estructura siempre tus prompts en 5 capas consecutivas:</p>
+
+      <ol>
+        <li><strong>Sujeto Principal</strong>: Detalles fisonómicos, materiales constitutivos, expresión, vestimenta.</li>
+        <li><strong>Acción y Pose</strong>: Ángulo de la mirada, inclinación, microgestos sutiles.</li>
+        <li><strong>Composición y Encuadre</strong>: Tipo de plano (Close-up / Primer plano), óptica de lente (85mm f/1.4), relación de aspecto 16:9.</li>
+        <li><strong>Iluminación y Color</strong>: Luz volumétrica, temperatura de color, claroscuro, destellos y reflejos cáusticos.</li>
+        <li><strong>Acabado y Textura</strong>: Nivel de detalle, microfracturas, escarcha, render fotorrealista 8k.</li>
+      </ol>
+
+      <h2 is-upgraded>Prompt Masterclass: Mujer Esculpida en Hielo (Close-Up Cinemático)</h2>
+      <div class="prompt-box">
+        <div class="prompt-box-header">
+          <span class="material-icons">auto_awesome</span>
+          <span>Prompt Cinemático de Alta Fidelidad (Nano Banana / Google Flow)</span>
+        </div>
+        <div class="prompt-text">Cinematic 8k close-up portrait of a breathtaking woman sculpted entirely from pristine crystalline glacial ice and frosted diamond textures. Her face exhibits delicate translucent frozen skin with intricate, microscopic frost fractals tracing her cheekbones and brow. Her eyes are glowing with subtle pale cyan ethereal bioluminescence, framed by crystalline eyelashes coated in fine powder snow. Translucent icicle hair cascades in sculpted frozen waves catching the light. Shot on 85mm f/1.4 lens, shallow depth of field, sharp focus on the glistening eye reflections. Lighting: Dramatic volumetric arctic rim lighting, sub-surface scattering through translucent ice, vivid refraction of deep sapphire and glowing cyan caustics against a moody dark aurora borealis backdrop. Photorealistic, masterwork, highly detailed.</div>
+      </div>
+
+      <div class="callout callout-info">
+        <span class="material-icons">translate</span>
+        <div class="callout-content">
+          <b>Versión en Español</b>: <i>"Primer plano cinemático 8k de una mujer hermosa esculpida enteramente en hielo glaciar cristalino y texturas de diamante escarchado. Rostro translúcido con intrincados patrones fractales congelados en los pómulos. Ojos brillantes con bioluminiscencia cian etérea. Iluminación volumétrica ártica con dispersión subsuperficial y reflejos cáusticos zafiro contra una aurora boreal."</i>
+        </div>
+      </div>
+
+      <h2 is-upgraded>Código: Generar y Guardar el Keyframe con el SDK</h2>
+      <pre><code class="language-python"># Generación con Nano Banana 2
+interaction = client.interactions.create(
+    model="gemini-3.1-flash-image",
+    input="Cinematic 8k close-up portrait of a breathtaking woman sculpted entirely from pristine crystalline glacial ice...",
+    generation_config={
+        "aspect_ratio": "16:9"
+    }
+)
+
+# Acceso directo al helper output_image
+if interaction.output_image:
+    with open("media/keyframe_mujer_hielo.png", "wb") as f:
+        f.write(interaction.output_image.data)
+    print("✓ Keyframe guardado exitosamente en media/keyframe_mujer_hielo.png")</code></pre>
+    </google-codelab-step>
+
+    <!-- PASO 5: VOICE DIRECTOR TTS -->
+    <google-codelab-step label="5. Voice Director TTS: Dirección Profesional de Voz" duration="10">
+      <p class="chip purple"><span class="material-icons" style="font-size:14px;margin-right:4px;">record_voice_over</span> Voice Director Framework</p>
+      <p class="chip blue">Gemini 3.1 Flash TTS</p>
+
+      <h2 is-upgraded>El Paradigma Voice Director</h2>
+      <p>A diferencia de los sintetizadores de voz convencionales que solo leen texto plano o dependen de complejas etiquetas SSML, el modelo <code>gemini-3.1-flash-tts-preview</code> es un <b>Large Language Model</b> que entiende <i>no solo qué decir, sino cómo decirlo</i>.</p>
+      
+      <p>El framework <strong>Voice Director</strong> te permite tratar a Gemini TTS como un <b>actor de doblaje profesional humano</b>, proporcionándole perfil de personaje, contexto espacial y notas directas de interpretación.</p>
+
+      <h2 is-upgraded>Estructura de un Prompt Voice Director</h2>
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons icon" style="color:#8e24aa;">badge</span>
+            <h4 class="card-title">1. AUDIO PROFILE</h4>
+          </div>
+          <p>Define el nombre, rol y arquetipo del personaje. Proporciona el ancla de identidad del actor virtual.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons icon" style="color:#1a73e8;">location_on</span>
+            <h4 class="card-title">2. THE SCENE</h4>
+          </div>
+          <p>Establece el entorno físico, acústica del lugar y atmósfera emocional para condicionar la energía vocal.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons icon" style="color:#0f9d58;">tune</span>
+            <h4 class="card-title">3. DIRECTOR'S NOTES</h4>
+          </div>
+          <p>Instrucciones de interpretación: <b>Style</b> (textura vocal/proyección), <b>Accent</b> (acento específico) y <b>Pacing</b> (cadencia/tempo).</p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons icon" style="color:#d93025;">format_quote</span>
+            <h4 class="card-title">4. TRANSCRIPT</h4>
+          </div>
+          <p>El guion exacto anotado con <b>Inline Audio Tags</b> entre corchetes para controlar emociones y pausas momento a momento.</p>
+        </div>
+      </div>
+
+      <h2 is-upgraded>Inline Audio Tags: Banderas de Emoción, Gestos y Pausas</h2>
+      <p>Los tags se insertan directamente en el guion en inglés (incluso con texto en español) para modelar la entonación con máxima granularidad:</p>
+
+      <div style="margin: 16px 0;">
+        <p><strong>🎭 Banderas de Emoción y Tono:</strong></p>
+        <div>
+          <span class="tag-badge">[serenity]</span>
+          <span class="tag-badge">[awe]</span>
+          <span class="tag-badge">[determination]</span>
+          <span class="tag-badge">[excitement]</span>
+          <span class="tag-badge">[curiosity]</span>
+          <span class="tag-badge">[confidence]</span>
+          <span class="tag-badge">[intrigue]</span>
+          <span class="tag-badge">[melancholy]</span>
+          <span class="tag-badge">[enthusiasm]</span>
+          <span class="tag-badge">[warmth]</span>
+        </div>
+      </div>
+
+      <div style="margin: 16px 0;">
+        <p><strong>🗣️ Acciones Vocales y Sonidos No Verbales:</strong></p>
+        <div>
+          <span class="tag-badge action">[whispers]</span>
+          <span class="tag-badge action">[sigh]</span>
+          <span class="tag-badge action">[laughs]</span>
+          <span class="tag-badge action">[chuckle]</span>
+          <span class="tag-badge action">[gasp]</span>
+          <span class="tag-badge action">[shouting]</span>
+          <span class="tag-badge action">[clears throat]</span>
+        </div>
+      </div>
+
+      <div style="margin: 16px 0;">
+        <p><strong>⏱️ Control de Pausas y Ritmo:</strong></p>
+        <div>
+          <span class="tag-badge pause">[short pause] (~250ms)</span>
+          <span class="tag-badge pause">[medium pause] (~500ms)</span>
+          <span class="tag-badge pause">[long pause] (~1000ms+)</span>
+          <span class="tag-badge pause">[slow]</span>
+          <span class="tag-badge pause">[fast]</span>
+        </div>
+      </div>
+
+      <h2 is-upgraded>Código: Locución con Voice Director Framework</h2>
+      <div class="prompt-box purple">
+        <div class="prompt-box-header">
+          <span class="material-icons">mic</span>
+          <span>Prompt con Estructura Voice Director Completa</span>
+        </div>
+        <div class="prompt-text"># AUDIO PROFILE: Solaria
+## Ancient Glacial Guardian
+
+## THE SCENE: The Heart of the Eternal Ice Cavern
+Solaria stands atop a crystalline promontory surrounded by luminescent cyan ice pillars. The air is sub-zero and completely still. She speaks directly to a weary traveler with timeless wisdom and serene authority.
+
+### DIRECTOR'S NOTES
+Style: Intimate, resonant, crystal-clear projection with subtle breathing pauses. Warm yet mystical.
+Pacing: Measured and slow tempo.
+Accent: Neutral Spanish.
+
+#### TRANSCRIPT
+[serenity] En el silencio absoluto del hielo eterno... [short pause] [awe] cada reflejo guarda la memoria de un tiempo que no se desvanece. [medium pause] [determination] Observa el frío... [whispers] y descubre su luz interior.</div>
+      </div>
+
+      <pre><code class="language-python"># Llamada a Gemini TTS con el prompt estructurado
+interaction = client.interactions.create(
+    model="gemini-3.1-flash-tts-preview",
+    input=voice_director_prompt
+)
+
+if interaction.output_audio:
+    with open("media/locucion_guardian.wav", "wb") as f:
+        f.write(interaction.output_audio.data)
+    print("✓ Locución profesional guardada en media/locucion_guardian.wav")</code></pre>
+
+      <div class="callout callout-purple">
+        <span class="material-icons">tips_and_updates</span>
+        <div class="callout-content">
+          <b>Técnica "Take 3 on the bounce"</b>: Si quieres explorar opciones, puedes pedirle en las notas al director que realice 3 tomas consecutivas de la misma línea variando la intensidad (<i>Take 1: Intimate whisper, Take 2: Resonant authority, Take 3: Emotional crescendo</i>) en una sola llamada de audio.
+        </div>
+      </div>
+    </google-codelab-step>
+
+    <!-- PASO 6: BANDA SONORA CON LYRIA 3 -->
+    <google-codelab-step label="6. Banda Sonora con Lyria 3" duration="8">
+      <p class="chip blue">Lyria 3</p>
+      <p class="chip yellow">MusicFX</p>
+
+      <h2 is-upgraded>Composición Musical Generativa con Lyria</h2>
+      <p>El modelo <code>lyria-3-clip-preview</code> (disponible interactivamente en <a href="https://aitestkitchen.withgoogle.com/tools/music-fx" target="_blank">MusicFX</a>) está diseñado para componer piezas musicales y ambientaciones sonoras con riqueza tímbrica y estructura armónica.</p>
+
+      <h2 is-upgraded>Los 4 Pilares de un Prompt Musical</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Pilar</th>
+            <th>Descripción</th>
+            <th>Ejemplo para Nuestro Video de Hielo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Género y Atmósfera</strong></td>
+            <td>Estilo principal y sensación emocional</td>
+            <td><i>Atmospheric Nordic Neo-Classical Ambient</i></td>
+          </tr>
+          <tr>
+            <td><strong>2. Instrumentación</strong></td>
+            <td>Instrumentos solistas y texturas de fondo</td>
+            <td><i>Sub-bass drone, cello solista acústico, marimba de cristal, pads de escarcha</i></td>
+          </tr>
+          <tr>
+            <td><strong>3. Tempo y Dinámica</strong></td>
+            <td>Velocidad (BPM) y evolución de intensidad</td>
+            <td><i>72 BPM, inicio minimalista y sutil crescendo etéreo</i></td>
+          </tr>
+          <tr>
+            <td><strong>4. Prompts Negativos</strong></td>
+            <td>Elementos a evitar</td>
+            <td><i>Sin batería estridente, sin guitarras eléctricas, sin voces líricas</i></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 is-upgraded>Código: Generar Pista Musical</h2>
+      <pre><code class="language-python">music_prompt = """
+Atmospheric cinematic ambient score with deep sub-bass drones, crystalline glass marimba arpeggios, bowing acoustic violoncellos, and ethereal glacial pads. Tempo: 72 BPM. Mood: Mystical, serene, expansive winter landscape. Subtle sound design of frosted resonance. No heavy drums.
+"""
+
+interaction = client.interactions.create(
+    model="lyria-3-clip-preview",
+    input=music_prompt,
+    generation_config={
+        "duration_seconds": 30
+    }
+)
+
+if interaction.output_audio:
+    with open("media/soundtrack_artico.mp3", "wb") as f:
+        f.write(interaction.output_audio.data)
+    print("✓ Pista musical guardada en media/soundtrack_artico.mp3")</code></pre>
+    </google-codelab-step>
+
+    <!-- PASO 7: VIDEO CINEMÁTICO & REEMPLAZO DE PERSONAJES -->
+    <google-codelab-step label="7. Video Cinemático y Reemplazo de Personajes con Gemini Omni Flash" duration="12">
+      <p class="chip blue">Gemini Omni 1.1 Flash</p>
+      <p class="chip red">Multimodal Video & Swap</p>
+
+      <h2 is-upgraded>Gemini Omni Flash (`gemini-omni-flash-preview`)</h2>
+      <p>Gemini Omni Flash es el modelo unificado de video y audio de Google. Permite generar tomas de alta calidad (3 a 10 segundos), animar imágenes fijas y realizar transformaciones de video-a-video guiadas por referencias fotográficas.</p>
+
+      <h2 is-upgraded>Caso 1: Animación First-Frame a partir de un Keyframe</h2>
+      <p>Toma el keyframe generado por Nano Banana como fotograma de inicio exacto mediante la etiqueta <code>&lt;FIRST_FRAME&gt;</code> y timeline prompting:</p>
+
+      <pre><code class="language-python">uploaded_keyframe = client.files.upload(file="media/keyframe_mujer_hielo.png")
+
+video_prompt = """
+[# Sources <FIRST_FRAME>]
+[0-2s] Extreme slow cinematic push-in toward the ice woman's face. Frost particles swirl gently.
+[2-4s] Her crystal eyelashes flutter as her glowing cyan eyes shift focus.
+[4-5s] A serene crystalline smile forms as ethereal light flairs gently in 16:9.
+Audio: Soft arctic wind howl, delicate ice crystalline resonance, zero dialogue.
+"""
+
+interaction = client.interactions.create(
+    model="gemini-omni-flash-preview",
+    input=[uploaded_keyframe, video_prompt],
+    generation_config={"duration_seconds": 5, "aspect_ratio": "16:9"}
+)</code></pre>
+
+      <h2 is-upgraded>Caso 2: Reemplazo Total de Personaje en Video (Video Propio + Foto de Referencia)</h2>
+      <p>Un caso de uso sumamente potente es proporcionar un <b>video real tuyo saludando a cámara</b> y una <b>fotografía de otro personaje</b> (ej. un astronauta en Marte o una guerrera futurista). Gemini Omni Flash sustituye por completo al personaje conservando con total precisión el movimiento de la mano, la postura, los giros de cabeza y la cadencia temporal.</p>
+
+      <!-- DIAGRAMA VISUAL DE TRANSFORMACIÓN -->
+      <div class="transform-flow">
+        <div class="transform-node">
+          <span class="material-icons" style="font-size:32px;color:#1a73e8;">videocam</span>
+          <div class="title">Video Original</div>
+          <div class="desc">Tú saludando a cámara (<code>mi_video_saludo.mp4</code>)</div>
+        </div>
+        <span class="material-icons" style="color:#5f6368;font-size:28px;">add</span>
+        <div class="transform-node">
+          <span class="material-icons" style="font-size:32px;color:#8e24aa;">account_circle</span>
+          <div class="title">Foto de Referencia</div>
+          <div class="desc">Astronauta / Personaje (<code>personaje_astronauta.png</code>)</div>
+        </div>
+        <span class="material-icons" style="color:#5f6368;font-size:28px;">arrow_forward</span>
+        <div class="transform-node" style="background:#e8f0fe;border-color:#1a73e8;">
+          <span class="material-icons" style="font-size:32px;color:#1a73e8;">auto_awesome_motion</span>
+          <div class="title">Video Transformado</div>
+          <div class="desc">El astronauta saludando con tu movimiento exacto</div>
+        </div>
+      </div>
+
+      <h2 is-upgraded>Estructura de Tags para Reemplazo de Personajes</h2>
+      <p>Utilizamos el formato de declaración de fuentes y referencias del skill de Omni Flash:</p>
+
+      <div class="prompt-box">
+        <div class="prompt-box-header">
+          <span class="material-icons">movie_filter</span>
+          <span>Prompt de Reemplazo de Personaje (Video + Imagen)</span>
+        </div>
+        <div class="prompt-text">[# Sources &lt;VIDEO_REF_0&gt;@Video1] [# References &lt;IMAGE_REF_0&gt;@Image1]
+Replace the person in the video with the character shown in &lt;IMAGE_REF_0&gt;. Maintain the exact hand-waving motion, body posture, head rotation, timing, and framing from &lt;VIDEO_REF_0&gt;, while transforming the subject entirely into the character from &lt;IMAGE_REF_0&gt; (photorealistic astronaut helmet, reflective visor, spacesuit textures, and lighting). Preserve smooth temporal consistency across all frames. Keep background environment consistent.</div>
+      </div>
+
+      <h2 is-upgraded>Código: Ejecutar el Reemplazo de Personaje con el SDK</h2>
+      <pre><code class="language-python"># 1. Subir ambos archivos a la Files API de Gemini
+my_video = client.files.upload(file="media/mi_video_saludo.mp4")
+character_photo = client.files.upload(file="media/personaje_astronauta.png")
+
+# 2. Generar la transformación multimodal
+interaction = client.interactions.create(
+    model="gemini-omni-flash-preview",
+    input=[
+        my_video,
+        character_photo,
+        "[# Sources <VIDEO_REF_0>] [# References <IMAGE_REF_0>] Replace the person in the video with the character from <IMAGE_REF_0>. Maintain the exact wave and greeting movements, head rotation, and timing from the video, while transforming the person entirely into the character in <IMAGE_REF_0>. 16:9 widescreen, photorealistic."
+    ],
+    generation_config={
+        "duration_seconds": 5,
+        "aspect_ratio": "16:9"
+    }
+)
+
+print(f"✓ Video transformado generado con ID: {interaction.id}")</code></pre>
+    </google-codelab-step>
+
+    <!-- PASO 8: NOTEBOOK EN COLAB ENTERPRISE -->
+    <google-codelab-step label="8. Laboratorio Práctico: Notebook en Colab Enterprise" duration="15">
+      <p class="chip blue"><span class="material-icons" style="font-size:14px;margin-right:4px;">rocket_launch</span> Manos a la Obra</p>
+      <p class="chip green"><span class="material-icons" style="font-size:14px;margin-right:4px;">verified</span> Colab Enterprise Ready</p>
+
+      <h2 is-upgraded>Ejecuta la Producción Multimedia de Extremo a Extremo</h2>
+      <p>Ha llegado el momento de poner en práctica todo lo aprendido ejecutando el <b>notebook interactivo completo</b> en la nube con <strong>Google Cloud Colab Enterprise</strong>.</p>
+
+      <!-- HERO LAUNCH CARD -->
+      <div class="colab-hero">
+        <h3>Laboratorio Interactivo Oficial</h3>
+        <p>Abre el notebook preconfigurado con todo el código, librerías, modelos y flujo end-to-end de GenMedia en Vertex AI Colab Enterprise.</p>
+        
+        <div class="btn-actions">
+          <a class="colab-btn-primary" 
+             target="_blank" 
+             href="https://console.cloud.google.com/vertex-ai/colab/import/https%3A%2F%2Fraw.githubusercontent.com%2Falarcon7a%2Fgemini_media%2Fmain%2Ftutorial_genmedia_gemini_omni.ipynb">
+            <span class="material-icons">open_in_new</span>
+            Abrir en Colab Enterprise (GitHub)
+          </a>
+
+          <a class="colab-btn-secondary" 
+             target="_blank" 
+             href="https://console.cloud.google.com/vertex-ai/colab">
+            <span class="material-icons">cloud_upload</span>
+            Ir a Consola Colab Enterprise
+          </a>
+        </div>
+      </div>
+
+      <div class="callout callout-warning">
+        <span class="material-icons">help_outline</span>
+        <div class="callout-content">
+          <b>¿Por qué aparece error 404 al hacer clic en el botón?</b><br>
+          Colab Enterprise intenta descargar el archivo desde GitHub. Si tu repositorio <code>alarcon7a/gemini_media</code> aún no ha sido publicado como <b>público</b> en GitHub, utiliza la <b>Opción 1 (Subida directa)</b> a continuación o publica tu repositorio.
+        </div>
+      </div>
+
+      <h2 is-upgraded>Métodos para Cargar el Notebook</h2>
+      
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons icon" style="color:#1a73e8;">upload_file</span>
+            <h4 class="card-title">Método 1: Subida Directa (Inmediato)</h4>
+          </div>
+          <p>1. Entra a la consola de <a href="https://console.cloud.google.com/vertex-ai/colab" target="_blank">Google Cloud Colab Enterprise</a>.<br>
+             2. Selecciona tu proyecto y haz clic en <b>"Subir notebook" (Upload notebook)</b>.<br>
+             3. Selecciona tu archivo local <code>tutorial_genmedia_gemini_omni.ipynb</code> y haz clic en Abrir.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons icon" style="color:#0f9d58;">public</span>
+            <h4 class="card-title">Método 2: Publicar en GitHub</h4>
+          </div>
+          <p>Para que el enlace directo funcione para ti o tus alumnos con un solo clic, crea el repositorio público en GitHub y sube el archivo:</p>
+          <pre style="margin:8px 0 !important;padding:10px !important;"><code style="font-size:12px !important;">git init
+git add tutorial_genmedia_gemini_omni.ipynb
+git commit -m "Add notebook"
+git branch -M main
+git remote add origin https://github.com/alarcon7a/gemini_media.git
+git push -u origin main</code></pre>
+        </div>
+      </div>
+
+      <h2 is-upgraded>Guía de Ejecución en Colab Enterprise</h2>
+      <ol>
+        <li>
+          <strong>Selecciona tu Proyecto de Google Cloud</strong>:
+          Asegúrate de que tu proyecto tenga facturación habilitada y la API de Vertex AI activa:
+          <pre><code>gcloud services enable aiplatform.googleapis.com</code></pre>
+        </li>
+        <li>
+          <strong>Conexión Segura (Enterprise Identity)</strong>:
+          Colab Enterprise utiliza tu identidad de Google Cloud automáticamente, sin necesidad de exponer ni pegar API Keys en texto plano:
+          <pre><code class="language-python">from google import genai
+
+# Conexión nativa Enterprise
+client = genai.Client(
+    enterprise=True,
+    project=PROJECT_ID,
+    location="global"
+)</code></pre>
+        </li>
+        <li>
+          <strong>Flujo de Celdas del Notebook</strong>:
+          <ul>
+            <li><strong>Bloque 1 · Setup</strong>: Instalación de <code>google-genai &gt;= 2.20.0</code>, Pillow y dependencias multimedia.</li>
+            <li><strong>Bloque 2 · Gemini 3.7 Flash</strong>: Generación del Brief JSON estructurado con la historia y prompts.</li>
+            <li><strong>Bloque 3 · Nano Banana 2</strong>: Creación del Keyframe 16:9 en alta resolución.</li>
+            <li><strong>Bloque 4 · Gemini TTS</strong>: Síntesis de voz con dirección actoral en formato WAV mediante Voice Director.</li>
+            <li><strong>Bloque 5 · Lyria 3</strong>: Creación de la banda sonora instrumental de 30 segundos.</li>
+            <li><strong>Bloque 6 · Gemini Omni Flash</strong>: Animación First-Frame y generación de video con audio sincronizado.</li>
+            <li><strong>Bloque 7 · Entregables</strong>: Empaquetado de todos los archivos generados en el directorio <code>media/taller_genmedia/</code>.</li>
+          </ul>
+        </li>
+      </ol>
+
+      <div class="callout callout-success">
+        <span class="material-icons">check_circle</span>
+        <div class="callout-content">
+          <b>Checklist Final de la Producción</b>:<br>
+          ✔ Brief JSON generado con consistencia narrativa.<br>
+          ✔ Keyframe visual 16:9 generado con Nano Banana y validado en Google Flow.<br>
+          ✔ Locución profesional dirigida con Voice Director Framework y emotion tags.<br>
+          ✔ Pista musical ambiental con Lyria 3.<br>
+          ✔ Animación cinemática y reemplazo de personajes con Gemini Omni Flash.<br>
+          ✔ Todo orquestado desde la Interactions API en Colab Enterprise.
+        </div>
+      </div>
+    </google-codelab-step>
+
+  </google-codelab>
+
+  <!-- Google Codelabs Web Components Scripts -->
+  <script src="https://storage.googleapis.com/claat-public/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/prettify.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/codelab-elements.js"></script>
+</body>
+</html>
