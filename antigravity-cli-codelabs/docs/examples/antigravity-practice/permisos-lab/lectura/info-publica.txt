@@ -1,0 +1,1 @@
+Este archivo debe poder leerse sin pedir permiso.

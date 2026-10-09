@@ -1,0 +1,36 @@
+{
+  "toolPermission": "request-review",
+  "enableTerminalSandbox": true,
+  "allowNonWorkspaceAccess": false,
+  "permissions": {
+    "allow": [
+      "command(git status)",
+      "command(npm test)",
+      "command(node tests/math.test.js)",
+      "command(node permisos-lab/scripts/comando-seguro.js)",
+      "command(pwd)",
+      "read_file(${workspace}/permisos-lab/lectura/)",
+      "read_file(${workspace}/)"
+    ],
+    "ask": [
+      "write_file(${workspace}/)",
+      "read_file(${workspace}/permisos-lab/edicion/)",
+      "write_file(${workspace}/permisos-lab/edicion/)",
+      "command(ls permisos-lab)",
+      "command(*)",
+      "web_fetch(*)",
+      "google_web_search(*)"
+    ],
+    "deny": [
+      "command(rm -rf)",
+      "command(sudo *)",
+      "command(cat permisos-lab/bloqueado/secreto.txt)",
+      "read_file(${workspace}/permisos-lab/bloqueado/)",
+      "write_file(${workspace}/permisos-lab/bloqueado/)",
+      "read_file(/etc/passwd)",
+      "read_file(~/.ssh/)",
+      "write_file(/)",
+      "write_file(~/.ssh/)"
+    ]
+  }
+}

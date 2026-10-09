@@ -1,0 +1,108 @@
+{
+  "_comment": "Fuente única de verdad. Estas definiciones las consume la página (via document.modelContext.registerTool) y Gemma 4 (via el parametro tools de Ollama). Un solo contrato, dos consumidores.",
+  "tools": [
+    {
+      "name": "buscar_producto",
+      "description": "Busca productos en el catalogo de la tienda por texto y opcionalmente por precio maximo. Devuelve id, nombre, precio y stock de cada coincidencia.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "consulta": {
+            "type": "string",
+            "description": "Texto a buscar en el nombre del producto, por ejemplo 'teclado' o 'mouse'."
+          },
+          "precio_max": {
+            "type": "number",
+            "description": "Precio maximo en USD. Omite este campo si no hay limite de precio."
+          }
+        },
+        "required": ["consulta"]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "untrustedContentHint": false,
+        "consequentialHint": false,
+        "debugging": false
+      }
+    },
+    {
+      "name": "ver_carrito",
+      "description": "Devuelve el contenido actual del carrito de compras con cantidades, precios unitarios y el total.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "untrustedContentHint": false,
+        "consequentialHint": false,
+        "debugging": false
+      }
+    },
+    {
+      "name": "anadir_al_carrito",
+      "description": "Anade una cantidad de un producto al carrito de compras usando su id de producto. Modifica el estado del carrito.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "producto_id": {
+            "type": "string",
+            "description": "Id del producto a anadir, por ejemplo 'KB-101'. Obtenlo antes con buscar_producto."
+          },
+          "cantidad": {
+            "type": "number",
+            "description": "Numero de unidades a anadir. Por defecto 1."
+          }
+        },
+        "required": ["producto_id"]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "untrustedContentHint": false,
+        "consequentialHint": false,
+        "debugging": false
+      }
+    },
+    {
+      "name": "aplicar_descuento",
+      "description": "Aplica un codigo de descuento al carrito. Los codigos validos son TALLER2026 (15 por ciento) y GEMMA10 (10 por ciento).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "description": "Codigo de descuento a aplicar, por ejemplo 'TALLER2026'."
+          }
+        },
+        "required": ["codigo"]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "untrustedContentHint": false,
+        "consequentialHint": true,
+        "debugging": false
+      }
+    },
+    {
+      "name": "estado_pedido",
+      "description": "Consulta el estado de envio de un pedido por su numero. Devuelve estado, ubicacion y fecha estimada de entrega.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "pedido": {
+            "type": "string",
+            "description": "Numero de pedido, por ejemplo 'PED-4471'."
+          }
+        },
+        "required": ["pedido"]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "untrustedContentHint": false,
+        "consequentialHint": false,
+        "debugging": false
+      }
+    }
+  ]
+}

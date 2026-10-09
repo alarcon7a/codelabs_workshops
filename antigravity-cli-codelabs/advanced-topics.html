@@ -1,0 +1,216 @@
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Temas Avanzados: Antigravity 2.0 y Orquestación Multiagente</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/claat-public/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>  <google-codelab codelab-gaid="Google Analytics ID"
+                  id="antigravity-advanced-topics"
+                  title="Temas Avanzados: Antigravity 2.0 y Orquestación Multiagente"
+                  environment="web"
+                  feedback-link="https://antigravity.google/docs">
+
+      <google-codelab-step label="Introducción y Objetivos" duration="3">
+        <p><img src="img/hero.png" alt="Antigravity Advanced Engine"></p>
+        <p>🎯 <strong>Objetivo:</strong> Comprender las capacidades avanzadas de la herramienta Antigravity 2.0 para orquestación en paralelo, aislamiento de cambios y flujos distribuidos directamente desde la interfaz de usuario (TUI/Desktop App).</p>
+        <p>A medida que los proyectos de software crecen, las interacciones directas con un solo agente en chat plano empiezan a sufrir degradación por <strong>saturación de contexto</strong> y <strong>conflictos concurrentes</strong> de escritura en local. Para solucionar esto, Antigravity 2.0 introduce flujos de orquestación y configuraciones nativas que puedes gestionar directamente desde la aplicación.</p>
+        <h2 is-upgraded>Lo que aprenderás en este taller avanzado</h2>
+        <ul>
+          <li><strong>Dynamic Subagents & Shared Agent Harness:</strong> Cómo coordinar múltiples agentes con roles especializados que se ejecutan en paralelo bajo una misma política de seguridad y permisos.</li>
+          <li><strong>Isolated Git Worktree Mode:</strong> Cómo activar y monitorear el aislamiento de cambios en directorios sombra (worktrees) para editar sin colisionar en tu espacio de trabajo local.</li>
+          <li><strong>Multi-Folder Cross-Repository Project Context:</strong> Cómo registrar y referenciar múltiples repositorios cruzados en la app para dar contexto Full-Stack.</li>
+          <li><strong>Non-Blocking Asynchronous Task Queues:</strong> Cómo encolar comandos de larga duración, monitorear tareas de fondo y tolerar pérdidas de red sin congelar el chat interactivo.</li>
+        </ul>
+        <h2 is-upgraded>Estructura de aprendizaje</h2>
+        <p>Cada paso sigue el formato del taller inicial para garantizar un avance medible:</p>
+        <ul>
+          <li><strong>🎯 Objetivo:</strong> Qué aprenderás en el paso.</li>
+          <li><strong>👉 Copia y pega:</strong> Comandos y prompts listos para su uso.</li>
+          <li><strong>✅ Resultado esperado:</strong> Qué observarás tras la ejecución.</li>
+          <li><strong>🔍 Checkpoint:</strong> Criterio de validación técnica.</li>
+        </ul>
+        <p>🔍 <strong>Checkpoint:</strong> estás listo cuando entiendes que este codelab se enfoca puramente en las características operativas de la herramienta Antigravity 2.0 (CLI y App de Escritorio), sin necesidad de escribir código en el SDK.</p>
+      </google-codelab-step>
+
+      <google-codelab-step label="Dynamic Subagents & Shared Agent Harness" duration="10">
+        <p>🎯 <strong>Objetivo:</strong> Aprender a orquestar subagentes dinámicos especializados utilizando prompts estructurados en la interfaz de chat, comprendiendo cómo heredan el arnés de permisos (Shared Agent Harness).</p>
+        <p>En lugar de chatear con un único agente que intente analizar, escribir, compilar y documentar en la misma sesión (lo que satura su memoria de contexto), Antigravity 2.0 te permite delegar tareas a **subagentes de vida corta (short-lived)** que se ejecutan en paralelo.</p>
+        <p>El <strong>Shared Agent Harness</strong> es la infraestructura de seguridad que envuelve a la sesión: cuando inicias una tarea multiagente, cada subagente hijo hereda los permisos exactos concedidos al agente padre (ej. acceso a ciertos directorios, sandbox de terminal, y exclusión de paths protegidos).</p>
+        
+        <h2 is-upgraded>Lanzar subagentes en paralelo desde el Chat Canvas</h2>
+        <p>Para indicarle a Antigravity 2.0 que orqueste subtareas dinámicas, debemos estructurar el prompt definiendo roles y entregables.</p>
+        <p>👉 <strong>Copia y pega</strong> la siguiente instrucción en la barra de chat de tu aplicación:</p>
+        <pre><code language="language-text" class="language-text">Trabaja como plataforma multiagente para analizar y refactorizar el código:
+- Agente 1 (Security): Revisa @src/ y busca vulnerabilidades críticas.
+- Agente 2 (Refactor): Diseña un cambio mínimo para optimizar la seguridad basándote en lo que encuentre el Agente 1.
+- Agente 3 (QA): Ejecuta las pruebas del sistema de forma aislada una vez modificado el código.
+Entrega el reporte de seguridad y el diff final como un artifact de revisión.</code></pre>
+        
+        <h2 is-upgraded>Observación en la interfaz de usuario</h2>
+        <p>✅ <strong>Resultado esperado:</strong> En el **HTML Auxiliary Pane** (Panel Auxiliar de la derecha en Antigravity 2.0), verás cómo se despliega la pestaña de **Subagents**. Allí aparecerán hilos de ejecución independientes para el Agente 1, 2 y 3. Observarás que:</p>
+        <ul>
+          <li>Los agentes se ejecutan concurrentemente.</li>
+          <li>Cada subagente tiene su propio buffer de conversación optimizado y solo ve los archivos que le corresponden, evitando la saturación de contexto global.</li>
+          <li>Si el Agente 3 (QA) intenta correr un comando de test, la app solicitará tu confirmación en el panel de **Permissions**, heredando la política definida en el settings de tu sesión principal.</li>
+        </ul>
+        <p>🔍 <strong>Checkpoint:</strong> Abre la pestaña **Subagents** en tu panel derecho tras lanzar el prompt anterior y confirma que puedes ver las ventanas de chat individuales de cada agente especializado mientras trabajan en su subtarea.</p>
+      </google-codelab-step>
+
+      <google-codelab-step label="Isolated Git Worktree Mode" duration="8">
+        <p>🎯 <strong>Objetivo:</strong> Activar y operar el modo de aislamiento por Git Worktrees para permitir que los agentes modifiquen el código en un directorio sombra en paralelo sin alterar tu código local activo.</p>
+        <p>Cuando trabajas en tu editor y un agente empieza a reescribir archivos para resolver un problema, puede causar bloqueos de escritura o alterar tu espacio de trabajo. Antigravity 2.0 resuelve esto clonando tu workspace en un **directorio sombra protegido (Git Worktree)**.</p>
+        <h2 is-upgraded>Paso 1: Habilitar Worktree Mode en Settings</h2>
+        <p>Puedes activar esta característica directamente en el panel de configuraciones.</p>
+        <p>👉 Abre la TUI de la CLI y escribe el comando de barra para abrir settings, o bien edita la política en el menú visual:</p>
+        <pre><code language="language-text" class="language-text">/settings</code></pre>
+        <p>Ubica la opción **Git Worktree Mode** y actívala (establece a <code>true</code>). Si prefieres configurarlo mediante archivo local de proyecto, copia esta configuración en <code>.agents/config.json</code>:</p>
+        <pre><code language="language-json" class="language-json">{
+  "workspace": {
+    "gitWorktreeMode": {
+      "enabled": true,
+      "shadowDirectory": "~/.gemini/antigravity-cli/worktrees",
+      "autoCleanup": true
+    }
+  }
+}</code></pre>
+
+        <h2 is-upgraded>Paso 2: Ejecutar en aislamiento</h2>
+        <p>👉 Para arrancar una sesión de CLI forzando este modo desde tu consola:</p>
+        <pre><code language="language-bash" class="language-bash">agy --worktree-mode</code></pre>
+        <p>Pídele al agente realizar un cambio estructural de prueba:</p>
+        <pre><code language="language-text" class="language-text">Corrige la lógica de validación de perfiles en @src/profile.js y ejecuta los tests.</code></pre>
+        <p>✅ <strong>Resultado esperado:</strong> En el registro de actividades verás que el agente crea un clon en <code>~/.gemini/antigravity-cli/worktrees/agy-task-...</code>. El agente modificará el archivo y correrá <code>npm test</code> allí dentro. Tus archivos de trabajo locales en tu editor se mantendrán intactos.</p>
+        
+        <h2 is-upgraded>Paso 3: Fusión y Resolución de Conflictos</h2>
+        <p>Una vez que el agente valida sus cambios en el directorio sombra, la app te presentará una notificación interactiva en el Chat Canvas o en el panel de **Files Changed**:</p>
+        <ul>
+          <li>Podrás revisar los cambios de la rama temporal usando <code>/diff</code>.</li>
+          <li>Tendrás las opciones de **Aprobar y Fusionar (Merge)** o **Descartar**.</li>
+          <li>Si hay colisiones con cambios que tú realizaste en local mientras el agente trabajaba, la app abrirá una interfaz interactiva de resolución de conflictos para que selecciones qué lineas conservar.</li>
+        </ul>
+        <p>🔍 <strong>Checkpoint:</strong> Ejecuta <code>git worktree list</code> en una terminal externa mientras el agente realiza los cambios; debes verificar que existe un directorio temporal activo enlazado a tu repositorio principal.</p>
+      </google-codelab-step>
+
+      <google-codelab-step label="Tema 3: Multi-Folder Cross-Repository Project Context" duration="8">
+        <p>🎯 <strong>Objetivo:</strong> Configurar límites multi-repositorio en el gestor de proyectos de Antigravity 2.0 y hacer referencias cruzadas mediante menciones en el chat canvas.</p>
+        <p>En arquitecturas modernas como microservicios o desarrollos full-stack, resolver una tarea implica cambios coordinados en múltiples repositorios independientes. Con Antigravity 2.0, puedes mapear estas dependencias para que el agente tenga visibilidad estructurada cruzada.</p>
+        <h2 is-upgraded>Paso 1: Mapear repositorios en el proyecto</h2>
+        <p>Para indicarle a la app cuáles directorios pertenecen al mismo stack de desarrollo, creamos una configuración de proyecto local.</p>
+        <p>👉 <strong>Copia y pega</strong> el contenido de esta configuración y guárdala como <code>.agents/project.json</code>:</p>
+        <pre><code language="language-json" class="language-json">{
+  "projectName": "sistema-fullstack",
+  "projectRoots": {
+    "backend": "./",
+    "frontend": "../portal-frontend",
+    "infraestructura": "../iac-terraform"
+  },
+  "dependencyMap": {
+    "frontend": ["backend"],
+    "backend": ["infraestructura"]
+  }
+}</code></pre>
+
+        <h2 is-upgraded>Paso 2: Consultar contextos cruzados mediante menciones `@`</h2>
+        <p>👉 Entra a tu sesión en <code>agy</code> y envía un prompt de validación cruzada utilizando las referencias de tus raíces definidas:</p>
+        <pre><code language="language-text" class="language-text">Revisa el contrato de datos en @backend/src/api/user.go y confirma si el frontend en @frontend/src/views/Profile.vue consume los campos con los mismos nombres.</code></pre>
+        <p>✅ <strong>Resultado esperado:</strong> El agente no arrojará errores de límites de workspace ni denegará el acceso. Analizará la estructura de ambos repositorios en paralelo y te mostrará la correlación exacta de las variables de datos en su respuesta.</p>
+        <p>Negative : El acceso a carpetas que no son el root donde se inició la terminal requiere que la política <code>allowNonWorkspaceAccess</code> esté configurada en <code>ask</code> o <code>allow</code>. Compruébalo con el comando <code>/permissions</code> si el agente no puede acceder.</p>
+        <p>🔍 <strong>Checkpoint:</strong> Escribe <code>/context</code> en la consola y verifica que los alias de repositorio (<code>@frontend</code>, <code>@backend</code>, <code>@infraestructura</code>) se encuentran listados como raíces de proyecto activas y autorizadas.</p>
+      </google-codelab-step>
+
+      <google-codelab-step label="Tema 4: Non-Blocking Asynchronous Task Queues" duration="8">
+        <p>🎯 <strong>Objetivo:</strong> Utilizar el motor de colas asíncronas no bloqueantes para encolar tareas pesadas, chatear en paralelo con `/btw` y comprender la reanudación automática (Resumability) ante caídas de red.</p>
+        <p>Cuando un agente compila código, ejecuta suites de tests de integración o realiza análisis de repositorios de gran volumen, la terminal interactiva de chat puede tardar minutos en responder. El motor de tareas en segundo plano de Antigravity 2.0 te permite continuar chateando sin bloqueos.</p>
+        
+        <h2 is-upgraded>Paso 1: Programar una tarea en segundo plano</h2>
+        <p>En lugar de ordenar una acción directa en el prompt común, le indicamos a la app que la gestione en la cola de tareas.</p>
+        <p>👉 Ejecuta en el chat interactivo:</p>
+        <pre><code language="language-text" class="language-text">/schedule Ejecuta una suite completa de pruebas unitarias sobre @src/ e implementa las correciones si detectas fallos.</code></pre>
+        <p>✅ <strong>Resultado esperado:</strong> La terminal imprime un mensaje indicando que la tarea ha sido enviada a la cola en segundo plano (Background Queue) junto con su identificador de tarea (Task ID).</p>
+        
+        <h2 is-upgraded>Paso 2: Monitorear sin bloquear la interfaz</h2>
+        <p>Mientras la tarea se ejecuta en background, tu interfaz de chat principal queda 100% disponible. Puedes realizar consultas paralelas de lectura rápida utilizando el prefijo de consulta <code>/btw</code> (By-The-Way):</p>
+        <pre><code language="language-text" class="language-text">/btw ¿Cuál es la ruta actual del archivo de configuración del formateador de código en este repo?</code></pre>
+        <p>👉 Para comprobar cómo progresa la tarea en background:</p>
+        <pre><code language="language-text" class="language-text">/tasks</code></pre>
+        <p>En la app de escritorio de Antigravity 2.0, verás la tarea listada en la sección **Scheduled Tasks** de la barra lateral izquierda, y su terminal de salida corriendo en vivo en el panel **Background Tasks** de la derecha.</p>
+
+        <h2 is-upgraded>Paso 3: Durabilidad ante caídas de conexión</h2>
+        <p>Una gran ventaja del motor de tareas de Antigravity 2.0 es su resiliencia. Si tu red wifi se desconecta o la conexión a los servidores de Vertex AI se interrumpe durante una generación larga de código:</p>
+        <ol>
+          <li>El motor de tareas guarda un **checkpoint** local con el estado actual del árbol de ejecución.</li>
+          <li>La tarea se pausa de forma segura.</li>
+          <li>Una vez que recuperas la conexión, la aplicación reanuda la cola de tareas automáticamente desde el último paso completado sin perder la conversación ni devaluar tokens redundantes.</li>
+        </ol>
+        <p>🔍 <strong>Checkpoint:</strong> Abre el panel de <code>/tasks</code> y valida que la tarea en segundo plano programada se está ejecutando correctamente y que tu prompt de chat responde al instante a preguntas hechas con <code>/btw</code>.</p>
+      </google-codelab-step>
+
+      <google-codelab-step label="Conclusión y Próximos Pasos" duration="3">
+        <p>¡Felicitaciones! Has completado el codelab interactivo de Temas Avanzados de Antigravity 2.0.</p>
+        <p>Ahora dominas las características clave para trabajar como desarrollador senior con agentes autónomos en codebases complejas de la vida real.</p>
+        
+        <h2 is-upgraded>Conceptos Clave Repasados en la Aplicación</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Capacidad</th>
+              <th>Operación en la herramienta</th>
+              <th>Propósito en el flujo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Dynamic Subagents</strong></td>
+              <td>Prompts jerárquicos y visualización en el panel **Subagents**.</td>
+              <td>Aislamiento de contexto y ejecución en paralelo por roles.</td>
+            </tr>
+            <tr>
+              <td><strong>Isolated Worktree</strong></td>
+              <td>Configuración <code>gitWorktreeMode</code> y comando <code>agy --worktree-mode</code>.</td>
+              <td>Espacios de trabajo temporales para prevenir colisiones locales.</td>
+            </tr>
+            <tr>
+              <td><strong>Cross-Repository</strong></td>
+              <td>Mapeo de raíces en <code>.agents/project.json</code> y menciones con <code>@</code>.</td>
+              <td>Visibilidad completa del stack técnico y dependencias.</td>
+            </tr>
+            <tr>
+              <td><strong>Asynchronous Tasks</strong></td>
+              <td>Comandos <code>/schedule</code>, <code>/tasks</code> y consultas con <code>/btw</code>.</td>
+              <td>Hilos no bloqueantes duraderos y resistentes a desconexiones de red.</td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <h2 is-upgraded>Siguientes Pasos Recomendados</h2>
+        <ol>
+          <li>Configura <code>.agents/project.json</code> en tu repositorio local activo para integrar tus submódulos.</li>
+          <li>Prueba lanzar tu primera tarea larga en segundo plano usando <code>/schedule</code> y monitorea su avance desde el Auxiliary Pane de la app de escritorio.</li>
+        </ol>
+      </google-codelab-step>
+
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/claat-public/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/prettify.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/codelab-elements.js"></script>
+  <script src="https://support.google.com/inapp/api.js"></script>
+
+</body>
+</html>

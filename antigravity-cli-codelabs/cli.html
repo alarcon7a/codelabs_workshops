@@ -1,0 +1,843 @@
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Taller Práctico: Dominando Antigravity CLI</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/claat-public/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>  <google-codelab codelab-gaid="Google Analytics ID"
+                  id="antigravity-cli-workshop"
+                  title="Taller Práctico: Dominando Antigravity CLI"
+                  environment="web"
+                  feedback-link="https://github.com/google-antigravity/antigravity-cli/issues">
+    
+      <google-codelab-step label="Introducción" duration="2">
+        <p><img src="img/hero.png" alt="Antigravity CLI home"></p>
+        <p>¡Bienvenido al taller de Antigravity CLI! En este codelab, aprenderás a instalar, configurar y utilizar la interfaz de línea de comandos (CLI) de Antigravity (<code>agy</code>) para potenciar tu flujo de trabajo de desarrollo con agentes de IA.</p>
+        <p>Este taller está impartido por Carlos Alarcon. Conoce más en <a href="https://www.carlos-alarcon.com" target="_blank" rel="noopener">carlos-alarcon.com</a>.</p>
+        <p>Antigravity CLI (<code>agy</code>) no es solo un chat; es un <strong>agente colaborativo</strong> potente que vive en tu terminal, entiende tu código, realiza ediciones en tus archivos y puede ejecutar tareas complejas utilizando herramientas del sistema bajo tu supervisión y consentimiento.</p>
+        <h2 is-upgraded>Lo que aprenderás</h2>
+        <ul>
+          <li>Cómo instalar y autenticar Antigravity CLI (<code>agy</code>)</li>
+          <li>Cómo interactuar con el agente desde tu terminal</li>
+          <li>Cómo proporcionar contexto de tus archivos locales usando el símbolo <code>@</code></li>
+          <li>Cómo ejecutar comandos de sistema y entender el flujo de permisos de seguridad</li>
+          <li>Cómo gestionar permisos y accesos detallados a archivos locales y comandos (`permissions` en `settings.json`)</li>
+          <li>Cómo utilizar herramientas integradas de navegación web</li>
+          <li>Integración con MCP (Model Context Protocol) para conectar herramientas y datos externos</li>
+          <li>Cómo extender la CLI con Customizaciones: Rules, Skills y paquetes de plugins</li>
+          <li>Cómo configurar el comportamiento de la CLI con <code>settings.json</code></li>
+        </ul>
+        <h2 is-upgraded>Requisitos previos</h2>
+        <ul>
+          <li>Un entorno de terminal (Linux, macOS, Windows WSL/PowerShell)</li>
+          <li><code>curl</code> instalado en tu sistema</li>
+          <li>Una cuenta de Google para la autenticación del agente</li>
+        </ul>
+        <h2 is-upgraded>Cómo está estructurado cada paso</h2>
+        <p>Para que avances sin perderte, cada paso de este taller sigue siempre el mismo ritmo:</p>
+        <ul>
+          <li><strong>🎯 Objetivo:</strong> qué vas a lograr en una frase.</li>
+          <li><strong>👉 Copia y pega:</strong> el comando o prompt exacto que debes ejecutar.</li>
+          <li><strong>✅ Resultado esperado:</strong> qué deberías ver cuando funciona.</li>
+          <li><strong>🔍 Checkpoint:</strong> la señal de que ya puedes pasar al siguiente paso.</li>
+        </ul>
+        <p>Positive : Este taller está diseñado para desarrolladores de todos los niveles. No necesitas experiencia previa con agentes autónomos ni IA de terminal. Si un paso no te sale, repite el bloque "Copia y pega" antes de avanzar.</p>
+      </google-codelab-step>
+    
+      <google-codelab-step label="Instalación" duration="3">
+        <p><img src="img/AGY CLI Blog - Wide.png" alt="Instalación de Antigravity CLI"></p>
+        <p>🎯 <strong>Objetivo:</strong> instalar el binario <code>agy</code> en tu sistema y confirmar que responde.</p>
+        <p>Antigravity CLI es un binario nativo de Go de alto rendimiento que se instala a través de scripts oficiales.</p>
+        <h2 is-upgraded>Pasos de instalación</h2>
+        <ol type="1">
+          <li>Abre tu terminal</li>
+          <li>Ejecuta el comando correspondiente a tu sistema operativo para instalar Antigravity CLI:</li>
+        </ol>
+        <p><strong>macOS / Linux:</strong></p>
+        <pre><code language="language-bash" class="language-bash">curl -fsSL https://antigravity.google/cli/install.sh | bash</code></pre>
+        <p><strong>Windows (PowerShell):</strong></p>
+        <pre><code language="language-powershell" class="language-powershell">irm https://antigravity.google/cli/install.ps1 | iex</code></pre>
+        <p><strong>Windows (CMD):</strong></p>
+        <pre><code language="language-cmd" class="language-cmd">curl -fsSL https://antigravity.google/cli/install.cmd -o install.cmd &amp;&amp; install.cmd &amp;&amp; del install.cmd</code></pre>
+        <ol type="1" start="3">
+          <li>Verifica la instalación comprobando la versión de tu binario <code>agy</code>:</li>
+        </ol>
+        <pre><code language="language-bash" class="language-bash">agy --version</code></pre>
+        <p>✅ <strong>Resultado esperado:</strong> la terminal imprime un número de versión (por ejemplo <code>1.0.5</code> o superior). Si ves <code>command not found</code>, revisa el aviso del PATH al final de este paso.</p>
+        <h2 is-upgraded>Actualizar y revisar cambios</h2>
+        <p>La CLI evoluciona rápido. Antes de un taller, verifica si hay una actualización disponible y revisa el changelog para saber qué comandos, modelos o permisos cambiaron:</p>
+        <pre><code language="language-bash" class="language-bash">agy update
+agy changelog
+agy models</code></pre>
+        <p>Positive : Por defecto, el instalador ubica el binario <code>agy</code> en <code>~/.local/bin/</code> en Linux/macOS, o en el AppData local de tu usuario en Windows. Asegúrate de que esta ruta esté en tu variable de entorno PATH si no se reconoce de inmediato.</p>
+        <p>🔍 <strong>Checkpoint:</strong> estás listo cuando <code>agy --version</code> imprime una versión sin errores.</p>
+      </google-codelab-step>
+    
+      <google-codelab-step label="Autenticación y Primer Inicio" duration="3">
+        <p><img src="img/antigravity.png" alt="Autenticación del agente"></p>
+        <p>🎯 <strong>Objetivo:</strong> autenticar <code>agy</code> con tu cuenta de Google y entrar por primera vez a la TUI.</p>
+        <p>Antes de empezar a interactuar con el agente, necesitas autenticar la CLI con tu cuenta de Google.</p>
+        <h2 is-upgraded>Proceso de autenticación</h2>
+        <ol type="1">
+          <li>Ejecuta el comando principal:</li>
+        </ol>
+        <pre><code language="language-bash" class="language-bash">agy</code></pre>
+        <ol type="1" start="2">
+          <li>En el primer inicio, presiona <strong>Enter</strong> para abrir el flujo de autorización de Google OAuth en tu navegador predeterminado.</li>
+          <li>Inicia sesión con tu cuenta de Google y autoriza la aplicación.</li>
+          <li>Una vez completado el flujo, copia el código de autorización proporcionado y pégalo de vuelta en tu terminal.</li>
+          <li>Cuando Antigravity pregunte si confías en el contenido del workspace, acepta solo si estás dentro de la carpeta del taller o de un proyecto que controlas.</li>
+        </ol>
+        <p>✅ <strong>Resultado esperado:</strong> tras pegar el código, la terminal muestra la interfaz interactiva (TUI) con un prompt listo para escribir. Ya no te vuelve a pedir login en próximas sesiones.</p>
+        <p>Positive : El trust del workspace importa porque Antigravity CLI requiere permiso para leer, editar y ejecutar archivos dentro de esa carpeta. Para el taller, crea o descarga los archivos en una carpeta dedicada antes de iniciar <code>agy</code>.</p>
+        <h2 is-upgraded>Atajos de teclado esenciales de la TUI</h2>
+        <p>Antigravity CLI cuenta con una interfaz de usuario de terminal (TUI) rica. Aprende estos atajos rápidos para navegar:</p>
+        <ul>
+          <li><strong><code>ESC</code></strong>: Cierra cualquier menú superpuesto o panel interactivo activo (como el menú de configuraciones o skills).</li>
+          <li><strong><code>Ctrl+D</code> presionado dos veces</strong> (o los comandos <code>/exit</code> o <code>/quit</code>): Cierra de forma segura la sesión interactiva actual de la CLI.</li>
+          <li><strong><code>Up/Down Arrows</code> (Flechas arriba/abajo)</strong>: Te permiten navegar por el historial de prompts enviados.</li>
+        </ul>
+        <p>🔍 <strong>Checkpoint:</strong> estás listo cuando ves el prompt interactivo de <code>agy</code> y puedes abrir y cerrar un menú con <code>/help</code> y <code>ESC</code>.</p>
+      </google-codelab-step>
+    
+      <google-codelab-step label="Navegación TUI y Comandos Básicos" duration="5">
+        <p>🎯 <strong>Objetivo:</strong> moverte con soltura dentro de la TUI: chatear con el agente y usar los comandos de barra <code>/</code>.</p>
+        <p>Una vez dentro de la sesión interactiva de Antigravity CLI, puedes hablar con el agente o interactuar con comandos especializados de la TUI.</p>
+        <h2 is-upgraded>Chat Básico</h2>
+        <p>👉 Escribe cualquier instrucción o pregunta en lenguaje natural y presiona Enter. Copia y pega este ejemplo:</p>
+        <pre><code language="language-text" class="language-text">Explica la diferencia entre concurrencia y paralelismo.</code></pre>
+        <p>✅ <strong>Resultado esperado:</strong> el agente responde en texto dentro de la misma terminal, sin pedirte ningún permiso (porque solo está generando texto).</p>
+        <h2 is-upgraded>Comandos de la TUI (Empezando con <code>/</code>)</h2>
+        <p>Antigravity CLI tiene una serie de comandos especiales para gestionar el entorno del agente y la interfaz:</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Comando</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>/clear</code> o <code>/new</code></td>
+              <td>Limpia la pantalla y reinicia el buffer de conversación.</td>
+            </tr>
+            <tr>
+              <td><code>/help</code></td>
+              <td>Muestra la ayuda de comandos y los atajos de teclado.</td>
+            </tr>
+            <tr>
+              <td><code>/settings</code> o <code>/config</code></td>
+              <td>Abre el panel interactivo de configuración de la TUI.</td>
+            </tr>
+            <tr>
+              <td><code>/model</code></td>
+              <td>Cambia el modelo activo de la sesión.</td>
+            </tr>
+            <tr>
+              <td><code>/changelog</code></td>
+              <td>Muestra cambios recientes de la CLI.</td>
+            </tr>
+            <tr>
+              <td><code>/permissions</code></td>
+              <td>Abre el administrador de permisos para comandos, URLs y archivos.</td>
+            </tr>
+            <tr>
+              <td><code>/artifact</code></td>
+              <td>Abre el panel de artifacts para revisar planes, tareas, walkthroughs y entregables generados.</td>
+            </tr>
+            <tr>
+              <td><code>/diff</code></td>
+              <td>Muestra una vista interactiva de los cambios realizados por el agente.</td>
+            </tr>
+            <tr>
+              <td><code>/schedule</code></td>
+              <td>Programa un recordatorio o una tarea recurrente con duración o cron.</td>
+            </tr>
+            <tr>
+              <td><code>/btw</code></td>
+              <td>Hace una pregunta paralela y de solo lectura sin interrumpir una tarea larga en curso.</td>
+            </tr>
+            <tr>
+              <td><code>/tasks</code></td>
+              <td>Muestra el panel de tareas en segundo plano que se están ejecutando.</td>
+            </tr>
+            <tr>
+              <td><code>/skills</code></td>
+              <td>Muestra las habilidades de agente (Skills) activas en el sistema.</td>
+            </tr>
+            <tr>
+              <td><code>/context</code></td>
+              <td>Lista todos los archivos y símbolos cargados actualmente en el contexto del agente.</td>
+            </tr>
+            <tr>
+              <td><code>/usage</code> o <code>/quota</code></td>
+              <td>Muestra estadísticas de consumo de tokens y cuotas.</td>
+            </tr>
+            <tr>
+              <td><code>/exit</code> o <code>/quit</code></td>
+              <td>Finaliza la sesión interactiva actual de la CLI.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2 is-upgraded>Manejo de sesiones y conversaciones</h2>
+        <p>Una conversación en Antigravity CLI es el espacio de trabajo activo del agente: incluye el historial reciente, el contexto que has referenciado, tareas en curso, artifacts y decisiones que ya aprobaste. Manejar bien las sesiones evita mezclar objetivos y reduce errores por contexto acumulado.</p>
+        <h3 is-upgraded>Flujo recomendado: guardar, cerrar y retomar</h3>
+        <ol type="1">
+          <li><strong>Antes de trabajar:</strong> define un objetivo corto para la sesión.</li>
+          <li><strong>Durante la sesión:</strong> revisa contexto con <code>/context</code>, monitorea trabajos largos con <code>/tasks</code> y guarda entregables con <code>/artifact</code>.</li>
+          <li><strong>Antes de cerrar:</strong> pide un resumen de handoff y guárdalo en un archivo del proyecto.</li>
+          <li><strong>Al retomar:</strong> usa <code>agy --continue</code> para continuar la conversación más reciente, o abre <code>agy</code> y carga <code>@SESSION_HANDOFF.md</code> si quieres un handoff portable.</li>
+        </ol>
+        <p><strong>Retomar la conversación más reciente:</strong></p>
+        <pre><code language="language-bash" class="language-bash">agy --continue</code></pre>
+        <p>Usa <code>agy --continue</code> cuando quieras volver a la conversación anterior en el mismo entorno. Usa <code>SESSION_HANDOFF.md</code> cuando quieras compartir el estado con otra persona, cambiar de máquina, crear una conversación limpia o dejar evidencia en el repo.</p>
+        <p><strong>Proyecto guía: Typing Rain 🌧️.</strong> Para practicar el manejo de sesiones usaremos un mismo objetivo a lo largo de varias conversaciones: construir un juego en un único archivo HTML. Así puedes empezarlo hoy, cerrar Antigravity y retomarlo mañana sin perder el hilo.</p>
+        <p>👉 <strong>Prompt desde cero (crea el juego y activa el handoff):</strong></p>
+        <pre><code language="language-text" class="language-text">Vamos a trabajar con handoff de sesión desde el inicio.
+Objetivo de esta sesión: crear una single-page app en un único archivo HTML (typing-rain.html) con estos requisitos:
+- Nombre: Typing Rain.
+- Objetivo del juego: escribir las palabras que caen antes de que lleguen al fondo.
+- Features: dificultad creciente, medidor de precisión (accuracy) y puntaje (score).
+- UI: fondo de ciudad con palabras cayendo como gotas de lluvia animadas.
+Empieza proponiendo un plan corto y la estructura del archivo. No edites todavía hasta que apruebe el plan.
+Durante la sesión, mantén una lista de decisiones, features implementadas, features pendientes y riesgos.
+Cuando te diga "guardar sesión", crea o actualiza SESSION_HANDOFF.md para que pueda cerrar Antigravity y retomar después.</code></pre>
+        <p>✅ <strong>Resultado esperado:</strong> el agente responde con un plan y la estructura de <code>typing-rain.html</code>, y espera tu aprobación antes de escribir el archivo.</p>
+        <p>👉 <strong>Prompt para guardar la sesión:</strong></p>
+        <pre><code language="language-text" class="language-text">Guardar sesión.
+Crea o actualiza SESSION_HANDOFF.md con un resumen para retomar la construcción de Typing Rain.
+Incluye: objetivo, estado actual del juego, features ya implementadas y pendientes, archivos tocados, decisiones de diseño, bugs conocidos y siguiente acción recomendada.
+No inventes resultados: si una feature no quedó funcionando, márcala como pendiente.</code></pre>
+        <p>👉 <strong>Prompt para retomar después (en una conversación nueva):</strong></p>
+        <pre><code language="language-text" class="language-text">Retoma la construcción de Typing Rain usando @SESSION_HANDOFF.md y @typing-rain.html.
+Primero resume en 5 bullets qué está hecho y qué falta, luego propone el siguiente paso.
+No edites archivos hasta que confirme el plan.</code></pre>
+        <p>Si tu versión de Antigravity CLI ofrece comandos específicos para listar, guardar o reabrir conversaciones, aparecerán en <code>/help</code> o en la referencia oficial de conversaciones. En cualquier caso, el archivo <code>SESSION_HANDOFF.md</code> funciona como respaldo portable dentro del repo.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Situación</th>
+              <th>Acción recomendada</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Vas a empezar un objetivo distinto</td>
+              <td>Usa <code>/new</code> o <code>/clear</code> para iniciar una conversación limpia antes de cargar nuevo contexto.</td>
+            </tr>
+            <tr>
+              <td>La conversación ya tiene demasiado contexto</td>
+              <td>Pide un resumen operativo, guarda un artifact, actualiza <code>SESSION_HANDOFF.md</code> y luego empieza una sesión nueva.</td>
+            </tr>
+            <tr>
+              <td>El agente está ejecutando una tarea larga</td>
+              <td>Usa <code>/tasks</code> para monitorear avance y <code>/btw</code> para preguntas paralelas de solo lectura.</td>
+            </tr>
+            <tr>
+              <td>Quieres revisar entregables de la sesión</td>
+              <td>Usa <code>/artifact</code> para ver planes, walkthroughs, resultados y notas generadas.</td>
+            </tr>
+            <tr>
+              <td>Quieres cerrar sin perder claridad</td>
+              <td>Pide un resumen final con cambios, pruebas, riesgos y próximos pasos; después usa <code>/exit</code> o <code>/quit</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h3 is-upgraded>Ejercicio práctico de sesión: construir Typing Rain en dos sesiones</h3>
+        <ol type="1">
+          <li><strong>Sesión 1 — arrancar:</strong> envía el "Prompt desde cero", aprueba el plan y deja que el agente cree <code>typing-rain.html</code> con lo básico (palabras cayendo + score).</li>
+          <li><strong>Guardar:</strong> envía el "Prompt para guardar la sesión" para generar <code>SESSION_HANDOFF.md</code> con el estado del juego.</li>
+          <li><strong>Cerrar:</strong> sal con <code>/exit</code>.</li>
+          <li><strong>Sesión 2 — retomar:</strong> vuelve con <code>agy --continue</code> para seguir en la misma conversación, o inicia <code>agy</code> limpio y envía el "Prompt para retomar" con <code>@SESSION_HANDOFF.md</code> y <code>@typing-rain.html</code>.</li>
+          <li><strong>Terminar:</strong> pide añadir las features pendientes (medidor de precisión, dificultad creciente y fondo de ciudad animado) y abre <code>typing-rain.html</code> en el navegador para probar.</li>
+        </ol>
+        <p>✅ <strong>Resultado esperado:</strong> al retomar, el agente reconstruye el contexto desde el handoff y continúa el juego donde lo dejaste, sin que tengas que reexplicar todo.</p>
+        <p>Positive : Consulta la referencia oficial de conversaciones cuando prepares el taller: <a href="https://antigravity.google/docs/cli/conversations" target="_blank" rel="noopener">antigravity.google/docs/cli/conversations</a>. Si los comandos cambian, <code>/help</code> dentro de la CLI es la fuente más confiable para tu versión instalada.</p>
+        <p>Positive : <strong>Tarea práctica</strong>: Escribe <code>/help</code> en tu prompt para ver el menú de ayuda, y luego prueba con <code>/settings</code> para abrir el panel de configuración. Presiona <code>ESC</code> para salir de los menús.</p>
+        <p>🔍 <strong>Checkpoint:</strong> estás listo cuando puedes enviar un prompt de chat, abrir <code>/help</code> y volver al prompt con <code>ESC</code>.</p>
+      </google-codelab-step>
+    
+      <google-codelab-step label="Trabajando con Contexto y Archivos (@)" duration="7">
+        <p>🎯 <strong>Objetivo:</strong> dar contexto real al agente referenciando archivos y carpetas con el prefijo <code>@</code>.</p>
+        <p>Una de las características más revolucionarias es la capacidad del agente de leer y entender archivos locales en tu proyecto. Utiliza el prefijo <code>@</code> para referenciar archivos o directorios completos directamente en tu prompt.</p>
+        <h2 is-upgraded>Ejercicio práctico: Localizar un bug</h2>
+        <p><strong>Paso 1.</strong> 👉 Crea un archivo con un bug intencional (suma en vez de restar). Usa el modo shell de la CLI con <code>!</code> o una terminal aparte:</p>
+        <pre><code language="language-bash" class="language-bash">echo "function resta(a, b) { return a + b; }" > bug.js</code></pre>
+        <p><strong>Paso 2.</strong> 👉 Vuelve a Antigravity CLI y pídele al agente que analice ese archivo con <code>@</code>:</p>
+        <pre><code language="language-text" class="language-text">Encuentra el error en este código: @bug.js</code></pre>
+        <p>✅ <strong>Resultado esperado:</strong> el agente lee el contenido de <code>bug.js</code>, detecta que la función <code>resta</code> en realidad <em>suma</em> y propone cambiar <code>a + b</code> por <code>a - b</code>.</p>
+        <h2 is-upgraded>Referenciar directorios completos</h2>
+        <p>Puedes pasar directorios enteros como contexto al agente para que tenga una visión general de tu arquitectura:</p>
+        <pre><code language="language-text" class="language-text">Dame un resumen rápido de los archivos de este directorio: @.</code></pre>
+        <p>Positive : El símbolo <code>@</code> es crucial para proyectos grandes. Puedes añadir múltiples referencias a archivos en tu prompt (ej. <code>@index.js @package.json @src/utils/</code>) y el agente sabrá exactamente dónde buscar.</p>
+        <p>🔍 <strong>Checkpoint:</strong> estás listo cuando el agente describe correctamente el contenido de un archivo que referenciaste con <code>@</code> sin que tú lo pegues manualmente.</p>
+      </google-codelab-step>
+    
+      <google-codelab-step label="Ejecución de Comandos y Flujo de Permisos" duration="5">
+        <p>🎯 <strong>Objetivo:</strong> ejecutar el agente fuera de la TUI con <code>-p</code>, lanzar comandos shell con <code>!</code> y entender cómo el agente te pide permiso antes de actuar.</p>
+        <p>Antigravity CLI puede ejecutar comandos de sistema y escribir o leer archivos por ti, pero opera bajo una rigurosa arquitectura de seguridad.</p>
+        <h2 is-upgraded>Modo no interactivo con <code>-p</code></h2>
+        <p>Además de abrir la TUI con <code>agy</code>, puedes ejecutar una instrucción directa desde la terminal usando <code>-p</code>. Este modo es útil para automatizaciones, scripts, CI o consultas rápidas donde no necesitas una sesión conversacional completa.</p>
+        <pre><code language="language-bash" class="language-bash">agy -p "Resume este proyecto y lista los archivos principales."</code></pre>
+        <p>✅ <strong>Resultado esperado:</strong> el agente responde directamente en la terminal y devuelve el control al shell, sin abrir la TUI interactiva.</p>
+        <p><code>-p</code> es el alias corto de <code>--print</code>. Algunas versiones también aceptan <code>--prompt</code> como alias. Para ver las opciones disponibles en tu instalación:</p>
+        <pre><code language="language-bash" class="language-bash">agy --help
+agy help</code></pre>
+        <p>También puedes combinarlo con contexto local y comandos de verificación:</p>
+        <pre><code language="language-bash" class="language-bash">agy -p "Analiza @src/math.js, encuentra el bug y dime qué prueba ejecutaría. No edites archivos."</code></pre>
+        <p>Para sesiones específicas puedes seleccionar modelo al arrancar:</p>
+        <pre><code language="language-bash" class="language-bash">agy models
+agy --model "Gemini 3.5 Flash (High)"
+agy --model "Claude Opus 4.6 (Thinking)" -p "Resume @README.md"</code></pre>
+        <p>Si quieres forzar ejecución en sandbox cuando tu entorno lo soporte, revisa primero las opciones disponibles y prueba con un comando de bajo riesgo:</p>
+        <pre><code language="language-bash" class="language-bash">agy --help
+agy --sandbox -p "Ejecuta pwd y explica en qué directorio estás."</code></pre>
+        <p>Negative : En modo no interactivo, evita prompts ambiguos que puedan disparar escrituras o comandos sin una revisión clara. Para ejercicios con permisos, usa primero la TUI para ver el panel de aprobación. Evita <code>--dangerously-skip-permissions</code> salvo en workspaces desechables y bajo control, porque autoaprueba solicitudes de herramientas.</p>
+        <h2 is-upgraded>Modo Shell Directo (<code>!</code>)</h2>
+        <p>Si quieres ejecutar comandos en tu terminal local sin salir de la sesión interactiva de Antigravity CLI, simplemente añade el prefijo <code>!</code> antes de tu comando:</p>
+        <pre><code language="language-text" class="language-text">!ls -la</code></pre>
+        <p>Negative : En sistemas Windows, utiliza comandos nativos como <code>!dir</code> en lugar de <code>!ls</code>.</p>
+        <h2 is-upgraded>Flujo de Permisos del Agente</h2>
+        <p>Cuando solicitas que el agente realice tareas que involucran la creación de archivos o la ejecución de comandos (por ejemplo: <em>"Crea un archivo hola.txt con el texto..."</em>), el motor de Antigravity intercepta estas acciones y te solicita confirmación:</p>
+        <ul>
+          <li><strong>y</strong>: Aprueba la acción solicitada.</li>
+          <li><strong>n</strong>: Deniega la acción. El agente intentará encontrar otra alternativa o se detendrá.</li>
+          <li><strong>Review panel</strong>: Puedes abrir el panel visual de revisión para inspeccionar exactamente qué comando o código se va a ejecutar antes de dar tu confirmación.</li>
+        </ul>
+        <p>👉 Pruébalo: dentro de la TUI pide una acción que escriba un archivo y observa la solicitud de permiso.</p>
+        <pre><code language="language-text" class="language-text">Crea un archivo hola.txt con el texto "Hola Antigravity".</code></pre>
+        <p>✅ <strong>Resultado esperado:</strong> el agente <em>no</em> escribe el archivo de inmediato; primero muestra qué va a hacer y espera tu <code>y</code> / <code>n</code>.</p>
+        <p>🔍 <strong>Checkpoint:</strong> estás listo cuando entiendes la diferencia entre <code>-p</code> (no interactivo), <code>!</code> (shell directo) y una acción del agente que dispara una solicitud de permiso.</p>
+      </google-codelab-step>
+
+      <google-codelab-step label="Navegando en Internet y Herramientas (Tools)" duration="10">
+        <p>🎯 <strong>Objetivo:</strong> reconocer las herramientas que el agente solicita (leer, escribir, comandos, web, MCP) y probar la búsqueda y lectura web.</p>
+        <p>Antes de configurar permisos avanzados conviene entender qué herramientas usa el agente. En Antigravity CLI, el agente no solo responde texto: puede solicitar herramientas para leer archivos, escribir cambios, ejecutar comandos, buscar en internet, leer URLs y usar integraciones MCP. Los nombres exactos pueden variar por versión, así que valida siempre en <code>/help</code>, <code>/permissions</code> y en el panel de revisión antes de aprobar.</p>
+        <h2 is-upgraded>Herramientas base que verás en el flujo</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Herramienta o capacidad</th>
+              <th>Para qué sirve</th>
+              <th>Cómo probarla en el taller</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Lectura de archivos</strong> (<code>read_file</code> o contexto con <code>@</code>)</td>
+              <td>Permite que el agente inspeccione archivos concretos o carpetas del workspace.</td>
+              <td><code>Resume @bug.js</code> o <code>Explica la estructura de @.</code></td>
+            </tr>
+            <tr>
+              <td><strong>Escritura o edición de archivos</strong> (<code>write_file</code> / edición)</td>
+              <td>Permite crear o modificar archivos después de tu aprobación.</td>
+              <td><code>Crea un README.md corto para este ejercicio.</code></td>
+            </tr>
+            <tr>
+              <td><strong>Comandos de terminal</strong> (<code>command</code>, shell o <code>!</code>)</td>
+              <td>Permite ejecutar comandos locales como tests, builds, listados o scripts.</td>
+              <td><code>Ejecuta npm test</code> o <code>!pwd</code>.</td>
+            </tr>
+            <tr>
+              <td><strong>Búsqueda web</strong> (<code>google_web_search</code> o equivalente)</td>
+              <td>Busca información reciente cuando el conocimiento puede haber cambiado.</td>
+              <td><code>Busca la documentación oficial actual de Antigravity CLI.</code></td>
+            </tr>
+            <tr>
+              <td><strong>Lectura de URLs</strong> (<code>web_fetch</code> o equivalente)</td>
+              <td>Descarga y resume una página específica que le indiques.</td>
+              <td><code>Lee https://antigravity.google/docs y resume los componentes principales.</code></td>
+            </tr>
+            <tr>
+              <td><strong>Diff y revisión</strong></td>
+              <td>Muestra cambios realizados para revisarlos antes de continuar.</td>
+              <td>Después de una edición, ejecuta <code>/diff</code>.</td>
+            </tr>
+            <tr>
+              <td><strong>Contexto y tareas</strong></td>
+              <td>Permite inspeccionar archivos cargados y tareas en segundo plano.</td>
+              <td>Usa <code>/context</code> y <code>/tasks</code>.</td>
+            </tr>
+            <tr>
+              <td><strong>MCP tools</strong></td>
+              <td>Agrega herramientas externas cuando configuras servidores MCP.</td>
+              <td>Usa <code>/mcp</code> después de configurar un servidor.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Positive : La herramienta importante no es solo cuál se ejecuta, sino qué permiso solicita. Usa este paso para que todos vean el panel de revisión antes de aprobar lecturas, escrituras, comandos o navegación web.</p>
+
+        <h2 is-upgraded>Búsqueda Web Integrada</h2>
+        <p>¿Necesitas documentación reciente, APIs de librerías actualizadas o información actual?</p>
+        <p>👉 <strong>Copia y pega este prompt:</strong></p>
+        <pre><code language="language-text" class="language-text">Busca en internet la documentación oficial actual de Antigravity CLI y dime qué comandos de instalación aparecen. Incluye las URLs consultadas.</code></pre>
+        <p>✅ <strong>Resultado esperado:</strong> el agente solicita permiso para usar la herramienta de búsqueda web y luego responde citando URLs concretas.</p>
+        <h2 is-upgraded>Lectura de URLs Específicas</h2>
+        <p>Si deseas que el agente lea e interprete el contenido de una página web específica:</p>
+        <p>👉 <strong>Copia y pega este prompt:</strong></p>
+        <pre><code language="language-text" class="language-text">Lee la página https://antigravity.google/docs y resume los principales componentes que ofrece la plataforma.</code></pre>
+        <p>✅ <strong>Resultado esperado:</strong> el agente descarga la página, la convierte a texto y devuelve un resumen de sus componentes.</p>
+        <p>🔍 <strong>Checkpoint:</strong> estás listo cuando distingues qué herramienta usa el agente en cada caso y has visto al menos una solicitud de permiso de red.</p>
+      </google-codelab-step>
+    
+      <google-codelab-step label="Gestión Avanzada de Permisos y Accesos" duration="8">
+        <p>🎯 <strong>Objetivo:</strong> crear una política de permisos con <code>allow</code>, <code>ask</code> y <code>deny</code>, y comprobar en vivo cómo la CLI permite, pregunta o bloquea cada acción.</p>
+        <p>Para automatizar la interacción y proteger tu entorno, Antigravity expone un sistema de permisos para controlar lecturas, escrituras, comandos y herramientas. En la documentación de la serie de Antigravity CLI, el archivo de configuración de la CLI se muestra como global en <code>~/.gemini/antigravity-cli/settings.json</code>. Usa <code>/permissions</code> para confirmar qué niveles de configuración soporta tu versión y para editar reglas sin adivinar rutas.</p>
+        <p>Este paso tiene 3 momentos: <strong>(1)</strong> preparar archivos de prueba, <strong>(2)</strong> configurar la política y <strong>(3)</strong> probarla con prompts pequeños.</p>
+        <h2 is-upgraded>Paso 1: Preparar archivos del laboratorio</h2>
+        <p>Todo lo que necesitas para probar permisos se crea desde este paso. Ejecuta estos comandos dentro de la carpeta del taller:</p>
+        <pre><code language="language-bash" class="language-bash">mkdir -p permisos-lab/lectura permisos-lab/edicion permisos-lab/bloqueado permisos-lab/scripts
+printf "Este archivo debe poder leerse sin pedir permiso.\n" &gt; permisos-lab/lectura/info-publica.txt
+printf "Este archivo se puede modificar, pero debe pedir confirmacion.\n" &gt; permisos-lab/edicion/notas.txt
+printf "SECRETO-DEMO: este archivo debe quedar bloqueado.\n" &gt; permisos-lab/bloqueado/secreto.txt
+printf "console.log('comando seguro ejecutado');\n" &gt; permisos-lab/scripts/comando-seguro.js</code></pre>
+        <p>Obtén la ruta absoluta de la carpeta para usarla en la configuración:</p>
+        <pre><code language="language-bash" class="language-bash">pwd</code></pre>
+        <p>En los ejemplos siguientes reemplaza <code>/RUTA/ABSOLUTA/DEL/TALLER</code> por el resultado de <code>pwd</code>.</p>
+        <h2 is-upgraded>Paso 2: Configurar permisos desde la CLI</h2>
+        <p>Puedes predefinir qué acciones se aprueban automáticamente, cuáles se bloquean de raíz y cuáles requieren confirmación explícita mediante un esquema de <code>acción(objetivo)</code>. La forma recomendada durante el taller es abrir el panel de permisos:</p>
+        <pre><code language="language-text" class="language-text">/permissions</code></pre>
+        <p>Desde ese panel puedes revisar reglas existentes y agregar reglas al nivel que tu versión muestre. Si tu versión solo ofrece configuración global para permisos, haz una copia de seguridad antes de editar el archivo global de CLI:</p>
+        <pre><code language="language-bash" class="language-bash">mkdir -p ~/.gemini/antigravity-cli
+cp ~/.gemini/antigravity-cli/settings.json ~/.gemini/antigravity-cli/settings.json.backup 2&gt;/dev/null || true
+nano ~/.gemini/antigravity-cli/settings.json</code></pre>
+        <p>Negative : La configuración global afecta otras sesiones de <code>agy</code>. Para el taller, usa rutas absolutas apuntando a <code>permisos-lab</code> y borra o ajusta estas reglas al terminar.</p>
+        <p><strong>Contenido esperado del bloque de permisos:</strong></p>
+        <pre><code language="language-json" class="language-json">{
+  "toolPermission": "request-review",
+  "enableTerminalSandbox": true,
+  "allowNonWorkspaceAccess": false,
+  "permissions": {
+    "allow": [
+      "read_file(/RUTA/ABSOLUTA/DEL/TALLER/permisos-lab/lectura/)",
+      "command(node permisos-lab/scripts/comando-seguro.js)",
+      "command(pwd)"
+    ],
+    "ask": [
+      "read_file(/RUTA/ABSOLUTA/DEL/TALLER/permisos-lab/edicion/)",
+      "write_file(/RUTA/ABSOLUTA/DEL/TALLER/permisos-lab/edicion/)",
+      "command(ls permisos-lab)",
+      "command(*)"
+    ],
+    "deny": [
+      "read_file(/RUTA/ABSOLUTA/DEL/TALLER/permisos-lab/bloqueado/)",
+      "write_file(/RUTA/ABSOLUTA/DEL/TALLER/permisos-lab/bloqueado/)",
+      "command(cat permisos-lab/bloqueado/secreto.txt)",
+      "command(rm -rf)"
+    ]
+  }
+}</code></pre>
+        <p>Reinicia la sesión de <code>agy</code> si tu versión no recarga la configuración automáticamente. Algunas versiones recientes fusionan permisos de varios niveles; si <code>/permissions</code> muestra un nivel de proyecto, úsalo para este laboratorio en lugar de escribir reglas globales.</p>
+        <h2 is-upgraded>Paso 3: Probar lectura, edición y comandos</h2>
+        <p>Ahora valida la política con prompts pequeños. La meta es observar si la CLI permite, pregunta o bloquea cada acción.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Prueba</th>
+              <th>Prompt</th>
+              <th>Resultado esperado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Leer archivo permitido</td>
+              <td><code>Lee @permisos-lab/lectura/info-publica.txt y resume su contenido.</code></td>
+              <td>Debería permitir la lectura sin fricción o con aprobación automática según la versión.</td>
+            </tr>
+            <tr>
+              <td>Leer archivo con confirmación</td>
+              <td><code>Lee @permisos-lab/edicion/notas.txt.</code></td>
+              <td>Debería pedir confirmación porque la ruta está en <code>ask</code>.</td>
+            </tr>
+            <tr>
+              <td>Editar archivo con confirmación</td>
+              <td><code>Agrega una segunda línea a @permisos-lab/edicion/notas.txt con el texto "Editado por Antigravity".</code></td>
+              <td>Debería pedir permiso de escritura antes de modificar el archivo.</td>
+            </tr>
+            <tr>
+              <td>Leer archivo bloqueado</td>
+              <td><code>Lee @permisos-lab/bloqueado/secreto.txt.</code></td>
+              <td>Debería bloquear la lectura por la regla <code>deny</code>.</td>
+            </tr>
+            <tr>
+              <td>Ejecutar comando permitido</td>
+              <td><code>Ejecuta node permisos-lab/scripts/comando-seguro.js.</code></td>
+              <td>Debería permitir el comando específico.</td>
+            </tr>
+            <tr>
+              <td>Ejecutar comando con confirmación</td>
+              <td><code>Lista los archivos de permisos-lab usando ls permisos-lab.</code></td>
+              <td>Debería pedir confirmación porque coincide con <code>ask</code>.</td>
+            </tr>
+            <tr>
+              <td>Ejecutar comando bloqueado</td>
+              <td><code>Ejecuta cat permisos-lab/bloqueado/secreto.txt.</code></td>
+              <td>Debería bloquearse aunque sea un comando de lectura indirecta.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2 is-upgraded>Tool Permission</h2>
+        <p>El selector <strong>Tool Permission</strong> define el comportamiento global de aprobación para herramientas. En el taller usa <code>request-review</code> como punto de partida para que todos observen qué pide el agente antes de ejecutar.</p>
+        <pre><code language="language-text" class="language-text">Tool Permission
+  &gt; request-review (current)
+    proceed-in-sandbox
+    always-proceed
+    strict</code></pre>
+        <table>
+          <thead>
+            <tr>
+              <th>Modo</th>
+              <th>Uso recomendado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>request-review</code></td>
+              <td>Pide revisión antes de ejecutar herramientas sensibles. Es el mejor modo para talleres y aprendizaje.</td>
+            </tr>
+            <tr>
+              <td><code>proceed-in-sandbox</code></td>
+              <td>Permite avanzar con más fluidez cuando la ejecución está contenida en sandbox. Úsalo solo si entiendes el aislamiento disponible.</td>
+            </tr>
+            <tr>
+              <td><code>always-proceed</code></td>
+              <td>Reduce interrupciones aprobando más acciones automáticamente. Úsalo solo en workspaces desechables o tareas de bajo riesgo.</td>
+            </tr>
+            <tr>
+              <td><code>strict</code></td>
+              <td>Aplica el modo más restrictivo. Útil para auditorías, repos sensibles o demostraciones de bloqueo.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2 is-upgraded>Regla de Precedencia</h2>
+        <p>Las reglas se evalúan estrictamente bajo la jerarquía: **Deny > Ask > Allow**. Si una acción encaja simultáneamente en una lista de `allow` y `ask`, la directiva `ask` tomará el control para garantizar tu supervisión.</p>
+        <h2 is-upgraded>Límites del Workspace y Sandbox</h2>
+        <p>Existen parámetros adicionales de seguridad en tu configuración:</p>
+        <ul>
+          <li><strong>`allowNonWorkspaceAccess`</strong> (por defecto <code>false</code>): Si está desactivado, bloquea inmediatamente cualquier intento del agente de leer o escribir en rutas fuera de la raíz del proyecto abierta.</li>
+          <li><strong>`enableTerminalSandbox`</strong> (por defecto <code>false</code>): Cuando se activa, ejecuta cualquier comando CLI sugerido por el agente dentro de un contenedor o sandbox seguro para evitar impactos perjudiciales en tu máquina principal.</li>
+          <li><strong>`toolPermission`</strong>: Define el nivel global de interacción (<code>"request-review"</code>, <code>"proceed-in-sandbox"</code>, <code>"always-proceed"</code>, <code>"strict"</code>).</li>
+        </ul>
+        <p>Positive : <strong>Consejo Práctico</strong>: No es necesario que edites a mano el archivo JSON de configuración. Ejecuta el comando de barra <code>/permissions</code> dentro de tu consola para abrir el panel interactivo y configurar estos accesos de forma gráfica y segura.</p>
+        <p>🔍 <strong>Checkpoint:</strong> estás listo cuando, con tu política cargada, una misma sesión te muestra los tres comportamientos: una acción permitida sin fricción, una que pregunta y una bloqueada por <code>deny</code>.</p>
+      </google-codelab-step>
+    
+      <google-codelab-step label="Ejercicio Práctico: Bug Runner Game 🎮" duration="45">
+        <p><img src="img/dinosaurio-google.webp" alt="Dino Game retro"></p>
+        <p>🎯 <strong>Objetivo:</strong> generar un juego web completo (3 archivos) con un solo prompt y aprobar las escrituras del agente.</p>
+        <p>¡Pongamos a prueba el poder del agente! En este paso vamos a desarrollar un juego web interactivo completo en Canvas utilizando únicamente la ayuda de Antigravity CLI.</p>
+        <h2 is-upgraded>Descripción del Proyecto</h2>
+        <p>Desarrollarás un juego retro de navegador inspirado en el dinosaurio de Chrome, pero adaptado a la temática de software: <strong>un desarrollador que salta sobre bugs de programación</strong> (como NullPointerExceptions o Merge Conflicts).</p>
+        <h2 is-upgraded>Características requeridas</h2>
+        <ul>
+          <li><strong>Motor:</strong> HTML5 Canvas con lógica JavaScript Vanilla (ES6+).</li>
+          <li><strong>Jugabilidad:</strong> Runner infinito con gravedad, saltos fluidos y obstáculos que aumentan su velocidad con el tiempo.</li>
+          <li><strong>Power-ups:</strong> Debug tokens que otorgan inmunidad temporal o ralentizan el tiempo.</li>
+          <li><strong>Estados:</strong> Pantalla de inicio, bucle de juego activo y pantalla de Game Over con puntuaciones guardadas en `LocalStorage`.</li>
+          <li><strong>Easter Egg:</strong> Si el jugador alcanza los 1000 puntos, la pantalla cambia a un estilo visual "Matrix" retro en tonos verde y negro.</li>
+        </ul>
+        <h2 is-upgraded>El Desafío para el Agente</h2>
+        <p>Asegúrate de estar en un directorio vacío donde desees crear el juego. 👉 <strong>Copia y pega este prompt</strong> para que el agente empiece a trabajar:</p>
+        <pre><code language="language-text" class="language-text">Actúa como un desarrollador senior de videojuegos web. Crea un juego completo y funcional llamado 'Bug Runner' inspirado en el Chrome Dino.
+Genera tres archivos: `index.html`, `styles.css`, y `game.js`.
+Dibuja todo con primitivas de Canvas (sin imágenes externas) usando un estilo pixel art de colores.
+El jugador será un cuadrado azul y los obstáculos (bugs) serán formas rojas glitchy.
+Incluye controles táctiles para móviles y teclado (barra espaciadora) para escritorio.
+Agrega un Easter Egg estilo 'Matrix' al superar los 1000 puntos.</code></pre>
+        <p>✅ <strong>Resultado esperado:</strong> el agente te pide permiso de escritura para <code>index.html</code>, <code>styles.css</code> y <code>game.js</code>. Confirma con <code>y</code> cada uno.</p>
+        <p>🔍 <strong>Checkpoint:</strong> estás listo cuando abres <code>index.html</code> en el navegador y el juego corre (saltas con la barra espaciadora). Si algo falla, pídele al agente: <em>"El juego no arranca, revisa @game.js y corrígelo"</em>.</p>
+      </google-codelab-step>
+    
+      <google-codelab-step label="Integración con MCP (Model Context Protocol)" duration="8">
+        <p><img src="img/configured_mcp_server_cli.png" alt="Servidor MCP configurado en Antigravity CLI"></p>
+        <p>🎯 <strong>Objetivo:</strong> conectar un servidor MCP al proyecto (Context7) usando configuración local <code>.agents/mcp_config.json</code> y verificarlo con <code>/mcp</code>.</p>
+        <p>El protocolo **Model Context Protocol (MCP)** es un estándar abierto que permite conectar de forma unificada herramientas y bases de datos a tu agente de IA.</p>
+        <h2 is-upgraded>Cómo gestionar MCP desde la CLI (TUI)</h2>
+        <p>Puedes configurar servidores de forma interactiva desde la terminal ejecutando el siguiente comando:</p>
+        <pre><code language="language-text" class="language-text">/mcp</code></pre>
+        <p>Se abrirá un panel interactivo que lista todos los servidores disponibles en tu entorno y te permite autenticar, habilitar o deshabilitar integraciones.</p>
+        <h2 is-upgraded>Configuración Manual via <code>mcp_config.json</code></h2>
+        <p>Para usuarios avanzados, puedes configurar servidores MCP editando el archivo `mcp_config.json`. Existen dos ubicaciones clave:</p>
+        <ul>
+          <li><strong>Configuración Global:</strong> <code>~/.gemini/antigravity-cli/mcp_config.json</code></li>
+          <li><strong>Configuración del Proyecto:</strong> <code>.agents/mcp_config.json</code></li>
+        </ul>
+        <h2 is-upgraded>Ejemplo local: Context7 MCP</h2>
+        <p>Para el taller, usa configuración local del proyecto. Este comando crea <code>.agents/mcp_config.json</code> con el servidor remoto de Context7, siguiendo el patrón del codelab oficial pero sin escribir en la configuración global:</p>
+        <pre><code language="language-bash" class="language-bash">mkdir -p .agents
+echo '{
+    "mcpServers": {
+        "context7": {
+            "serverURL": "https://mcp.context7.com/mcp"
+        }
+    }
+}' &gt; .agents/mcp_config.json</code></pre>
+        <p>✅ <strong>Resultado esperado:</strong> tras reiniciar <code>agy</code> y abrir <code>/mcp</code>, el servidor <code>context7</code> aparece listado y habilitado en este workspace.</p>
+        <p>Después reinicia <code>agy</code> o abre <code>/mcp</code> para verificar que el servidor aparezca habilitado en este workspace.</p>
+        <p>Positive : Si quieres aplicar el servidor MCP a todos tus proyectos, la ruta global documentada es <code>~/.gemini/antigravity-cli/mcp_config.json</code>. Para talleres y demos, la ruta local <code>.agents/mcp_config.json</code> evita contaminar otros workspaces.</p>
+        <h2 is-upgraded>Agregar y eliminar servidores MCP desde la terminal</h2>
+        <p>Si no quieres abrir un editor, puedes modificar <code>.agents/mcp_config.json</code> desde la terminal. Estos comandos preservan otros servidores ya configurados en el archivo local.</p>
+        <p><strong>Agregar o actualizar Context7:</strong></p>
+        <pre><code language="language-bash" class="language-bash">mkdir -p .agents
+node -e 'const fs=require("fs"); const file=".agents/mcp_config.json"; const cfg=fs.existsSync(file)?JSON.parse(fs.readFileSync(file,"utf8")):{mcpServers:{}}; cfg.mcpServers ||= {}; cfg.mcpServers.context7={serverURL:"https://mcp.context7.com/mcp"}; fs.writeFileSync(file, JSON.stringify(cfg,null,2)+"\n");'</code></pre>
+        <p><strong>Agregar un servidor local de filesystem:</strong></p>
+        <p>Este ejemplo usa un MCP local ejecutado con <code>npx</code> y limita el acceso al directorio actual del taller.</p>
+        <pre><code language="language-bash" class="language-bash">node -e 'const fs=require("fs"); const file=".agents/mcp_config.json"; const cfg=fs.existsSync(file)?JSON.parse(fs.readFileSync(file,"utf8")):{mcpServers:{}}; cfg.mcpServers ||= {}; cfg.mcpServers.filesystem={command:"npx",args:["-y","@modelcontextprotocol/server-filesystem","."]}; fs.writeFileSync(file, JSON.stringify(cfg,null,2)+"\n");'</code></pre>
+        <p><strong>Listar servidores configurados:</strong></p>
+        <pre><code language="language-bash" class="language-bash">node -e 'const cfg=require("./.agents/mcp_config.json"); console.log(Object.keys(cfg.mcpServers || {}).join("\n"));'</code></pre>
+        <p><strong>Eliminar un servidor:</strong></p>
+        <pre><code language="language-bash" class="language-bash">node -e 'const fs=require("fs"); const file=".agents/mcp_config.json"; const cfg=JSON.parse(fs.readFileSync(file,"utf8")); delete cfg.mcpServers.context7; fs.writeFileSync(file, JSON.stringify(cfg,null,2)+"\n");'</code></pre>
+        <p>Después de agregar o eliminar servidores, reinicia la sesión o abre <code>/mcp</code> para comprobar el estado real.</p>
+        <h2 is-upgraded>Ejemplo avanzado</h2>
+        <p>Para GitHub MCP no necesitas Docker si usas el servidor remoto oficial. Configúralo como endpoint remoto y autentica con el mecanismo que soporte tu sesión. Si tu entorno no abre OAuth automáticamente, usa un token personal como variable de entorno y pásalo por header.</p>
+        <pre><code language="language-json" class="language-json">{
+  "mcpServers": {
+    "github": {
+      "serverURL": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer TU_TOKEN_DE_GITHUB"
+      }
+    },
+    "custom-docs": {
+      "serverURL": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "tu_api_key_aqui"
+      }
+    }
+  }
+}</code></pre>
+        <p>Negative : Esta forma funciona en <code>agy</code>, pero no commitees ni compartas <code>mcp_config.json</code> con el token real. Para material público deja <code>Bearer TU_TOKEN_DE_GITHUB</code> y pide a cada participante reemplazarlo localmente.</p>
+        <p>🔍 <strong>Checkpoint:</strong> estás listo cuando <code>/mcp</code> lista tu servidor y el agente puede usar sus herramientas (por ejemplo, pedirle a Context7 documentación de una librería).</p>
+      </google-codelab-step>
+    
+      <google-codelab-step label="Customizaciones: Rules y Skills" duration="10">
+        <p><img src="img/extensions.png" alt="Customizaciones de Antigravity"></p>
+        <p>🎯 <strong>Objetivo:</strong> entender cuándo usar <strong>Rules</strong> (instrucciones siempre activas) frente a <strong>Skills</strong> (instrucciones bajo demanda), y dónde se ubican.</p>
+        <p>Antigravity CLI permite extender el comportamiento del agente con <strong>Customizaciones</strong>. En este taller nos enfocaremos en las dos piezas que más usarás en proyectos reales: <strong>Rules</strong> para instrucciones persistentes y <strong>Skills</strong> para flujos especializados bajo demanda. La documentación de plugins explica cómo estas customizaciones pueden empaquetarse y reutilizarse como plugins cuando quieres compartirlas entre proyectos o equipos.</p>
+        <p>Recurso oficial: <a href="https://antigravity.google/docs/cli/plugins" target="_blank" rel="noopener">antigravity.google/docs/cli/plugins</a></p>
+
+        <h2 is-upgraded>Plugins vs Customizaciones</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Concepto</th>
+              <th>Uso práctico</th>
+              <th>Qué haremos en el taller</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Rules</strong></td>
+              <td>Instrucciones persistentes que el agente debe seguir en un workspace o de forma global.</td>
+              <td>Crear un <code>.agents/AGENTS.md</code> para políticas del proyecto.</td>
+            </tr>
+            <tr>
+              <td><strong>Skills</strong></td>
+              <td>Instrucciones especializadas que se cargan cuando el usuario pide una tarea concreta.</td>
+              <td>Crear una skill <code>code-reviewer</code> con su <code>SKILL.md</code>.</td>
+            </tr>
+            <tr>
+              <td><strong>Plugins</strong></td>
+              <td>Paquetes reutilizables para distribuir customizaciones y recursos asociados.</td>
+              <td>Entender el concepto y consultar la documentación oficial; no construiremos un plugin completo en este codelab.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2 is-upgraded>Ubicación de las Customizaciones</h2>
+        <p>El agente busca e inicializa automáticamente las customizaciones en dos carpetas:</p>
+        <ul>
+          <li><strong>Global:</strong> <code>~/.gemini/config/</code> (Se aplica a todos los proyectos).</li>
+          <li><strong>Local (Proyecto):</strong> <code>.agents/</code> (Se aplica exclusivamente al workspace actual).</li>
+        </ul>
+        <h2 is-upgraded>1. Rules (Reglas)</h2>
+        <p>Las reglas son directrices de formato libre que el agente debe seguir durante la sesión. Son útiles para convenciones de código, políticas de seguridad, formato de respuesta, comandos permitidos por el equipo o criterios de validación. Se definen añadiéndolas en un archivo markdown llamado <code>AGENTS.md</code> en cualquiera de las raíces de configuración, por ejemplo <code>.agents/AGENTS.md</code>.</p>
+        <p><strong>Ejemplo de `AGENTS.md`:</strong></p>
+        <pre><code language="language-markdown" class="language-markdown"># Reglas del Proyecto de Frontend
+- Prefiere el uso de CSS Vanilla sobre Tailwind CSS.
+- Escribe siempre los comentarios del código en español.
+- Nunca commitees claves de API ni credenciales directamente en el código.</code></pre>
+        <p>Positive : Mantén las rules cortas, específicas y comprobables. Una regla como “ejecuta <code>npm test</code> después de tocar código de negocio” funciona mejor que una regla genérica como “sé cuidadoso”.</p>
+        <h2 is-upgraded>2. Skills (Habilidades)</h2>
+        <p>Las habilidades son carpetas modulares que agrupan instrucciones especializadas que el agente carga bajo demanda. Se ubican dentro del directorio <code>skills/</code>, por ejemplo <code>.agents/skills/</code> o <code>~/.gemini/config/skills/</code>.</p>
+        <p>Cada habilidad debe contener un archivo obligatorio llamado <code>SKILL.md</code> con metadatos en formato YAML en su cabecera y el cuerpo del prompt. La clave más importante para activación es <code>description</code>: escribe cuándo debe usarse la skill con frases naturales que el usuario sí diría.</p>
+        <pre><code language="language-markdown" class="language-markdown">---
+name: nombre-de-la-skill
+description: Cuándo debe usarse esta skill, con palabras que el usuario realmente escribiría.
+---
+
+# Instrucciones de la skill
+
+Define el rol, el proceso, el formato de salida y las verificaciones esperadas.</code></pre>
+        <p>Negative : No conviertas todo en una skill. Usa una rule si la instrucción debe aplicarse siempre; usa una skill si el comportamiento solo aplica a una tarea específica.</p>
+        <p>🔍 <strong>Checkpoint:</strong> estás listo cuando puedes decidir, ante una instrucción nueva, si va en <code>AGENTS.md</code> (rule) o en una carpeta <code>skills/</code> (skill). En el siguiente paso crearás una skill real.</p>
+      </google-codelab-step>
+    
+      <google-codelab-step label="Creación y Uso de una Skill" duration="10">
+        <p>🎯 <strong>Objetivo:</strong> crear una skill <code>code-reviewer</code>, cargarla con <code>/skills</code> y activarla con un prompt natural.</p>
+        <p>Vamos a desarrollar un ejercicio práctico creando una habilidad especializada para que el agente actúe como un revisor de código experto (Code Reviewer).</p>
+        <h2 is-upgraded>Paso 1: Estructurar la Skill</h2>
+        <p>Crea el directorio correspondiente en la raíz local de tu proyecto:</p>
+        <pre><code language="language-bash" class="language-bash">mkdir -p .agents/skills/code-reviewer</code></pre>
+        <h2 is-upgraded>Paso 2: Definir el archivo SKILL.md</h2>
+        <p>Crea el archivo <code>SKILL.md</code> con el siguiente contenido:</p>
+        <pre><code language="language-markdown" class="language-markdown">---
+name: code-reviewer
+description: Experto en revisión de código. Úsalo cuando el usuario te pida "review", "revisar" o "inspeccionar" su código.
+---
+
+# Code Reviewer Instructions
+
+Eres un experto revisor de código. Cuando te soliciten feedback, debes seguir esta estructura:
+1. **Errores Críticos**: Errores lógicos, de seguridad o de sintaxis.
+2. **Estilo**: Convenciones de nomenclatura y mejores prácticas.
+3. **Sugerencias de Optimización**: Mejoras de rendimiento.</code></pre>
+        <h2 is-upgraded>Paso 3: Validar y Usar la Habilidad</h2>
+        <ol type="1">
+          <li>Ejecuta <code>agy</code> en la raíz del proyecto.</li>
+          <li>Usa el comando de barra para recargar las habilidades en la sesión:</li>
+        </ol>
+        <pre><code language="language-text" class="language-text">/skills</code></pre>
+        <p>✅ <strong>Resultado esperado:</strong> en la lista aparece <code>code-reviewer</code> como descubierta y activa.</p>
+        <ol type="1" start="3">
+          <li>Prueba la habilidad enviando un prompt como el siguiente:</li>
+        </ol>
+        <pre><code language="language-text" class="language-text">Haz un review de @bug.js</code></pre>
+        <p>✅ <strong>Resultado esperado:</strong> el agente responde con la estructura definida en la skill (Errores Críticos → Estilo → Optimización), no con un texto libre.</p>
+        <p>🔍 <strong>Checkpoint:</strong> estás listo cuando un prompt con la palabra "review"/"revisar" dispara automáticamente el formato de tu skill.</p>
+      </google-codelab-step>
+    
+      <google-codelab-step label="Configuración con settings.json" duration="6">
+        <p>🎯 <strong>Objetivo:</strong> conocer las claves principales de <code>settings.json</code> y saber editarlas desde el panel <code>/settings</code> en vez de a mano.</p>
+        <p>El comportamiento general de Antigravity CLI se define con archivos o paneles de configuración. Para opciones propias de la CLI, la ruta global documentada es <code>~/.gemini/antigravity-cli/settings.json</code>. Para customizaciones del proyecto, como rules, skills y MCP, usa <code>.agents/</code>. Para permisos, no adivines rutas: abre <code>/permissions</code> y revisa qué niveles de configuración soporta tu versión.</p>
+        <h2 is-upgraded>Parámetros Clave Exportados</h2>
+        <p>Aquí tienes una lista de las claves más importantes que puedes modificar:</p>
+        <ul>
+          <li><strong>`model`</strong>: Define el identificador del modelo principal a utilizar (ej. <code>"gemini-3.5-flash"</code>).</li>
+          <li><strong>`toolPermission`</strong>: Controla el nivel de confirmación del agente para herramientas (<code>"request-review"</code>, <code>"proceed-in-sandbox"</code>, <code>"always-proceed"</code>, <code>"strict"</code>).</li>
+          <li><strong>`enableTerminalSandbox`</strong>: Habilita o deshabilita la ejecución de comandos en un entorno de sandbox protegido.</li>
+          <li><strong>`allowNonWorkspaceAccess`</strong>: Permite o restringe al agente leer o escribir archivos fuera del directorio del proyecto (workspace).</li>
+          <li><strong>`colorScheme`</strong>: Define el esquema de colores de la TUI (<code>"terminal"</code>, <code>"dark"</code>, <code>"light"</code>).</li>
+          <li><strong>`permissions`</strong>: Permite definir listas pre-aprobadas, denegadas o interactivas para comandos, archivos y peticiones URL.</li>
+        </ul>
+        <h2 is-upgraded>Ejemplo de Configuración de CLI</h2>
+        <p>Archivo global de CLI: <code>~/.gemini/antigravity-cli/settings.json</code></p>
+        <pre><code language="language-json" class="language-json">{
+  "model": "gemini-3.5-flash",
+  "colorScheme": "dark",
+  "toolPermission": "request-review",
+  "enableTerminalSandbox": true,
+  "allowNonWorkspaceAccess": false,
+  "permissions": {
+    "allow": ["command(git status)"],
+    "deny": ["command(rm -rf)"],
+    "ask": ["command(*)"]
+  },
+  "showTips": true
+}</code></pre>
+        <p>Positive : Puedes abrir el editor visual interactivo de configuración dentro de tu sesión en la CLI ejecutando el comando de la TUI <code>/settings</code> o <code>/config</code>. Para permisos, usa <code>/permissions</code> y selecciona el alcance que la CLI ofrezca.</p>
+        <p>🔍 <strong>Checkpoint:</strong> estás listo cuando puedes abrir <code>/settings</code>, cambiar una clave (por ejemplo <code>colorScheme</code>) y ver el efecto en tu sesión.</p>
+      </google-codelab-step>
+    
+      <google-codelab-step label="Antigravity CLI: más allá del chat" duration="8">
+        <p><img src="img/antigravity.png" alt="Antigravity CLI workflow"></p>
+        <p>🎯 <strong>Objetivo:</strong> adoptar un flujo de trabajo profesional (diagnóstico → plan → ejecución → validación → documentación) en lugar de pedir "hazlo todo".</p>
+        <p>Esta pestaña complementa lo que ya hiciste en la terminal. No repite instalación, autenticación ni comandos básicos; se enfoca en cómo usar Antigravity CLI como una herramienta de trabajo conectada al ciclo real de desarrollo.</p>
+
+        <h2 is-upgraded>Features específicas de la CLI para trabajo avanzado</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Uso práctico</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Planes antes de editar</strong></td>
+              <td>Pide al agente que proponga pasos, archivos afectados, riesgos y criterios de aceptación antes de aprobar cambios. Esto reduce ediciones impulsivas y hace más fácil revisar el resultado.</td>
+            </tr>
+            <tr>
+              <td><strong>Artifacts textuales</strong></td>
+              <td>Convierte una sesión de CLI en entregables revisables: plan de implementación, checklist, resumen de diff, resultado de pruebas y próximos pasos.</td>
+            </tr>
+            <tr>
+              <td><strong>Subtareas de fondo</strong></td>
+              <td>Usa el panel de tareas para monitorear trabajo largo sin bloquear toda la sesión, por ejemplo análisis de un repo grande o ejecución de una suite de pruebas.</td>
+            </tr>
+            <tr>
+              <td><strong>Revisión incremental</strong></td>
+              <td>Trabaja por lotes pequeños: primero diagnóstico, luego edición mínima, después validación. La CLI funciona mejor cuando cada permiso corresponde a una intención clara.</td>
+            </tr>
+            <tr>
+              <td><strong>Puente con configuración del proyecto</strong></td>
+              <td>Rules, Skills y MCP permiten que la CLI actúe distinto por proyecto sin tener que reexplicar políticas en cada prompt. Los permisos deben revisarse desde <code>/permissions</code> porque su alcance depende de la versión.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2 is-upgraded>Prompt de trabajo recomendado</h2>
+        <p>Para tareas reales, evita pedir directamente "hazlo todo". 👉 <strong>Copia y pega</strong> una estructura que fuerce diagnóstico, plan y verificación:</p>
+        <pre><code language="language-text" class="language-text">Analiza @src y propón un plan para corregir el bug reportado.
+No edites archivos todavía.
+Devuelve: causa probable, archivos afectados, riesgos, plan de 3 pasos y comandos de verificación.</code></pre>
+        <p>✅ <strong>Resultado esperado:</strong> el agente devuelve un plan y <em>no</em> intenta editar nada hasta que lo apruebes.</p>
+
+        <h2 is-upgraded>Flujo CLI que escala</h2>
+        <ol type="1">
+          <li><strong>Diagnóstico:</strong> carga contexto con <code>@</code> y pide hipótesis verificables.</li>
+          <li><strong>Plan:</strong> solicita pasos, riesgos y archivos exactos antes de aprobar escrituras.</li>
+          <li><strong>Ejecución:</strong> aprueba solo comandos o cambios alineados con el plan.</li>
+          <li><strong>Validación:</strong> pide resultados de tests, diff resumido y evidencia de que el comportamiento cambió.</li>
+          <li><strong>Documentación:</strong> solicita un artifact final con decisiones, limitaciones y próximos pasos.</li>
+        </ol>
+
+        <p>Positive : La CLI es más fuerte cuando la tratas como un agente operativo con permisos controlados, no como un chat libre. El valor está en contexto local, cambios auditables y validación explícita.</p>
+        <p>🔍 <strong>Checkpoint:</strong> estás listo cuando puedes completar un ciclo real: diagnóstico con <code>@</code>, plan aprobado, edición mínima, validación con tests/<code>/diff</code> y un artifact final.</p>
+      </google-codelab-step>
+
+      <google-codelab-step label="Conclusión" duration="2">
+        <p>¡Felicidades! Has completado con éxito el taller práctico de Antigravity CLI.</p>
+        <h2 is-upgraded>Resumen de lo aprendido</h2>
+        <p>
+          ✅ <strong>Instalación y Autenticación:</strong> Configuración inicial y arranque rápido con <code>agy</code>.<br>
+          ✅ <strong>TUI y Navegación:</strong> Comandos con prefijo <code>/</code> y atajos de teclado clave.<br>
+          ✅ <strong>Contexto con @:</strong> Capacidad de nutrir la memoria del agente usando archivos y carpetas.<br>
+          ✅ <strong>Seguridad y Permisos:</strong> Control granular de accesos, sandbox, workspace y bloque `permissions` en `settings.json`.<br>
+          ✅ <strong>MCP y Herramientas:</strong> Integración abierta con servicios web y APIs externas.<br>
+          ✅ <strong>Customizaciones:</strong> Extensión del agente mediante Rules (<code>AGENTS.md</code>), Skills modulares y el concepto de plugins reutilizables.<br>
+          ✅ <strong>Antigravity CLI avanzado:</strong> Uso de planes, artifacts textuales, subtareas, revisión incremental y configuración por alcance para trabajo real más allá del chat.
+        </p>
+        <h2 is-upgraded>Recursos adicionales</h2>
+        <ul>
+          <li><a href="https://antigravity.google/docs" target="_blank">Documentación oficial de Antigravity</a></li>
+          <li><a href="https://medium.com/google-cloud/antigravity-cli-tutorial-series-12b46cfe3bf2" target="_blank">Antigravity CLI Tutorial Series en Google Cloud Community</a></li>
+          <li><a href="https://modelcontextprotocol.io" target="_blank">Especificación del Protocolo MCP</a></li>
+        </ul>
+        <p>Positive : Gracias por participar en este taller. ¡No dudes en seguir explorando y experimentando para convertir a Antigravity en tu compañero de desarrollo ideal!</p>
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/claat-public/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/prettify.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/codelab-elements.js"></script>
+  <script src="https://support.google.com/inapp/api.js"></script>
+
+</body>
+</html>
