@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo WebMCP + Gemma 4</title>
+<style>
+  :root{
+    --azul:#1a73e8; --azul-claro:#e8f0fe; --verde:#1e8e3e; --rojo:#d93025;
+    --ambar:#f9ab00; --gris:#5f6368; --borde:#dadce0; --fondo:#f8f9fa;
+    --texto:#202124; --morado:#8430ce;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--fondo); color:var(--texto); font-size:14px; line-height:1.5;
+  }
+  header{
+    background:#fff; border-bottom:1px solid var(--borde); padding:14px 22px;
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap; position:sticky; top:0; z-index:10;
+  }
+  header h1{font-size:17px; margin:0; font-weight:600}
+  .badge{
+    font-size:11px; font-weight:600; padding:3px 9px; border-radius:11px;
+    background:var(--azul-claro); color:var(--azul); white-space:nowrap;
+  }
+  .badge.morado{background:#f3e8fd; color:var(--morado)}
+  .badge.gris{background:#f1f3f4; color:var(--gris)}
+  .badge.verde{background:#e6f4ea; color:var(--verde)}
+  .badge.rojo{background:#fce8e6; color:var(--rojo)}
+  header .spacer{flex:1}
+  #estadoApi{font-size:12px; color:var(--gris)}
+
+  main{
+    display:grid; grid-template-columns:1.4fr 1fr 1.5fr; gap:16px;
+    padding:16px 22px 40px; align-items:start; max-width:1700px; margin:0 auto;
+  }
+  @media(max-width:1200px){main{grid-template-columns:1fr}}
+  .panel{background:#fff; border:1px solid var(--borde); border-radius:10px; overflow:hidden}
+  .panel > h2{
+    font-size:13px; text-transform:uppercase; letter-spacing:.6px; color:var(--gris);
+    margin:0; padding:13px 16px; border-bottom:1px solid var(--borde);
+    display:flex; align-items:center; gap:9px; font-weight:600;
+  }
+  .panel .cuerpo{padding:14px 16px; max-height:66vh; overflow:auto}
+
+  /* Catalogo */
+  .producto{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    padding:10px 0; border-bottom:1px solid #f1f3f4;
+  }
+  .producto:last-child{border-bottom:none}
+  .producto .info{min-width:0}
+  .producto .nombre{font-weight:500}
+  .producto .meta{font-size:12px; color:var(--gris)}
+  .producto .precio{font-variant-numeric:tabular-nums; font-weight:600; white-space:nowrap}
+  button{
+    font:inherit; font-size:12px; padding:6px 12px; border-radius:6px; cursor:pointer;
+    border:1px solid var(--borde); background:#fff; color:var(--azul); font-weight:600;
+    transition:background .12s;
+  }
+  button:hover:not(:disabled){background:var(--azul-claro)}
+  button:disabled{opacity:.45; cursor:not-allowed}
+  button.primario{background:var(--azul); color:#fff; border-color:var(--azul)}
+  button.primario:hover:not(:disabled){background:#1765cc}
+  button.peligro{color:var(--rojo)}
+
+  /* Carrito */
+  .linea{display:flex; justify-content:space-between; gap:8px; padding:8px 0; border-bottom:1px solid #f1f3f4}
+  .linea:last-of-type{border-bottom:none}
+  .linea .cant{color:var(--gris); font-size:12px}
+  .total{
+    display:flex; justify-content:space-between; font-weight:700; font-size:15px;
+    padding-top:12px; margin-top:6px; border-top:2px solid var(--borde);
+  }
+  .vacio{color:var(--gris); font-style:italic; padding:12px 0; text-align:center}
+
+  /* Consola del agente */
+  .fila{display:flex; gap:8px; margin-bottom:12px}
+  .fila input{
+    flex:1; font:inherit; padding:9px 12px; border:1px solid var(--borde);
+    border-radius:6px; min-width:0;
+  }
+  .fila input:focus{outline:2px solid var(--azul); outline-offset:-1px; border-color:transparent}
+  .sugerencias{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:13px}
+  .sugerencias button{font-weight:400; color:var(--gris); font-size:11px; padding:4px 9px}
+
+  .traza{border-left:3px solid var(--borde); margin:9px 0 9px 3px; padding-left:12px}
+  .paso{margin-bottom:11px}
+  .paso .cab{display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:5px}
+  .paso code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px;
+    background:#f1f3f4; padding:2px 6px; border-radius:4px;
+  }
+  pre{
+    margin:0; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:11.5px; background:#f8f9fa; border:1px solid var(--borde);
+    border-radius:6px; padding:9px 11px; overflow-x:auto; white-space:pre-wrap; word-break:break-word;
+  }
+  .respuesta{
+    background:#e6f4ea; border:1px solid #ceead6; border-radius:8px;
+    padding:11px 13px; margin-top:11px; white-space:pre-wrap;
+  }
+  .error{background:#fce8e6; border:1px solid #f5c6c2; border-radius:8px; padding:11px 13px; color:var(--rojo)}
+  .pensando{color:var(--gris); font-style:italic; display:flex; align-items:center; gap:8px}
+  .spinner{
+    width:13px; height:13px; border:2px solid var(--borde); border-top-color:var(--azul);
+    border-radius:50%; animation:girar .7s linear infinite; flex-shrink:0;
+  }
+  @keyframes girar{to{transform:rotate(360deg)}}
+
+  /* Lista de herramientas */
+  .tool{border:1px solid var(--borde); border-radius:8px; padding:10px 12px; margin-bottom:9px}
+  .tool .nom{display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:4px}
+  .tool .nom code{font-weight:700; font-size:12.5px; background:none; padding:0}
+  .tool .desc{font-size:12px; color:var(--gris)}
+  .anno{font-size:10px; padding:2px 7px; border-radius:9px; font-weight:600; white-space:nowrap}
+  .anno.readonly{background:#e6f4ea; color:var(--verde)}
+  .anno.consequential{background:#fce8e6; color:var(--rojo)}
+  .anno.untrusted{background:#fef7e0; color:#b06000}
+  #avisoWebmcp{
+    background:#fef7e0; border:1px solid #feefc3; border-radius:7px;
+    padding:9px 12px; font-size:12px; margin-bottom:13px; color:#8a5a00;
+  }
+  /* Pseudo-clases de WebMCP para el formulario declarativo */
+  form:tool-form-active{border-color:var(--azul); box-shadow:0 0 0 3px var(--azul-claro)}
+  button:tool-submit-active{background:var(--verde); color:#fff; border-color:var(--verde)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Demo WebMCP + Gemma 4</h1>
+  <span class="badge">Gemma 4 local</span>
+  <span class="badge morado">WebMCP</span>
+  <span id="badgeWebmcp" class="badge gris">detectando WebMCP…</span>
+  <span class="spacer"></span>
+  <span id="estadoApi">comprobando puente local…</span>
+</header>
+
+<main>
+
+  <!-- ============ CATALOGO ============ -->
+  <section class="panel">
+    <h2>Catálogo de productos</h2>
+    <div class="cuerpo" id="catalogo"></div>
+  </section>
+
+  <!-- ============ CARRITO + FORM DECLARATIVO ============ -->
+  <section class="panel">
+    <h2>Carrito</h2>
+    <div class="cuerpo">
+      <div id="carrito"></div>
+      <div class="total"><span>Total</span><span id="total">$0.00</span></div>
+
+      <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--borde)">
+        <div style="font-size:12px; color:var(--gris); margin-bottom:9px">
+          <strong>API Declarativa</strong>: este formulario se convierte en una
+          herramienta WebMCP solo con atributos HTML.
+        </div>
+        <!-- WebMCP Declarative API: el navegador genera el JSON Schema desde
+             toolname/tooldescription/toolparamdescription. -->
+        <form id="formPedido"
+              toolname="consultar_pedido"
+              tooldescription="Consulta el estado de envío de un pedido por su número."
+              action="#">
+          <label for="pedido" style="font-size:12px; color:var(--gris)">Número de pedido</label>
+          <input id="pedido" name="pedido" type="text" placeholder="PED-4471"
+                 toolparamdescription="Número de pedido a consultar, por ejemplo PED-4471."
+                 style="width:100%; font:inherit; padding:8px 11px; border:1px solid var(--borde); border-radius:6px; margin:5px 0 9px">
+          <button type="submit" class="primario" style="width:100%">Consultar estado</button>
+        </form>
+        <div id="resPedido" style="margin-top:10px; font-size:12px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HERRAMIENTAS + AGENTE ============ -->
+  <section class="panel">
+    <h2>Agente local (Gemma 4) &nbsp;·&nbsp; herramientas WebMCP</h2>
+    <div class="cuerpo">
+
+      <div id="avisoWebmcp" style="display:none"></div>
+
+      <div class="fila">
+        <input id="entrada" type="text" autocomplete="off"
+               placeholder="Ej: busca teclados bajo 80 dólares y añade el más barato">
+        <button id="enviar" class="primario">Ejecutar</button>
+      </div>
+
+      <div class="sugerencias">
+        <button data-q="Busca teclados que cuesten menos de 80 dólares y dime cuáles hay">teclados &lt; $80</button>
+        <button data-q="Añade el teclado más barato al carrito">añadir el más barato</button>
+        <button data-q="Aplica el código TALLER2026 a mi carrito">aplicar descuento</button>
+        <button data-q="¿Dónde está mi pedido PED-4471?">estado de pedido</button>
+        <button data-q="¿Qué tengo en el carrito y cuánto suma?">ver carrito</button>
+      </div>
+
+      <div id="salida">
+        <div class="vacio">Escribe una petición o usa una sugerencia.</div>
+      </div>
+
+      <div style="margin-top:18px; padding-top:14px; border-top:1px solid var(--borde)">
+        <div style="font-size:12px; color:var(--gris); margin-bottom:9px">
+          <strong>Herramientas registradas</strong> por esta página<br>
+          <span id="contadorTools">cargando…</span>
+        </div>
+        <div id="listaTools"></div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* =========================================================================
+   1. DATOS DE LA TIENDA
+   En un caso real vendrian de tu API. Aqui viven en el navegador para que la
+   pagina funcione sola, y el servidor Python mantiene su propia copia para
+   ejecutar las herramientas cuando el agente es Gemma 4.
+   ========================================================================= */
+const CATALOGO = [
+  {id:'KB-101', nombre:'Teclado Mecánico Aurora TKL',       precio:74.90,  stock:12, categoria:'teclados'},
+  {id:'KB-205', nombre:'Teclado Inalámbrico Plano Nimbus',  precio:49.00,  stock:30, categoria:'teclados'},
+  {id:'KB-330', nombre:'Teclado Ergonómico Split Vertex',   precio:129.00, stock:5,  categoria:'teclados'},
+  {id:'MS-330', nombre:'Mouse Vertical Ergo Pro',           precio:39.50,  stock:25, categoria:'mouse'},
+  {id:'MS-410', nombre:'Mouse Gamer Pulse 8K',              precio:89.90,  stock:8,  categoria:'mouse'},
+  {id:'MN-500', nombre:'Monitor UltraWide 34" Curvo',       precio:549.00, stock:4,  categoria:'monitores'},
+  {id:'HD-220', nombre:'Audífonos Studio Monitor HD',       precio:199.00, stock:15, categoria:'audio'},
+  {id:'DK-070', nombre:'Hub USB-C 7 en 1',                  precio:34.90,  stock:40, categoria:'accesorios'},
+];
+
+const PEDIDOS = {
+  'PED-4471': {estado:'En tránsito',      ubicacion:'Centro de distribución Bogotá', entrega_estimada:'2026-09-28'},
+  'PED-9902': {estado:'Entregado',        ubicacion:'Destino final',                 entrega_estimada:'2026-09-20'},
+  'PED-1130': {estado:'Preparando envío', ubicacion:'Bodega Medellín',               entrega_estimada:'2026-10-02'},
+};
+
+const DESCUENTOS = {TALLER2026:0.15, GEMMA10:0.10};
+const API = '';   // mismo origen cuando sirve gemma4_server.py
+
+// Contrato en linea: respaldo para cuando la pagina se abre sin servidor (file://).
+// Es el mismo contenido de tools.json, que es la fuente unica de verdad cuando
+// el servidor esta corriendo (y la que alimenta a Gemma 4).
+const CONTRATO_INLINE = {tools:[
+ {name:'buscar_producto',description:'Busca productos en el catálogo de la tienda por texto y opcionalmente por precio máximo.',
+  inputSchema:{type:'object',properties:{consulta:{type:'string'},precio_max:{type:'number'}},required:['consulta']},
+  annotations:{readOnlyHint:true,consequentialHint:false,untrustedContentHint:false}},
+ {name:'ver_carrito',description:'Devuelve el contenido actual del carrito de compras con cantidades y total.',
+  inputSchema:{type:'object',properties:{},required:[]},
+  annotations:{readOnlyHint:true,consequentialHint:false,untrustedContentHint:false}},
+ {name:'anadir_al_carrito',description:'Añade una cantidad de un producto al carrito usando su id.',
+  inputSchema:{type:'object',properties:{producto_id:{type:'string'},cantidad:{type:'number'}},required:['producto_id']},
+  annotations:{readOnlyHint:false,consequentialHint:false,untrustedContentHint:false}},
+ {name:'aplicar_descuento',description:'Aplica un código de descuento al carrito. Válidos: TALLER2026, GEMMA10.',
+  inputSchema:{type:'object',properties:{codigo:{type:'string'}},required:['codigo']},
+  annotations:{readOnlyHint:false,consequentialHint:true,untrustedContentHint:false}},
+ {name:'estado_pedido',description:'Consulta el estado de envío de un pedido por su número.',
+  inputSchema:{type:'object',properties:{pedido:{type:'string'}},required:['pedido']},
+  annotations:{readOnlyHint:true,consequentialHint:false,untrustedContentHint:false}},
+]};
+
+/* =========================================================================
+   2. ESTADO DEL CARRITO
+   ========================================================================= */
+let carrito = {};   // {producto_id: cantidad}
+
+const usd = n => '$' + n.toFixed(2);
+
+function verCarrito(){
+  const lineas = [];
+  let total = 0;
+  for (const [pid, cant] of Object.entries(carrito)){
+    const p = CATALOGO.find(x => x.id === pid);
+    if (!p) continue;
+    const subtotal = p.precio * cant;
+    total += subtotal;
+    lineas.push({producto_id:pid, nombre:p.nombre, cantidad:cant,
+                 precio_unitario:p.precio, subtotal:+subtotal.toFixed(2)});
+  }
+  return {lineas, total:+total.toFixed(2), moneda:'USD'};
+}
+
+function buscarProducto(consulta, precioMax){
+  const q = String(consulta).trim().toLowerCase();
+  return CATALOGO.filter(p =>
+    (p.nombre.toLowerCase().includes(q) || p.categoria.includes(q)) &&
+    (precioMax == null || p.precio <= precioMax)
+  ).map(({id,nombre,precio,stock}) => ({id,nombre,precio,stock}));
+}
+
+function anadirAlCarrito(productoId, cantidad = 1){
+  const pid = String(productoId).trim().toUpperCase();
+  const p = CATALOGO.find(x => x.id === pid);
+  if (!p) throw new Error(`No existe el producto '${productoId}'.`);
+  const cant = Math.max(1, parseInt(cantidad, 10) || 1);
+  if (cant > p.stock) throw new Error(`Solo hay ${p.stock} unidades de ${p.nombre}.`);
+  carrito[pid] = (carrito[pid] || 0) + cant;
+  pintarCarrito();
+  return {ok:true, mensaje:`Añadidas ${cant} unidad(es) de ${p.nombre}.`, carrito:verCarrito()};
+}
+
+function aplicarDescuento(codigo){
+  const cod = String(codigo).trim().toUpperCase();
+  const pct = DESCUENTOS[cod];
+  if (!pct) throw new Error(`Código '${codigo}' inválido. Válidos: ${Object.keys(DESCUENTOS).join(', ')}.`);
+  const c = verCarrito();
+  if (!c.lineas.length) throw new Error('El carrito está vacío.');
+  const descuento = +(c.total * pct).toFixed(2);
+  return {ok:true, codigo:cod, porcentaje:Math.round(pct*100), descuento,
+          total_con_descuento:+(c.total - descuento).toFixed(2)};
+}
+
+function estadoPedido(pedido){
+  const pid = String(pedido).trim().toUpperCase();
+  if (!PEDIDOS[pid]) throw new Error(`No encontré el pedido '${pedido}'. Ejemplos: ${Object.keys(PEDIDOS).join(', ')}.`);
+  return {pedido:pid, ...PEDIDOS[pid]};
+}
+
+/* =========================================================================
+   3. RENDERIZADO
+   ========================================================================= */
+function pintarCatalogo(){
+  document.getElementById('catalogo').innerHTML = CATALOGO.map(p => `
+    <div class="producto">
+      <div class="info">
+        <div class="nombre">${p.nombre}</div>
+        <div class="meta">${p.id} · ${p.categoria} · stock ${p.stock}</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px">
+        <span class="precio">${usd(p.precio)}</span>
+        <button data-add="${p.id}">Añadir</button>
+      </div>
+    </div>`).join('');
+
+  document.querySelectorAll('[data-add]').forEach(b =>
+    b.addEventListener('click', () => {
+      try {
+        anadirAlCarrito(b.dataset.add, 1);
+        // Sincronizar también con el servidor local de Gemma 4 si está activo
+        fetch(API + '/api/tools/ejecutar', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({nombre: 'anadir_al_carrito', argumentos: {producto_id: b.dataset.add, cantidad: 1}})
+        }).catch(() => {});
+      }
+      catch (e) { alert(e.message); }
+    }));
+}
+
+function sincronizarCarritoDesdeServidor(carritoServidor){
+  if (!carritoServidor || !Array.isArray(carritoServidor.lineas)) return;
+  carrito = {};
+  for (const l of carritoServidor.lineas){
+    carrito[l.producto_id] = l.cantidad;
+  }
+}
+
+function pintarCarrito(){
+  const c = verCarrito();
+  const cont = document.getElementById('carrito');
+  cont.innerHTML = c.lineas.length
+    ? c.lineas.map(l => `
+        <div class="linea">
+          <div>
+            <div>${l.nombre}</div>
+            <div class="cant">${l.cantidad} × ${usd(l.precio_unitario)}</div>
+          </div>
+          <div class="precio">${usd(l.subtotal)}</div>
+        </div>`).join('')
+    : '<div class="vacio">El carrito está vacío.</div>';
+  document.getElementById('total').textContent = usd(c.total);
+}
+
+/* =========================================================================
+   4. REGISTRO DE HERRAMIENTAS WEBMCP  <<< EL CORAZÓN DE LA DEMO
+   La misma definicion de JSON Schema que alimenta a Gemma 4 sirve aqui para
+   registrar herramientas en el navegador. Un contrato, dos consumidores.
+   ========================================================================= */
+
+// El estandar WebMCP (navigator.modelContext / document.modelContext) aun esta
+// en Origin Trial en Chrome Canary. Si el navegador actual no lo trae activado
+// nativamente, creamos un polyfill local en window.modelContext para que puedas
+// inspeccionar y ejecutar las herramientas desde la consola y con Gemma 4 local.
+const nativeModelContext = navigator.modelContext || document.modelContext || window.modelContext || null;
+const toolsRegistradas = [];
+
+const modelContext = nativeModelContext || {
+  _polyfill: true,
+  tools: {},
+  async registerTool(def) {
+    this.tools[def.name] = def;
+  }
+};
+if (!window.modelContext) window.modelContext = modelContext;
+
+const IMPLEMENTACIONES = {
+  buscar_producto:   ({consulta, precio_max}) => buscarProducto(consulta, precio_max),
+  ver_carrito:       () => verCarrito(),
+  anadir_al_carrito: ({producto_id, cantidad}) => anadirAlCarrito(producto_id, cantidad),
+  aplicar_descuento: ({codigo}) => aplicarDescuento(codigo),
+  estado_pedido:     ({pedido}) => estadoPedido(pedido),
+};
+
+async function registrarHerramientasWebMCP(){
+  let contrato;
+  try {
+    const r = await fetch('tools.json');
+    if (!r.ok) throw new Error('sin tools.json');
+    contrato = (await r.json()).tools;
+  } catch {
+    // Sin servidor (file://): definimos el contrato en linea para que la
+    // pagina siga siendo autocontenida. Es el mismo contenido del archivo.
+    contrato = CONTRATO_INLINE.tools;
+  }
+
+  for (const t of contrato){
+    const def = {
+      name: t.name,
+      description: t.description,
+      inputSchema: t.inputSchema,
+      annotations: t.annotations,
+      execute: async (args = {}) => {
+        const impl = IMPLEMENTACIONES[t.name];
+        if (!impl) return JSON.stringify({error:`Sin implementación para ${t.name}`});
+        try {
+          return JSON.stringify(impl(args), null, 2);
+        } catch (e) {
+          return JSON.stringify({error: e.message});
+        }
+      },
+    };
+
+    if (modelContext && typeof modelContext.registerTool === 'function'){
+      try {
+        await modelContext.registerTool(def);
+        toolsRegistradas.push({...def, real: !modelContext._polyfill});
+        continue;
+      } catch (e) {
+        console.warn(`WebMCP rechazó ${t.name}:`, e);
+      }
+    }
+    toolsRegistradas.push({...def, real:false});
+  }
+
+  pintarHerramientas();
+  pintarBadgeWebMCP();
+}
+
+function pintarHerramientas(){
+  document.getElementById('contadorTools').textContent =
+    `${toolsRegistradas.length} herramientas · ` +
+    (nativeModelContext
+      ? 'registradas vía API nativa modelContext'
+      : 'contrato activo (Polyfill WebMCP + Puente Gemma 4)');
+
+  document.getElementById('listaTools').innerHTML = toolsRegistradas.map(t => {
+    const a = t.annotations || {};
+    const anns = [
+      a.readOnlyHint        ? '<span class="anno readonly">solo lectura</span>' : '',
+      a.consequentialHint   ? '<span class="anno consequential">irreversible</span>' : '',
+      a.untrustedContentHint? '<span class="anno untrusted">contenido no confiable</span>' : '',
+    ].filter(Boolean).join(' ');
+    const params = Object.keys(t.inputSchema?.properties || {}).join(', ') || 'sin parámetros';
+    return `<div class="tool">
+      <div class="nom"><code>${t.name}</code>${anns}</div>
+      <div class="desc">${t.description}</div>
+      <div class="desc" style="margin-top:4px"><em>parámetros:</em> ${params}</div>
+    </div>`;
+  }).join('');
+}
+
+function pintarBadgeWebMCP(){
+  const b = document.getElementById('badgeWebmcp');
+  if (nativeModelContext){
+    b.className = 'badge verde';
+    b.textContent = 'WebMCP nativo activo';
+  } else {
+    b.className = 'badge verde';
+    b.textContent = 'Contrato WebMCP listo (Polyfill + Gemma 4)';
+    const av = document.getElementById('avisoWebmcp');
+    av.style.display = 'block';
+    av.innerHTML = '<strong>Nota sobre el estándar:</strong> La API nativa del navegador (<code>navigator.modelContext</code>) aún es un experimento de Chrome Canary. ' +
+      'Por eso esta página activa automáticamente un <strong>polyfill local</strong> y conecta el mismo contrato <code>tools.json</code> con tu <strong>agente local Gemma 4</strong> (panel derecho). ' +
+      '¡Puedes usar los botones de sugerencias del panel derecho para ver a <code>gemma4:e4b</code> ejecutando las herramientas en vivo!';
+  }
+}
+
+/* =========================================================================
+   5. FORMULARIO DECLARATIVO + EVENTOS WEBMCP
+   ========================================================================= */
+document.getElementById('formPedido').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const valor = document.getElementById('pedido').value.trim();
+  const salida = document.getElementById('resPedido');
+  if (!valor){ salida.innerHTML = '<span style="color:var(--rojo)">Escribe un número de pedido.</span>'; return; }
+
+  const res = estadoPedido(valor);
+  const html = `<strong>${res.pedido}</strong> — ${res.estado}<br>
+                ${res.ubicacion} · entrega ${res.entrega_estimada}`;
+  salida.innerHTML = html;
+
+  // SubmitEvent.respondWith(): devuelve el resultado al agente que invocó el form.
+  if (e.agentInvoked && typeof e.respondWith === 'function'){
+    e.respondWith(Promise.resolve(JSON.stringify(res)));
+  }
+});
+
+// El navegador avisa cuando un agente activa una herramienta sobre la pagina.
+window.addEventListener('toolactivated', ({toolName}) => {
+  console.log(`[WebMCP] El agente activó la herramienta "${toolName}"`);
+});
+window.addEventListener('toolcancel', ({toolName}) => {
+  console.log(`[WebMCP] El agente canceló "${toolName}"`);
+});
+
+/* =========================================================================
+   6. PANEL DEL AGENTE LOCAL (Gemma 4 vía Ollama)
+   ========================================================================= */
+const salida = document.getElementById('salida');
+const entrada = document.getElementById('entrada');
+const btnEnviar = document.getElementById('enviar');
+
+async function comprobarApi(){
+  const el = document.getElementById('estadoApi');
+  try {
+    const r = await fetch(API + '/api/health');
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    el.innerHTML = `<span style="color:var(--verde)">● puente activo</span> · modelo <code>${d.modelo}</code>`;
+    btnEnviar.disabled = false;
+    // Sincronizar estado inicial del carrito con el servidor
+    const rc = await fetch(API + '/api/carrito');
+    if (rc.ok) {
+      sincronizarCarritoDesdeServidor(await rc.json());
+      pintarCarrito();
+    }
+  } catch {
+    el.innerHTML = '<span style="color:var(--ambar)">● sin puente local</span> · ejecuta <code>python3 gemma4_server.py</code>';
+    btnEnviar.disabled = true;
+  }
+}
+
+function pintarTraza(traza){
+  if (!traza || !traza.length) return '';
+  return `<div class="traza">` + traza.map(p => `
+    <div class="paso">
+      <div class="cab">
+        <span class="badge gris">paso ${p.iteracion}</span>
+        <span>Gemma 4 invocó</span> <code>${p.herramienta}</code>
+      </div>
+      <pre>${JSON.stringify(p.argumentos)}</pre>
+      <div style="margin-top:6px; font-size:11px; color:var(--gris)">resultado:</div>
+      <pre>${JSON.stringify(p.resultado, null, 2)}</pre>
+    </div>`).join('') + `</div>`;
+}
+
+async function preguntar(mensaje){
+  salida.innerHTML = '<div class="pensando"><div class="spinner"></div>Gemma 4 está razonando y eligiendo herramientas…</div>';
+  const t0 = performance.now();
+  try {
+    const r = await fetch(API + '/api/agent', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({mensaje}),
+    });
+    const d = await r.json();
+    if (!r.ok || d.error){
+      salida.innerHTML = `<div class="error"><strong>Error:</strong> ${d.error || r.statusText}</div>`;
+      return;
+    }
+    const seg = ((performance.now() - t0) / 1000).toFixed(1);
+    const n = (d.traza || []).length;
+    salida.innerHTML =
+      `<div style="font-size:12px; color:var(--gris); margin-bottom:9px">
+         ${n} herramienta(s) en ${d.iteraciones} iteración(es) · ${seg}s · todo local, sin nube
+       </div>` +
+      pintarTraza(d.traza) +
+      `<div class="respuesta">${d.respuesta}</div>`;
+    if (d.carrito) sincronizarCarritoDesdeServidor(d.carrito);
+    pintarCarrito();
+  } catch (e) {
+    salida.innerHTML = `<div class="error"><strong>No pude contactar al puente local.</strong><br>
+      Arranca el servidor con <code>python3 gemma4_server.py</code> y recarga la página.<br>
+      <small>${e.message}</small></div>`;
+  }
+}
+
+btnEnviar.addEventListener('click', () => {
+  const v = entrada.value.trim();
+  if (v) { preguntar(v); entrada.value = ''; }
+});
+entrada.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && entrada.value.trim()){ preguntar(entrada.value.trim()); entrada.value = ''; }
+});
+document.querySelectorAll('.sugerencias button').forEach(b =>
+  b.addEventListener('click', () => { entrada.value = b.dataset.q; preguntar(b.dataset.q); }));
+
+/* =========================================================================
+   7. ARRANQUE
+   ========================================================================= */
+pintarCatalogo();
+pintarCarrito();
+registrarHerramientasWebMCP();
+comprobarApi();
+</script>
+</body>
+</html>

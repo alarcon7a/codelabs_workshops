@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guia tecnica y recursos - Antigravity CLI</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700|Roboto+Mono:400,500">
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Roboto, Arial, sans-serif;
+      --blue: #1a73e8;
+      --ink: #202124;
+      --muted: #5f6368;
+      --line: #dadce0;
+      --surface: #fff;
+      --bg: #f8fafd;
+      --green: #188038;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      margin: 0;
+    }
+    main {
+      margin: 0 auto;
+      max-width: 1120px;
+      padding: 36px 24px 56px;
+    }
+    header {
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 28px;
+      padding-bottom: 24px;
+    }
+    h1 {
+      font-size: clamp(32px, 5vw, 56px);
+      line-height: 1;
+      margin: 0 0 14px;
+    }
+    h2 {
+      font-size: 24px;
+      margin: 34px 0 14px;
+    }
+    h3 {
+      font-size: 18px;
+      margin: 24px 0 10px;
+    }
+    p {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+      margin: 0 0 14px;
+    }
+    a {
+      color: var(--blue);
+      font-weight: 500;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .card h3 {
+      margin-top: 0;
+    }
+    code,
+    pre {
+      font-family: "Roboto Mono", monospace;
+    }
+    code {
+      background: #eef3fd;
+      border-radius: 4px;
+      color: #174ea6;
+      padding: 2px 5px;
+    }
+    pre {
+      background: #202124;
+      border-radius: 8px;
+      color: #f8fafd;
+      overflow-x: auto;
+      padding: 16px;
+    }
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    table {
+      background: var(--surface);
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #eef3fd;
+    }
+    .callout {
+      background: #e6f4ea;
+      border-left: 4px solid var(--green);
+      border-radius: 6px;
+      color: #174422;
+      padding: 14px 16px;
+    }
+    .callout p {
+      color: #174422;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Guia tecnica y recursos</h1>
+      <p>Material complementario para impartir el taller de Antigravity CLI: guia markdown, workspace de practica y ejemplos de permisos, rules, skills y MCP.</p>
+    </header>
+
+    <section>
+      <h2>Archivos principales</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>Guia tecnica</h3>
+          <p>Documento de referencia para instructor con mapa del codelab, prompts recomendados, troubleshooting y checklist de seguridad.</p>
+          <a href="antigravity-cli-docs.md" target="_blank" rel="noopener">Abrir markdown</a>
+        </article>
+        <article class="card">
+          <h3>Workspace de practica</h3>
+          <p>Proyecto pequeno para probar contexto local, permisos de escritura, comandos, tests, rules y skills sin tocar un repo real.</p>
+          <a href="examples/antigravity-practice/README.md" target="_blank" rel="noopener">Ver instrucciones</a>
+        </article>
+        <article class="card">
+          <h3>Permisos de ejemplo</h3>
+          <p>Configuracion conservadora para explicar <code>allow</code>, <code>ask</code>, <code>deny</code>, sandbox y acceso al workspace.</p>
+          <a href="examples/antigravity-practice/settings.permissions.example.json" target="_blank" rel="noopener">Ver JSON</a>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Preparacion rapida</h2>
+      <pre><code>cd antigravity-cli-codelabs/docs/examples/antigravity-practice
+agy</code></pre>
+      <p>Despues de iniciar la CLI desde esa carpeta, usa este prompt para validar que el agente ve el workspace correcto:</p>
+      <pre><code>Analiza @. y dime que archivos hay, que riesgos ves y que ejercicio recomiendas hacer primero. No edites archivos todavia.</code></pre>
+    </section>
+
+    <section>
+      <h2>Ejercicios incluidos</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Archivo</th>
+            <th>Prompt sugerido</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Contexto con <code>@</code></td>
+            <td><code>src/math.js</code></td>
+            <td>Encuentra el bug en <code>@src/math.js</code> y explica como lo verificarias.</td>
+          </tr>
+          <tr>
+            <td>Permisos de escritura</td>
+            <td><code>src/math.js</code></td>
+            <td>Corrige el bug minimo y ejecuta <code>npm test</code>.</td>
+          </tr>
+          <tr>
+            <td>Rules locales</td>
+            <td><code>.agents/AGENTS.md</code></td>
+            <td>Resume que reglas locales debes seguir en este proyecto.</td>
+          </tr>
+          <tr>
+            <td>Skills</td>
+            <td><code>.agents/skills/code-reviewer/SKILL.md</code></td>
+            <td>Usa la skill <code>code-reviewer</code> para revisar <code>@src/profile.js</code>.</td>
+          </tr>
+          <tr>
+            <td>MCP</td>
+            <td><code>.agents/mcp_config.example.json</code></td>
+            <td>Explica que servidores MCP define este archivo y que secretos faltan.</td>
+          </tr>
+          <tr>
+            <td>Dynamic Subagents</td>
+            <td>SDK (Python)</td>
+            <td>Crea un orquestador que delegue tareas a subagentes usando <code>mode="task"</code>.</td>
+          </tr>
+          <tr>
+            <td>Worktree Mode</td>
+            <td><code>settings.json</code></td>
+            <td>Configura <code>gitWorktreeMode</code> y ejecuta la CLI con <code>agy --worktree-mode</code>.</td>
+          </tr>
+          <tr>
+            <td>Cross-Repo Context</td>
+            <td><code>.agents/project.json</code></td>
+            <td>Declara límites y alias en <code>projectRoots</code> para acceder a múltiples directorios.</td>
+          </tr>
+          <tr>
+            <td>Asynchronous Queue</td>
+            <td><code>/schedule</code> / <code>/tasks</code></td>
+            <td>Ejecuta tareas en segundo plano usando la cola asíncrona de Antigravity.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Flujo recomendado</h2>
+      <div class="callout">
+        <p>Primero pide analisis sin editar, despues plan, luego aprueba permisos acotados y cierra con validacion. El objetivo del taller es que cada permiso tenga una intencion clara.</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

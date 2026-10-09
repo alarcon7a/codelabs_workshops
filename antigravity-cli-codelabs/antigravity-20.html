@@ -1,0 +1,152 @@
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Módulo Extra: Antigravity 2.0</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/claat-public/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>  <google-codelab codelab-gaid="Google Analytics ID"
+                  id="antigravity-20-platform"
+                  title="Módulo Extra: Antigravity 2.0"
+                  environment="web"
+                  feedback-link="https://antigravity.google/docs">
+
+      <google-codelab-step label="Qué es Antigravity 2.0" duration="4">
+        <p><img src="img/AGY CLI Blog - Wide.png" alt="Antigravity 2.0 platform tools"></p>
+        <p>🎯 <strong>Objetivo:</strong> entender qué cambia al pasar de una CLI conversacional a una plataforma multiagente con artifacts y validación.</p>
+        <p>Antigravity 2.0 es un módulo separado porque no se limita a la terminal. Su foco es una plataforma agent-first para coordinar agentes, revisar artifacts, validar en navegador y extender workflows con plugins y SDK.</p>
+        <h2 is-upgraded>Diferencia principal</h2>
+        <p>En el codelab inicial usaste una CLI interactiva. En 2.0 el trabajo se organiza como tareas agentic observables: cada agente puede tener un rol, producir artifacts y dejar evidencia de avance o validación.</p>
+        <p>Positive : Piensa en 2.0 como una capa de coordinación: CLI, app de escritorio, manager visual, plugins y workflows comparten una forma común de trabajar con agentes.</p>
+        <p>🔍 <strong>Checkpoint:</strong> estás listo cuando puedes explicar en una frase la diferencia entre un prompt en la CLI y una tarea agentic con artifacts.</p>
+      </google-codelab-step>
+
+      <google-codelab-step label="Herramientas de plataforma" duration="10">
+        <p>🎯 <strong>Objetivo:</strong> reconocer las piezas de la plataforma (Agent Manager, artifacts, browser validation, SDK, plugins, subagentes) y para qué sirve cada una.</p>
+        <h2 is-upgraded>Features concretas de Antigravity 2.0</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Herramienta</th>
+              <th>Qué permite hacer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Agent Manager</strong></td>
+              <td>Lanzar, observar y coordinar varios agentes en paralelo. Úsalo para separar análisis, implementación, pruebas, documentación y revisión de seguridad.</td>
+            </tr>
+            <tr>
+              <td><strong>Desktop app</strong></td>
+              <td>Centraliza sesiones, workspaces, artifacts y estado de agentes. Es el lugar natural para monitorear trabajos largos que en terminal serían difíciles de seguir.</td>
+            </tr>
+            <tr>
+              <td><strong>Artifacts verificables</strong></td>
+              <td>Registra planes, checklists, screenshots, browser recordings, resultados de pruebas y decisiones técnicas. Sirven para revisar intención y evidencia, no solo el texto final del agente.</td>
+            </tr>
+            <tr>
+              <td><strong>Browser validation</strong></td>
+              <td>Permite que el agente abra una app, recorra flujos de usuario, capture pantallas y grabe evidencia visual para validar cambios de frontend.</td>
+            </tr>
+            <tr>
+              <td><strong>SDK</strong></td>
+              <td>Permite crear workflows propios alrededor de agentes: iniciar tareas, conectar herramientas internas, definir pasos de revisión y producir artifacts personalizados.</td>
+            </tr>
+            <tr>
+              <td><strong>Plugins</strong></td>
+              <td>Agrupan extensiones, skills, hooks, subagentes e integraciones en paquetes reutilizables para equipos o proyectos.</td>
+            </tr>
+            <tr>
+              <td><strong>Subagentes</strong></td>
+              <td>Dividen una tarea compleja en agentes especializados. Por ejemplo: uno inspecciona arquitectura, otro modifica código y otro valida regresiones.</td>
+            </tr>
+            <tr>
+              <td><strong>Backend unificado</strong></td>
+              <td>Busca que CLI, app, plugins y agentes compartan más contexto y capacidades, reduciendo saltos entre herramientas separadas.</td>
+            </tr>
+          </tbody>
+        </table>
+      </google-codelab-step>
+
+      <google-codelab-step label="Flujos multiagente" duration="8">
+        <p>🎯 <strong>Objetivo:</strong> identificar escenarios reales donde coordinar varios agentes aporta más que un solo prompt en la terminal.</p>
+        <h2 is-upgraded>Dónde 2.0 aporta más que la CLI</h2>
+        <ul>
+          <li><strong>Refactor grande:</strong> un agente prepara el plan, otro toca módulos, otro corre pruebas y otro redacta el resumen de revisión.</li>
+          <li><strong>Frontend con evidencia:</strong> el agente implementa, abre navegador, captura screenshots y deja un browser recording como artifact.</li>
+          <li><strong>Release checklist:</strong> varios agentes validan tests, documentación, migraciones, changelog y riesgos antes de entregar.</li>
+          <li><strong>Onboarding de repo:</strong> un agente explora arquitectura, otro genera mapa de módulos y otro prepara tareas iniciales para nuevos contributors.</li>
+          <li><strong>Automatización de equipo:</strong> plugins y SDK empaquetan políticas internas, revisiones obligatorias y herramientas privadas.</li>
+        </ul>
+        <h2 is-upgraded>Migración conceptual desde Gemini CLI</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Antes</th>
+              <th>Con Antigravity 2.0</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Prompt individual en terminal</td>
+              <td>Tarea agentic con plan, artifacts y seguimiento visual</td>
+            </tr>
+            <tr>
+              <td>Un agente en una sesión</td>
+              <td>Varios agentes coordinados por objetivo, rol o workspace</td>
+            </tr>
+            <tr>
+              <td>Validación textual</td>
+              <td>Tests, screenshots, browser recordings y entregables revisables</td>
+            </tr>
+            <tr>
+              <td>Extensiones dispersas</td>
+              <td>Plugins con skills, hooks, subagentes e integraciones empaquetadas</td>
+            </tr>
+            <tr>
+              <td>Automatización manual por prompts</td>
+              <td>Workflows repetibles con SDK y políticas compartidas</td>
+            </tr>
+          </tbody>
+        </table>
+      </google-codelab-step>
+
+      <google-codelab-step label="Prompt y validación" duration="5">
+        <p>🎯 <strong>Objetivo:</strong> lanzar una tarea multiagente con roles y exigir entregables verificables.</p>
+        <h2 is-upgraded>Prompt recomendado para 2.0</h2>
+        <p>👉 <strong>Copia y pega este prompt</strong> en un entorno con Antigravity 2.0:</p>
+        <pre><code language="language-text" class="language-text">Trabaja como plataforma multiagente.
+Agente 1: analiza arquitectura y riesgos.
+Agente 2: implementa el cambio mínimo.
+Agente 3: valida con tests y navegador.
+Agente 4: prepara artifacts de revisión.
+Entrega: plan, diff resumido, resultados de pruebas, screenshots o browser recording, y riesgos pendientes.</code></pre>
+        <p>✅ <strong>Resultado esperado:</strong> en lugar de una respuesta de texto, obtienes entregables revisables (plan, diff, resultados de pruebas y evidencia visual) asociados a la tarea.</p>
+        <p>🔍 <strong>Checkpoint:</strong> estás listo cuando puedes describir qué agente hace qué y qué artifact deja cada uno como evidencia.</p>
+        <p>Negative : No asumas paridad exacta entre Gemini CLI, Antigravity CLI y Antigravity 2.0. Antes de un taller o migración de equipo, valida qué versión está instalada y qué herramientas están habilitadas: Agent Manager, browser validation, plugins, subagentes, SDK y artifacts.</p>
+      </google-codelab-step>
+
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/claat-public/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/prettify.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/codelab-elements.js"></script>
+  <script src="https://support.google.com/inapp/api.js"></script>
+
+</body>
+</html>

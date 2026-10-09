@@ -1,0 +1,35 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2026-10-09T00:17:27-04:00",
+  "id": "gemma-4-open-model-1-1",
+  "duration": 0,
+  "title": "Gemma 4 y EmbeddingGemma 2: Modelos Abiertos y Agentes Locales en tu Máquina",
+  "authors": "Codelab Gemma 4",
+  "summary": "Taller práctico de Gemma 4 (gemma4:e4b) y EmbeddingGemma 2 en local: razonamiento híbrido, visión con Nano Banana, audio con Gemini TTS, Function Calling, WebMCP y RAG multimodal.",
+  "source": "gemma-4-taller.md",
+  "theme": "",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "ai",
+    "gemma",
+    "local-ai",
+    "agents",
+    "embeddings"
+  ],
+  "tags": [
+    "embeddinggemma-2",
+    "gemma-4",
+    "litert-lm",
+    "ollama",
+    "python",
+    "transformers",
+    "webmcp"
+  ],
+  "feedback": "https://github.com/alarcon7a/codelabs_workshops/issues",
+  "url": "gemma-4-open-model-1-1"
+}

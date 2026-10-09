@@ -1,0 +1,917 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Taller Práctico: Dominando Gemini CLI</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/claat-public/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>
+  <google-codelab codelab-gaid="Google Analytics ID"
+                  id="gemini-cli-workshop"
+                  title="Taller Práctico: Dominando Gemini CLI"
+                  environment="web"
+                  feedback-link="https://github.com/google-gemini/gemini-cli/issues">
+    
+      <google-codelab-step label="Introducción" duration="2">
+        <p><img src="https://gemini-cli-codelabs.pages.dev/img/img/Gemini_CLI_Hero_Final.width-1300.png" alt="Gemini CLI home"></p>
+        <p>¡Bienvenido al taller de Gemini CLI! En este codelab, aprenderás a instalar, configurar y utilizar la interfaz de línea de comandos (CLI) de Gemini para potenciar tu flujo de trabajo de desarrollo.</p>
+<p>Este taller está impartido por Carlos Alarcon. Conoce más en <a href="https://www.carlos-alarcon.com" target="_blank" rel="noopener">carlos-alarcon.com</a>.</p>
+<p>Gemini CLI no es solo un chat; es un <strong>agente colaborativo</strong> que vive en tu terminal, entiende tu código y puede ejecutar tareas complejas utilizando herramientas del sistema.</p>
+<h2 is-upgraded>Lo que aprenderás</h2>
+<ul>
+<li>Cómo instalar y autenticar Gemini CLI</li>
+<li>Cómo interactuar con el modelo Gemini desde tu terminal</li>
+<li>Cómo dar contexto de tus archivos y organizar tu proyecto</li>
+<li>Cómo utilizar herramientas integradas para navegar por internet</li>
+<li>Integración avanzada con MCP (Model Context Protocol)</li>
+<li>Qué son las Extensiones y cómo instalarlas</li>
+<li>Cómo utilizar la memoria persistente (<code>GEMINI.md</code>)</li>
+</ul>
+<h2 is-upgraded>Requisitos previos</h2>
+<ul>
+<li>Node.js versión 20.0.0 o superior</li>
+<li>Una cuenta de Google o una API Key de Gemini</li>
+<li>Un entorno de terminal (Linux, macOS, Windows WSL/PowerShell)</li>
+</ul>
+<p>Positive : Este taller está diseñado para desarrolladores de todos los niveles. No necesitas experiencia previa con IA.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Instalación" duration="3">
+        <p><img src="https://gemini-cli-codelabs.pages.dev/img/img/install.png" alt="Gemini CLI home"></p>
+        <p>El primer paso es instalar la herramienta en tu sistema. Gemini CLI se distribuye como un paquete npm.</p>
+<h2 is-upgraded>Pasos de instalación</h2>
+<ol type="1">
+<li>Abre tu terminal</li>
+<li>Ejecuta el siguiente comando para instalar Gemini CLI globalmente:</li>
+</ol>
+<pre><code language="language-bash" class="language-bash">npm install -g @google/gemini-cli
+</code></pre>
+<ol type="1" start="3">
+<li>Verifica la instalación comprobando la versión:</li>
+</ol>
+<pre><code language="language-bash" class="language-bash">gemini --version
+</code></pre>
+<p>Deberías ver un número de versión (ej. <code>1.0.0</code> o superior).</p>
+<p>Positive : Si encuentras problemas de permisos en Linux/macOS, puedes necesitar usar <code>sudo</code> o configurar npm para instalar paquetes globales sin permisos de administrador.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Autenticación" duration="3">
+        <p><img src="https://gemini-cli-codelabs.pages.dev/img/img/auth.webp" alt="Gemini CLI home"></p>
+        <p>Antes de empezar a chatear, necesitas conectar Gemini CLI con tu cuenta.</p>
+<h2 is-upgraded>Proceso de autenticación</h2>
+<ol type="1">
+<li>Ejecuta el comando principal:</li>
+</ol>
+<pre><code language="language-bash" class="language-bash">gemini
+</code></pre>
+<ol type="1" start="2">
+<li>Se te presentará un menú interactivo. Usa las flechas del teclado para seleccionar <strong>Login with Google</strong> (Recomendado) y pulsa Enter.</li>
+<li>Sigue las instrucciones en el navegador que se abrirá para autorizar la aplicación.</li>
+<li>Una vez autenticado, volverás a la terminal y verás el prompt de bienvenida de Gemini.</li>
+</ol>
+<p>Negative : <strong>Alternativa con API Key</strong>: Si prefieres usar una API Key, selecciona &#34;Use Gemini API key&#34; en el menú y sigue las instrucciones para pegar tu clave de <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>.</p>
+<h2 is-upgraded>Modo no interactivo</h2>
+<p>Si quieres usar Gemini CLI dentro de scripts o pipelines, puedes ejecutarlo en modo no interactivo: le envías el prompt y termina al responder.</p>
+<pre><code language="language-bash" class="language-bash">echo &#34;¿Qué es el fine tuning?&#34; | gemini
+</code></pre>
+<p>También puedes pasar el prompt directamente con un flag.</p>
+<pre><code language="language-bash" class="language-bash">gemini -p &#34;Genera un resumen rápido de este repo&#34;
+</code></pre>
+<p>Tip : Útil para CI/CD y automatizaciones donde no hay TTY; la salida se imprime en stdout y el proceso finaliza al completar la respuesta.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Primeros Pasos y Comandos Básicos" duration="5">
+        <p>Ahora que estás dentro, ¡probemos lo básico!</p>
+<h2 is-upgraded>Chat Básico</h2>
+<p>Escribe cualquier pregunta o instrucción directamente en el prompt.</p>
+<p><strong>Intenta esto:</strong></p>
+<pre><code language="language-text" class="language-text">Explica brevemente qué es la arquitectura MVC.
+</code></pre>
+<h2 is-upgraded>Comandos de Barra (<code>/</code>)</h2>
+<p>Gemini CLI tiene comandos especiales que empiezan con <code>/</code>.</p>
+<ul>
+<li><strong>Limpiar la pantalla: </strong><code>/clear</code></li>
+<li><strong>Ver ayuda: </strong><code>/help</code></li>
+<li><strong>Salir: </strong><code>/quit</code> o <code>/exit</code></li>
+<li><strong>Ver herramientas activas: </strong><code>/tools</code></li>
+<li><strong>Gestionar memoria: </strong><code>/memory show</code>, <code>/memory add &lt;texto&gt;</code> o <code>/memory refresh</code></li>
+<li><strong>Extensiones instaladas: </strong><code>/extensions</code></li>
+</ul>
+<p>Positive : <strong>Tarea práctica</strong>: Escribe <code>/help</code> para ver la lista completa de comandos disponibles.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Trabajando con Archivos (
+@)" duration="7">
+        <p>Una de las características más potentes es la capacidad de leer tus archivos locales. Usa el símbolo <code>@</code> para referenciar archivos o directorios.</p>
+<h2 is-upgraded>Ejercicio práctico: Encontrar un bug</h2>
+<ol type="1">
+<li>Crea un archivo de prueba en otra terminal (o usa uno existente):</li>
+</ol>
+<pre><code language="language-bash" class="language-bash">echo &#34;function suma(a, b) { return a - b; }&#34; &gt; bug.js
+</code></pre>
+<p>Negative : <strong>Nota</strong>: ¡Hemos introducido un bug intencional, restando en lugar de sumar!</p>
+<ol type="1" start="2">
+<li>En Gemini CLI, pide que encuentre el error usando el contexto del archivo:</li>
+</ol>
+<pre><code language="language-text" class="language-text">Encuentra el error en este código: @bug.js
+</code></pre>
+<p>Gemini leerá el contenido de <code>bug.js</code>, analizará el código y te explicará que la función <code>suma</code> está restando.</p>
+<h2 is-upgraded>Referenciar directorios completos</h2>
+<p>También puedes referenciar carpetas enteras para resumir proyectos:</p>
+<pre><code language="language-text" class="language-text">Resumen de este directorio: @.
+</code></pre>
+<p>Positive : El símbolo <code>@</code> es extremadamente útil cuando trabajas en proyectos grandes. Puedes referenciar múltiples archivos en un solo prompt.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Organización de Archivos: Un Caso Práctico" duration="8">
+        <p>Gemini CLI no solo lee, también puede ayudarte a organizar tu espacio de trabajo. Vamos a simular una carpeta desordenada y pedirle que la organice.</p>
+<h2 is-upgraded>Preparación</h2>
+<p>Abre una nueva terminal y crea un desorden simulado:</p>
+<pre><code language="language-bash" class="language-bash">mkdir desorden
+cd desorden
+touch foto1.jpg foto2.png notas.txt script.py data.json todo.md config.yml
+cd ..
+</code></pre>
+<h2 is-upgraded>La Tarea</h2>
+<p>Entra en la carpeta <code>desorden</code> con Gemini CLI (o navega hasta ella).</p>
+<p><strong>Prompt:</strong></p>
+<pre><code language="language-text" class="language-text">Estoy en la carpeta &#39;desorden&#39;. Mira los archivos que hay y organízalos en subcarpetas lógicas (ej. Imágenes, Documentos, Código). Muévelos automáticamente.
+</code></pre>
+<h2 is-upgraded>Acción</h2>
+<p>Gemini analizará los archivos (usando herramientas como <code>list_directory</code>) y propondrá un plan:</p>
+<ul>
+<li>Mover <code>.jpg</code>, <code>.png</code> a <code>Imágenes/</code></li>
+<li>Mover <code>.txt</code>, <code>.md</code> a <code>Documentos/</code></li>
+<li>Mover <code>.py</code>, <code>.json</code>, <code>.yml</code> a <code>Código/</code> o <code>Config/</code></li>
+</ul>
+<p>Te pedirá confirmación para ejecutar los comandos <code>run_shell_command</code> (como <code>mv ...</code>). Acepta y observa cómo tu carpeta queda limpia en segundos.</p>
+<p>Positive : Este tipo de automatización puede ahorrarte horas cuando trabajas con proyectos grandes o desorganizados.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Modo Shell (
+!)" duration="5">
+        <p>Gemini CLI puede ejecutar comandos de sistema por ti o permitirte ejecutarlos directamente sin salir de la herramienta.</p>
+<h2 is-upgraded>Ejecución Directa</h2>
+<p>Usa el prefijo <code>!</code> para ejecutar un comando de shell y volver al chat.</p>
+<p><strong>Intenta esto:</strong></p>
+<pre><code language="language-text" class="language-text">!ls -la
+</code></pre>
+<p>Negative : En Windows usa <code>!dir</code> en lugar de <code>!ls</code></p>
+<h2 is-upgraded>Agente Autónomo</h2>
+<p>También puedes pedirle a Gemini que ejecute comandos por ti en lenguaje natural. Gemini te pedirá confirmación antes de ejecutar acciones que modifiquen el sistema.</p>
+<p><strong>Prompt:</strong></p>
+<pre><code language="language-text" class="language-text">Crea un archivo llamado &#34;hola.txt&#34; que contenga el texto &#34;Hola desde Gemini CLI&#34;.
+</code></pre>
+<p>Gemini generará una llamada a la herramienta <code>run_shell_command</code> o <code>write_file</code>. Aprobar la acción (presionando <code>y</code> si se solicita confirmación) creará el archivo.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Navegando en Internet y Herramientas (Tools)" duration="7">
+        <p>Gemini CLI viene equipado con &#34;herramientas&#34; (Tools) que le dan superpoderes más allá de generar texto. Dos de las más útiles son <code>google_web_search</code> y <code>web_fetch</code>.</p>
+<h2 is-upgraded>Búsqueda Web</h2>
+<p>¿Necesitas información actualizada que el modelo no tiene en su entrenamiento?</p>
+<p><strong>Intenta esto:</strong></p>
+<pre><code language="language-text" class="language-text">Busca en internet el precio actual de la accion de Nvidia.
+</code></pre>
+<p>Gemini usará la herramienta <code>google_web_search</code>, obtendrá resultados reales y te dará una respuesta fundamentada.</p>
+<h2 is-upgraded>Leer URLs Específicas</h2>
+<p>Si tienes un enlace a una documentación o artículo:</p>
+<p><strong>Intenta esto:</strong></p>
+<pre><code language="language-text" class="language-text">Ingresa a https://www.carlos-alarcon.com y dime de que trata
+</code></pre>
+<p>La herramienta <code>web_fetch</code> descargará el contenido de la página para que Gemini pueda analizarlo, incluso si es muy largo.</p>
+<h2 is-upgraded>Ver todas las tools</h2>
+<p>Para ver qué herramientas tienes disponibles en tu sesión actual:</p>
+<pre><code language="language-text" class="language-text">/tools
+</code></pre>
+<p>Positive : Las herramientas convierten a Gemini CLI en un asistente verdaderamente proactivo que puede interactuar con el mundo real.</p>
+
+
+      </google-codelab-step>
+
+      <google-codelab-step label="Ejercicio Práctico: Bug Runner Game 🎮" duration="45">
+        <p><img src="https://gemini-cli-codelabs.pages.dev/img/img/dinosaurio-google.webp" alt="Gemini CLI home"></p>
+        <p>Antes de explorar las integraciones avanzadas con MCP, vamos a poner en práctica todo lo aprendido con un proyecto completo y divertido.</p>
+        <h2 is-upgraded>Descripción del Proyecto</h2>
+        <p>Crearás un juego de navegador inspirado en el clásico juego del dinosaurio de Chrome, pero con un giro único: <strong>un desarrollador que salta sobre "bugs" de software</strong> en lugar de cactus.</p>
+
+        <h2 is-upgraded>Características del Juego</h2>
+        <ul>
+          <li><strong>Motor del juego:</strong> HTML5 Canvas + JavaScript vanilla (o framework moderno si prefieres)</li>
+          <li><strong>Obstáculos creativos:</strong> Diferentes tipos de bugs (syntax errors, merge conflicts, runtime exceptions) con visuales únicos</li>
+          <li><strong>Power-ups especiales:</strong> "Debug Tokens" que permiten:
+            <ul>
+              <li>Modo debug: Ralentiza la velocidad del juego temporalmente</li>
+              <li>Auto-fix: Arregla automáticamente el siguiente bug</li>
+            </ul>
+          </li>
+          <li><strong>Sistema de puntuación:</strong> Score actual, high score y racha de bugs evitados</li>
+          <li><strong>Dificultad progresiva:</strong> Velocidad incremental y patrones de bugs más complejos</li>
+          <li><strong>Estilo retro:</strong> Gráficos pixel art y efectos de sonido 8-bit</li>
+          <li><strong>Responsive:</strong> Controles de teclado (desktop) y táctiles (móvil)</li>
+          <li><strong>Easter egg:</strong> Al alcanzar cierta puntuación, se desbloquea un "Code Review Jetpack" que permite volar sobre bugs durante 10 segundos</li>
+          <li><strong>Optimización:</strong> Código limpio, modular y optimizado para evitar memory leaks y caídas de frame rate</li>
+        </ul>
+
+        <h2 is-upgraded>Requisitos Técnicos</h2>
+        <pre><code language="language-text" class="language-text">✓ HTML5 Canvas para renderizado
+✓ JavaScript moderno (ES6+)
+✓ Animaciones fluidas (RequestAnimationFrame)
+✓ Sistema de colisiones preciso
+✓ Gestión de eventos (keyboard + touch)
+✓ Audio Web API para efectos de sonido
+✓ LocalStorage para guardar high score
+✓ Código comentado y mantenible
+✓ Sin memory leaks ni problemas de rendimiento</code></pre>
+
+        <h2 is-upgraded>Cómo usar Gemini CLI para este proyecto</h2>
+        <p>Este ejercicio es perfecto para demostrar el poder de Gemini CLI como asistente de desarrollo. Aquí te mostramos cómo aprovecharlo:</p>
+
+        <h2 is-upgraded>Desafío completo para Gemini CLI</h2>
+        <p>Si quieres ver el verdadero poder de Gemini CLI, intenta este prompt detallado. Copia y pega lo siguiente:</p>
+        <pre><code language="language-text" class="language-text">Actúa como un desarrollador senior de videojuegos web. Tu tarea es crear un juego completo y funcional llamado 'Bug Runner', inspirado en el Chrome Dino game.
+
+Requisitos Técnicos:
+1. Stack: HTML5 Canvas, CSS3 y Vanilla JavaScript (ES6+).
+2. Archivos: Genera `index.html`, `styles.css`, y `game.js`.
+3. Assets: NO uses imágenes externas. Usa métodos de canvas para dibujar sprites pixel-art o formas geométricas de colores para representar:
+   - Jugador (Desarrollador): Un cuadrado azul o sprite generado por código.
+   - Obstáculos (Bugs): Triángulos rojos o formas "glitchy".
+   - Power-ups: Círculos verdes o dorados.
+4. Responsividad: El juego debe ajustar el canvas al tamaño de la ventana y manejar eventos touch para móviles.
+
+Gameplay:
+- Mecánica: Runner infinito con salto (barra espaciadora / tap).
+- Obstáculos: 3 tipos de bugs con velocidades/patrones ligeramente diferentes.
+- Power-ups: 'Debug Token' que ralentiza el tiempo por 5 segundos.
+- Puntuación: Contador visible que incrementa con la distancia. Guardar High Score en LocalStorage.
+- Game Loop: Usa `requestAnimationFrame` para 60 FPS estables.
+- Estados: Pantalla de inicio, Jugando, Game Over (con botón de reinicio).
+
+Instrucciones adicionales:
+- Código limpio, comentado y modular (usa clases para Player, Obstacle, Game).
+- Asegúrate de que no haya errores de sintaxis y que el juego sea ejecutable abriendo index.html.
+- Incluye un Easter Egg: Si el jugador llega a 1000 puntos, cambia el color de fondo a modo "Matrix".</code></pre>
+
+        <h2 is-upgraded>Estructura de archivos esperada</h2>
+        <pre><code language="language-bash" class="language-bash">bug-runner/
+├── index.html          # Estructura HTML con canvas
+├── styles.css          # Estilos pixel-art y responsive
+├── game.js             # Lógica principal del juego
+├── player.js           # (Opcional) Clase del jugador
+├── obstacle.js         # (Opcional) Sistema de obstáculos
+├── powerup.js          # (Opcional) Sistema de power-ups
+└── README.md           # Documentación del proyecto</code></pre>
+
+        <h2 is-upgraded>Tips para el desarrollo</h2>
+        <ul>
+          <li><strong>Game Loop:</strong> Usa <code>requestAnimationFrame</code> para animaciones suaves a 60 FPS</li>
+          <li><strong>Colisiones:</strong> Implementa detección de colisión por cajas (bounding boxes)</li>
+          <li><strong>Física:</strong> Aplica gravedad y velocidad para un salto realista</li>
+          <li><strong>Memoria:</strong> Remueve obstáculos fuera de pantalla para evitar memory leaks</li>
+          <li><strong>Audio:</strong> Precarga sonidos para evitar latencia</li>
+          <li><strong>Responsive:</strong> Ajusta el canvas al tamaño de la ventana con <code>window.devicePixelRatio</code></li>
+        </ul>
+
+        <h2 is-upgraded>Criterios de éxito</h2>
+        <p>Tu juego estará completo cuando:</p>
+        <ol type="1">
+          <li>✓ El personaje salte suavemente con física realista</li>
+          <li>✓ Los obstáculos aparezcan aleatoriamente y se muevan</li>
+          <li>✓ Las colisiones se detecten correctamente (game over)</li>
+          <li>✓ El score aumente y se guarde el high score</li>
+          <li>✓ Los power-ups funcionen (debug mode y auto-fix)</li>
+          <li>✓ La dificultad aumente con el tiempo</li>
+          <li>✓ Los gráficos tengan estilo pixel art retro</li>
+          <li>✓ Los sonidos se reproduzcan correctamente</li>
+          <li>✓ Funcione en móvil y desktop</li>
+          <li>✓ El Easter egg del jetpack se active</li>
+          <li>✓ El código esté limpio, comentado y optimizado</li>
+        </ol>
+
+        <p>Positive : Este ejercicio combina creatividad, lógica de programación y optimización. Es perfecto para demostrar cómo Gemini CLI puede ser tu pair programmer ideal, ayudándote desde la planificación hasta el debugging.</p>
+
+      </google-codelab-step>
+
+      <google-codelab-step label="Integración con MCP (Model Context Protocol) - Conceptos" duration="5">
+        <p><img src="https://gemini-cli-codelabs.pages.dev/img/img/mcp.png" alt="Gemini CLI home"></p>
+        <p>MCP es un estándar abierto que permite a Gemini conectarse con tus datos y herramientas externas de forma segura. Piensa en ello como <strong>&#34;plugins&#34; universales</strong> que permiten a la IA leer bases de datos, interactuar con APIs o consultar documentación específica.</p>
+<h2 is-upgraded>¿Qué es un servidor MCP?</h2>
+<p>Un servidor MCP expone tres tipos de capacidades:</p>
+<ul>
+<li><strong>Recursos:</strong> Datos que la IA puede leer (logs, ficheros, tablas)</li>
+<li><strong>Herramientas:</strong> Acciones que la IA puede ejecutar (crear tickets, consultar APIs)</li>
+<li><strong>Prompts:</strong> Plantillas predefinidas de interacción</li>
+</ul>
+<h2 is-upgraded>Cómo agregar un servidor MCP</h2>
+<ol type="1">
+<li>Registra el servidor con un alias y el comando que lo inicia (la CLI lo ejecuta como proceso hijo cuando abres una sesión):</li>
+</ol>
+<pre><code language="language-bash" class="language-bash">gemini mcp add &lt;alias&gt; &lt;comando_para_iniciar_servidor&gt;
+# Ejemplo genérico (Node):
+gemini mcp add docs npx -y @acme/mcp-docs-server
+</code></pre>
+<ol type="1" start="2">
+<li>Si el servidor requiere credenciales o configuraciones, pásalas con <code>-e</code> como variables de entorno:</li>
+</ol>
+<pre><code language="language-bash" class="language-bash">gemini mcp add github npx -y @modelcontextprotocol/server-github -e GITHUB_PERSONAL_ACCESS_TOKEN=tu_token
+</code></pre>
+<ol type="1" start="3">
+<li>Confirma que quedó registrado:</li>
+</ol>
+<pre><code language="language-bash" class="language-bash">gemini mcp list
+</code></pre>
+<ol type="1" start="4">
+<li>Si ya no lo necesitas, elimínalo con su alias:</li>
+</ol>
+<pre><code language="language-bash" class="language-bash">gemini mcp remove &lt;alias&gt;
+</code></pre>
+<h2 is-upgraded>Cómo se usan en el chat</h2>
+<ul>
+<li>Las tools y recursos que expone cada servidor aparecen en <code>/tools</code> y <code>/resources</code> (si el servidor soporta recursos).</li>
+<li>Para leer un recurso, referencia su URI o pídele a Gemini que lo consulte (ej. <code>@resource://docs/intro</code>).</li>
+<li>Para ejecutar una herramienta, describe la acción en lenguaje natural; Gemini te mostrará el plan y pedirá confirmación si aplica.</li>
+</ul>
+<h2 is-upgraded>Tips rápidos</h2>
+<ul>
+<li>Elige alias cortos y descriptivos (ej. <code>github</code>, <code>tickets</code>, <code>db</code>).</li>
+<li>Instala dependencias del servidor (npm, binarios, Python, etc.) antes de añadirlo.</li>
+<li>Si falla al iniciar, revisa la salida en la terminal: suele indicar librerías faltantes o variables de entorno incorrectas.</li>
+</ul>
+<p>Positive : MCP es un protocolo abierto creado por Anthropic, pero compatible con múltiples sistemas de IA, no solo Gemini.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="MCP - Caso Práctico 1: Documentación" duration="8">
+        <p>Imagina que quieres que Gemini tenga acceso instantáneo a la documentación técnica de una librería específica sin tener que buscarla en internet. Para ello usamos servidores de documentación compatibles con MCP como <code>context7</code>.</p>
+<h2 is-upgraded>Configuración</h2>
+<ol type="1">
+<li>Edita tu <code>settings.json</code> (global en <code>~/.gemini/settings.json</code> o de proyecto en <code>.gemini/settings.json</code>) y añade la entrada para Context7:</li>
+</ol>
+<pre><code language="language-json" class="language-json">{
+  "mcpServers": {
+    "context7": {
+      "httpUrl": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "Accept": "application/json, text/event-stream"
+      }
+    }
+  }
+}
+</code></pre>
+<p>Negative : Usa tu propia API key en <code>CONTEXT7_API_KEY</code>. Tras guardar, reinicia el CLI o usa <code>/memory refresh</code> para recargar la configuración.</p>
+<h2 is-upgraded>Uso en el Chat</h2>
+<p>Ahora puedes preguntar directamente sobre librerías que antes Gemini no conocía en profundidad.</p>
+<p><strong>Prompt:</strong></p>
+<pre><code language="language-text" class="language-text">Busca en la documentación de &#39;context7&#39; cómo crear una solucion de agentes secuenciales en &#39;google ADK&#39; explícamelo con un ejemplo.
+</code></pre>
+<p>Gemini usará la herramienta <code>read_resource</code> o similar del servidor <code>context7-docs</code> para obtener la información exacta y responderte con precisión técnica.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="MCP - Caso Práctico 2: GitHub" duration="10">
+        <p>Vamos a conectar Gemini CLI con GitHub para que pueda ver tus repositorios, leer issues y revisar pull requests.</p>
+<h2 is-upgraded>Configuración</h2>
+<ol type="1">
+<li>Necesitarás un token de GitHub (Personal Access Token) desde <a href="https://github.com/settings/tokens" target="_blank">GitHub Settings</a></li>
+<li>Añade el servidor oficial de GitHub MCP:</li>
+</ol>
+<pre><code language="language-bash" class="language-bash">gemini mcp add github npx -y @modelcontextprotocol/server-github
+</code></pre>
+<ol type="1" start="3">
+<li>Configura tu token de GitHub:</li>
+</ol>
+<pre><code language="language-bash" class="language-bash">gemini mcp add github npx -y @modelcontextprotocol/server-github -e GITHUB_PERSONAL_ACCESS_TOKEN=tu_token_aqui
+</code></pre>
+<h2 is-upgraded>Uso en el Chat</h2>
+<p>¡Ahora Gemini es tu asistente de DevOps!</p>
+<p><strong>Prompt (Leer Issues):</strong></p>
+<pre><code language="language-text" class="language-text">Lista los últimos 5 issues abiertos en el repositorio &#39;google-gemini/gemini-cli&#39; y resúmelos.
+</code></pre>
+<p><strong>Prompt (Leer repos):</strong></p>
+<pre><code language="language-text" class="language-text">Dame el top 5 repos de mi cuenta con mas estrellas.
+</code></pre>
+<p>Gemini ejecutará herramientas como <code>github_list_issues</code> o <code>github_read_file</code> proporcionadas por el servidor MCP para traerte esa información en tiempo real.</p>
+<p>Positive : Esto es extremadamente útil para code reviews, triage de issues y análisis de dependencias.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Extensiones" duration="6">
+        <p><img src="https://gemini-cli-codelabs.pages.dev/img/img/extensions.png" alt="Gemini CLI home"></p>
+        <p>Las extensiones de Gemini CLI aumentan las capacidades de la herramienta al agrupar configuraciones de servidores MCP, archivos de contexto (<code>GEMINI.md</code>), comandos personalizados (archivos <code>.toml</code>) y restricciones de herramientas. Son la forma ideal de distribuir flujos de trabajo completos.</p>
+
+<h2 is-upgraded>Beneficios Clave</h2>
+<ul>
+<li><strong>Instalación en un comando:</strong> Todo lo necesario (servidores, prompts, comandos) se instala de una vez.</li>
+<li><strong>Distribución simplificada:</strong> Facilita compartir configuraciones complejas con el equipo.</li>
+<li><strong>Versionado y Descubrimiento:</strong> Mantén tus herramientas actualizadas y fáciles de encontrar.</li>
+</ul>
+
+<h2 is-upgraded>Gestión de Extensiones</h2>
+<p>Utiliza los siguientes comandos en tu terminal para gestionar tus extensiones:</p>
+
+<p><strong>Instalar una extensión:</strong></p>
+<pre><code language="language-bash" class="language-bash">gemini extensions install &lt;URL&gt;
+</code></pre>
+
+<p><strong>Listar extensiones instaladas:</strong></p>
+<pre><code language="language-bash" class="language-bash">gemini extensions list
+</code></pre>
+
+<p><strong>Actualizar extensiones:</strong></p>
+<pre><code language="language-bash" class="language-bash">gemini extensions update
+</code></pre>
+
+<h2 is-upgraded>Ejemplo Práctico: Cloud Run y BigQuery</h2>
+<p>Las extensiones pueden encapsular comandos complejos. Por ejemplo:</p>
+<ul>
+<li><strong>Cloud Run Extension:</strong> Permite desplegar aplicaciones directamente desde la CLI sin recordar largos comandos de <code>gcloud</code>.</li>
+<li><strong>BigQuery Extension:</strong> Facilita el análisis de datos permitiendo consultas en lenguaje natural sobre tus datasets.</li>
+</ul>
+
+<p><strong>Ejemplo de instalación (Seguridad):</strong></p>
+<pre><code language="language-bash" class="language-bash">gemini extensions install https://github.com/google-gemini/gemini-cli-security
+</code></pre>
+
+<h2 is-upgraded>Creación de Extensiones</h2>
+<p>Las extensiones son simplemente carpetas que contienen un archivo <code>gemini-extension.json</code>. Este archivo define qué servidores MCP, comandos y contextos se añaden a la CLI.</p>
+
+<p>Positive : Las extensiones transforman Gemini CLI de un chat genérico a una herramienta especializada para tu equipo y proyectos.</p>
+
+
+      </google-codelab-step>
+
+      <google-codelab-step label="Extensión Práctica 1: Hugging Face Skills" duration="10">
+        <p>Hugging Face ofrece una extensión poderosa que te permite interactuar con modelos de IA, datasets y espacios directamente desde Gemini CLI.</p>
+        <h2 is-upgraded>¿Qué puedes hacer con Hugging Face Skills?</h2>
+        <ul>
+          <li><strong>Buscar modelos:</strong> Encuentra modelos de IA específicos para tus necesidades</li>
+          <li><strong>Explorar datasets:</strong> Accede a miles de datasets públicos</li>
+          <li><strong>Interactuar con Spaces:</strong> Prueba aplicaciones de ML sin configuración</li>
+          <li><strong>Obtener información:</strong> Consulta documentación y ejemplos de uso</li>
+        </ul>
+
+        <h2 is-upgraded>Instalación</h2>
+        <p>Para instalar la extensión de Hugging Face, ejecuta el siguiente comando en tu terminal:</p>
+        <pre><code language="language-bash" class="language-bash">gemini extensions install https://github.com/huggingface/skills.git --consent
+</code></pre>
+        <p>Negative : El flag <code>--consent</code> es necesario para aceptar automáticamente los permisos que requiere la extensión.</p>
+
+        <h2 is-upgraded>Verificación</h2>
+        <p>Una vez instalada, verifica que la extensión está activa:</p>
+        <pre><code language="language-bash" class="language-bash">gemini extensions list
+</code></pre>
+        <p>Deberías ver <code>huggingface/skills</code> en la lista de extensiones instaladas.</p>
+        <p><strong>Autenticación inicial</strong>: dentro de Gemini CLI, ejecuta <code>/mcp auth huggingface-skills</code> para iniciar sesión y autorizar la extensión antes de usarla.</p>
+
+        <h2 is-upgraded>Ejemplos de Uso</h2>
+        <p>Ahora puedes interactuar con Hugging Face desde Gemini CLI. Aquí algunos ejemplos:</p>
+
+        <h3 is-upgraded>Buscar un modelo específico</h3>
+        <pre><code language="language-text" class="language-text">Busca modelos de Hugging Face para tareas de ASR.
+</code></pre>
+
+        <h3 is-upgraded>Explorar datasets</h3>
+        <pre><code language="language-text" class="language-text">Muéstrame datasets de Hugging Face relacionados con sentiment analysis en español.
+</code></pre>
+
+        <h3 is-upgraded>Obtener información de un modelo</h3>
+        <pre><code language="language-text" class="language-text">Dame información sobre el modelo "meta-llama/Llama-2-7b-chat-hf" de Hugging Face:
+qué hace, cómo usarlo y sus requisitos.
+</code></pre>
+
+        <h3 is-upgraded>Crear plantillas few-shot</h3>
+        <pre><code language="language-text" class="language-text">Usa la skill "HF dataset creator" para redactar nuevas plantillas de clasificación few-shot en español para detectar spam en correos.
+</code></pre>
+
+        <h3 is-upgraded>Probar un Space</h3>
+        <pre><code language="language-text" class="language-text">Busca Spaces de Hugging Face para generar imágenes con Stable Diffusion.
+</code></pre>
+
+        <h2 is-upgraded>Casos de Uso Prácticos</h2>
+        <ul>
+          <li><strong>Investigación rápida:</strong> Encuentra el modelo perfecto para tu proyecto sin salir de la terminal</li>
+          <li><strong>Comparación de modelos:</strong> Compara características y rendimiento de diferentes modelos</li>
+          <li><strong>Exploración de datasets:</strong> Descubre datos de entrenamiento para tus modelos</li>
+          <li><strong>Prototipado rápido:</strong> Prueba modelos antes de integrarlos en tu código</li>
+        </ul>
+
+        <p>Positive : Esta extensión es especialmente útil para desarrolladores de ML/AI que trabajan frecuentemente con modelos de Hugging Face.</p>
+
+      </google-codelab-step>
+
+      <google-codelab-step label="Extensión Práctica 2: CLI Security Extensions" duration="15">
+        <p><img src="https://gemini-cli-codelabs.pages.dev/img/img/security.png" alt="Security Extension"></p>
+        <p>La extensión de seguridad de Gemini CLI te permite analizar vulnerabilidades, escanear código y mejorar la postura de seguridad de tus proyectos directamente desde la terminal.</p>
+
+        <h2 is-upgraded>¿Qué puedes hacer?</h2>
+        <ul>
+          <li><strong>Análisis de vulnerabilidades:</strong> Escanea tu código en busca de problemas de seguridad comunes</li>
+          <li><strong>Auditoría de dependencias:</strong> Detecta librerías con vulnerabilidades conocidas</li>
+          <li><strong>Revisión de secretos:</strong> Encuentra credenciales o tokens expuestos en tu código</li>
+          <li><strong>Mejores prácticas:</strong> Recibe recomendaciones de seguridad para tu proyecto</li>
+          <li><strong>Reportes de seguridad:</strong> Genera informes detallados sobre el estado de seguridad</li>
+        </ul>
+
+        <h2 is-upgraded>Instalación</h2>
+        <p>Para instalar la extensión de seguridad, ejecuta el siguiente comando:</p>
+        <pre><code language="language-bash" class="language-bash">gemini extensions install https://github.com/gemini-cli-extensions/security
+</code></pre>
+
+        <h2 is-upgraded>Verificación</h2>
+        <p>Una vez instalada, verifica que la extensión está activa:</p>
+        <pre><code language="language-bash" class="language-bash">gemini extensions list
+</code></pre>
+        <p>Deberías ver <code>security</code> en la lista de extensiones instaladas.</p>
+
+        <h2 is-upgraded>Ejemplos de Uso</h2>
+        <p>Ahora puedes realizar análisis de seguridad desde Gemini CLI. Aquí algunos ejemplos prácticos:</p>
+
+        <h3 is-upgraded>Escaneo de vulnerabilidades en código</h3>
+        <pre><code language="language-text" class="language-text">Analiza la seguridad de mi archivo @src/auth.js y busca vulnerabilidades comunes.
+</code></pre>
+
+        <h3 is-upgraded>Auditoría de dependencias</h3>
+        <pre><code language="language-text" class="language-text">Revisa mi package.json y dime si hay dependencias con vulnerabilidades conocidas.
+</code></pre>
+
+        <h3 is-upgraded>Búsqueda de secretos expuestos</h3>
+        <pre><code language="language-text" class="language-text">Escanea mi proyecto en busca de API keys, tokens o credenciales expuestas en el código.
+</code></pre>
+
+        <h3 is-upgraded>Análisis de configuración</h3>
+        <pre><code language="language-text" class="language-text">Revisa mi configuración de Docker (@Dockerfile) y sugiere mejoras de seguridad.
+</code></pre>
+
+        <h3 is-upgraded>Revisión de código completo</h3>
+        <pre><code language="language-text" class="language-text">Haz una auditoría de seguridad completa del directorio @src/ enfocándote en:
+- Inyección SQL
+- XSS
+- Autenticación insegura
+- Manejo de errores
+</code></pre>
+
+        <h2 is-upgraded>Casos de Uso Prácticos</h2>
+
+        <h3 is-upgraded>1. Pre-commit security check</h3>
+        <pre><code language="language-text" class="language-text">Antes de hacer commit, revisa los cambios actuales (git diff) y
+advierte si hay problemas de seguridad en el código modificado.
+</code></pre>
+
+        <h3 is-upgraded>2. Análisis OWASP Top 10</h3>
+        <pre><code language="language-text" class="language-text">Analiza mi aplicación web según las vulnerabilidades del OWASP Top 10
+y genera un reporte con las que apliquen a mi código.
+</code></pre>
+
+        <h3 is-upgraded>3. Hardening de configuración</h3>
+        <pre><code language="language-text" class="language-text">Revisa mi archivo de configuración de nginx (@nginx.conf) y sugiere
+headers de seguridad que debería agregar.
+</code></pre>
+
+        <h3 is-upgraded>4. Validación de inputs</h3>
+        <pre><code language="language-text" class="language-text">Encuentra todos los puntos de entrada de datos del usuario en mi API
+y verifica si tienen validación adecuada.
+</code></pre>
+
+        <h2 is-upgraded>Mejores Prácticas de Seguridad</h2>
+        <ul>
+          <li>✓ Ejecuta escaneos de seguridad regularmente, no solo antes de producción</li>
+          <li>✓ Mantén tus dependencias actualizadas con las últimas versiones seguras</li>
+          <li>✓ Nunca commits credenciales o secretos en el repositorio</li>
+          <li>✓ Usa variables de entorno para configuración sensible</li>
+          <li>✓ Implementa el principio de mínimo privilegio en tu código</li>
+          <li>✓ Valida y sanitiza todas las entradas del usuario</li>
+        </ul>
+
+        <h2 is-upgraded>Integración con CI/CD</h2>
+        <p>Puedes integrar la extensión de seguridad en tu pipeline de CI/CD:</p>
+        <pre><code language="language-bash" class="language-bash"># Ejemplo en GitHub Actions o similar
+gemini -p "Ejecuta un análisis de seguridad del proyecto y falla si encuentras vulnerabilidades críticas"
+</code></pre>
+
+        <p>Positive : Esta extensión es esencial para desarrolladores que quieren mantener sus proyectos seguros sin salir de la terminal.</p>
+
+        <h2 is-upgraded>Recursos adicionales</h2>
+        <ul>
+          <li><a href="https://github.com/gemini-cli-extensions/security" target="_blank">Documentación oficial de la extensión Security</a></li>
+          <li><a href="https://owasp.org/www-project-top-ten/" target="_blank">OWASP Top 10</a></li>
+        </ul>
+
+      </google-codelab-step>
+
+      <google-codelab-step label="Concepto Avanzado: Agent Skills" duration="10">
+        <p>Las <strong>Skills</strong> (Habilidades) permiten extender Gemini CLI con experiencia especializada, flujos de trabajo procedimentales y recursos específicos. A diferencia del contexto general (<code>GEMINI.md</code>) que siempre está activo, las Skills son <strong>"expertise bajo demanda"</strong>.</p>
+        
+        <h2 is-upgraded>¿Por qué usar Skills?</h2>
+        <ul>
+          <li><strong>Especialización:</strong> Mantén el contexto limpio cargando instrucciones complejas solo cuando son necesarias.</li>
+          <li><strong>Reusabilidad:</strong> Empaqueta flujos de trabajo (ej. "Code Review", "Migración AWS") y compártelos con tu equipo.</li>
+          <li><strong>Recursos:</strong> Una Skill puede incluir scripts, templates y documentación que el agente puede leer solo cuando activa la skill.</li>
+        </ul>
+
+        <h2 is-upgraded>Estructura de una Skill</h2>
+        <p>Una Skill es simplemente un directorio con un archivo <code>SKILL.md</code>. Gemini descubre automáticamente las skills en <code>~/.gemini/skills</code> (usuario) o <code>.gemini/skills</code> (proyecto).</p>
+
+        <h2 is-upgraded>Ejercicio: Crear una Skill de "Code Reviewer"</h2>
+        <p>Vamos a crear una habilidad para que Gemini sea un experto revisor de código.</p>
+
+        <ol type="1">
+          <li>Crea el directorio de la skill:</li>
+        </ol>
+        <pre><code language="language-bash" class="language-bash">mkdir -p .gemini/skills/code-reviewer
+</code></pre>
+
+        <ol type="1" start="2">
+          <li>Crea el archivo <code>SKILL.md</code> con la definición:</li>
+        </ol>
+        <pre><code language="language-markdown" class="language-markdown">cat > .gemini/skills/code-reviewer/SKILL.md << 'EOF'
+---
+name: code-reviewer
+description:
+  Experto en revisión de código para estilo, seguridad y performance.
+  Úsalo cuando el usuario pida "feedback", "revisión" o "check" de su código.
+---
+
+# Code Reviewer Instructions
+
+Eres un experto revisor de código. Sigue este proceso:
+
+1.  **Analiza**: Revisa los cambios buscando bugs lógicos.
+2.  **Estilo**: Asegúrate de que cumple con las convenciones del proyecto.
+3.  **Seguridad**: Busca vulnerabilidades comunes (XSS, SQLi).
+4.  **Feedback**: Provee una lista de "Puntos Fuertes" y "Mejoras Sugeridas".
+EOF
+</code></pre>
+
+        <h2 is-upgraded>Probando la Skill</h2>
+        <p>Una vez creada, refresca la memoria y pide una revisión:</p>
+        <pre><code language="language-bash" class="language-bash">/skills reload
+</code></pre>
+        
+        <p><strong>Prompt:</strong></p>
+        <pre><code language="language-text" class="language-text">Haz un code review de mi archivo game.js
+</code></pre>
+        <p>Verás que Gemini activa la tool <code>activate_skill(name="code-reviewer")</code>, carga las instrucciones especializadas y te da un feedback estructurado según lo definiste.</p>
+
+        <p>Positive : Las Skills son perfectas para estandarizar procesos en equipos grandes sin saturar el contexto de todos los desarrolladores.</p>
+
+      </google-codelab-step>
+
+      <google-codelab-step label="Importar Skills Existentes" duration="5">
+        <p>Si ya tienes skills creados por tu equipo o descargados de internet, puedes importarlos fácilmente a tu instalación de Gemini CLI.</p>
+
+        <h2 is-upgraded>Ubicaciones de Skills</h2>
+        <p>Gemini CLI busca skills en dos ubicaciones:</p>
+        <ul>
+          <li><strong>Usuario (global):</strong> <code>~/.gemini/skills/</code> - Disponible en todos tus proyectos</li>
+          <li><strong>Proyecto (local):</strong> <code>.gemini/skills/</code> - Solo disponible en el proyecto actual</li>
+        </ul>
+
+        <h2 is-upgraded>Importar desde una Carpeta</h2>
+        <p>Si tienes una carpeta con una skill ya creada, simplemente cópiala al directorio de skills:</p>
+
+        <h3 is-upgraded>Para uso global (todos los proyectos)</h3>
+        <pre><code language="language-bash" class="language-bash"># Asegúrate de que existe el directorio de skills
+mkdir -p ~/.gemini/skills
+
+# Copia la carpeta de la skill
+cp -r /ruta/a/mi-skill ~/.gemini/skills/
+</code></pre>
+
+        <h3 is-upgraded>Para uso en un proyecto específico</h3>
+        <pre><code language="language-bash" class="language-bash"># Desde la raíz de tu proyecto
+mkdir -p .gemini/skills
+
+# Copia la carpeta de la skill
+cp -r /ruta/a/mi-skill .gemini/skills/
+</code></pre>
+
+        <h2 is-upgraded>Importar desde un archivo ZIP</h2>
+        <p>Si descargaste una skill en formato ZIP, descomprímela directamente en el directorio de skills:</p>
+
+        <h3 is-upgraded>Para uso global</h3>
+        <pre><code language="language-bash" class="language-bash"># Asegúrate de que existe el directorio
+mkdir -p ~/.gemini/skills
+
+# Descomprime el ZIP en el directorio de skills
+unzip mi-skill.zip -d ~/.gemini/skills/
+</code></pre>
+
+        <h3 is-upgraded>Para uso en un proyecto</h3>
+        <pre><code language="language-bash" class="language-bash"># Desde la raíz de tu proyecto
+mkdir -p .gemini/skills
+
+# Descomprime el ZIP
+unzip mi-skill.zip -d .gemini/skills/
+</code></pre>
+
+        <h2 is-upgraded>Verificar la estructura</h2>
+        <p>Después de importar, verifica que la estructura sea correcta. Cada skill debe tener al menos un archivo <code>SKILL.md</code>:</p>
+        <pre><code language="language-bash" class="language-bash"># Listar skills globales
+ls -la ~/.gemini/skills/
+
+# Verificar estructura de una skill específica
+ls -la ~/.gemini/skills/mi-skill/
+# Debería mostrar al menos: SKILL.md
+</code></pre>
+
+        <h2 is-upgraded>Estructura esperada</h2>
+        <pre><code language="language-text" class="language-text">~/.gemini/skills/
+├── code-reviewer/
+│   ├── SKILL.md          # Requerido: definición de la skill
+│   ├── templates/        # Opcional: plantillas adicionales
+│   └── examples/         # Opcional: ejemplos de uso
+├── aws-deployer/
+│   └── SKILL.md
+└── data-analyst/
+    ├── SKILL.md
+    └── queries/
+</code></pre>
+
+        <h2 is-upgraded>Recargar Skills</h2>
+        <p>Después de importar nuevas skills, recarga la configuración en Gemini CLI:</p>
+        <pre><code language="language-text" class="language-text">/skills reload
+</code></pre>
+
+        <h2 is-upgraded>Verificar Skills Disponibles</h2>
+        <p>Para ver todas las skills disponibles en tu sesión actual:</p>
+        <pre><code language="language-text" class="language-text">/skills list
+</code></pre>
+
+        <h2 is-upgraded>Ejemplo Completo: Importar skill desde GitHub</h2>
+        <pre><code language="language-bash" class="language-bash"># Descargar skill desde un repositorio
+cd /tmp
+git clone https://github.com/usuario/gemini-skill-ejemplo.git
+
+# Copiar al directorio de skills global
+cp -r gemini-skill-ejemplo ~/.gemini/skills/
+
+# O si viene como ZIP
+wget https://github.com/usuario/skill/archive/main.zip
+unzip main.zip -d ~/.gemini/skills/
+mv ~/.gemini/skills/skill-main ~/.gemini/skills/mi-skill
+</code></pre>
+
+        <p>Negative : Asegúrate de revisar el contenido de las skills antes de importarlas, especialmente si provienen de fuentes no confiables.</p>
+
+        <p>Positive : Compartir skills entre equipos es una excelente forma de estandarizar flujos de trabajo y mejores prácticas.</p>
+
+      </google-codelab-step>
+
+      <google-codelab-step label="Contexto del Proyecto (GEMINI.md)" duration="8">
+        <p>Los archivos <code>GEMINI.md</code> son tu memoria persistente: contienen instrucciones que se envían automáticamente al modelo para que no repitas reglas en cada prompt.</p>
+<h2 is-upgraded>Cómo se cargan</h2>
+<ul>
+<li><strong>Global</strong>: <code>~/.gemini/GEMINI.md</code> se aplica a todos tus proyectos.</li>
+<li><strong>Proyecto y padres</strong>: el CLI busca <code>GEMINI.md</code> en el directorio actual y ascendiendo hasta la raíz del repo (carpeta con <code>.git</code>).</li>
+<li><strong>Subcarpetas</strong>: también lee <code>GEMINI.md</code> de subdirectorios (respeta <code>.gitignore</code> y <code>.geminiignore</code>). Todo se concatena y se muestra en el resumen de contexto.</li>
+</ul>
+<h2 is-upgraded>Ejercicio práctico (paso a paso)</h2>
+<ol type="1">
+<li>En la raíz del proyecto crea un contexto general:</li>
+</ol>
+<pre><code language="language-bash" class="language-bash">cat &gt; GEMINI.md &lt;&lt; 'EOF'
+# Instrucciones del Proyecto
+- Responde en español y con tono conciso.
+- Prefiere ejemplos en TypeScript.
+- Pide confirmación antes de ejecutar comandos destructivos.
+EOF
+</code></pre>
+<ol type="1" start="2">
+<li>Agrega un contexto específico de carpeta (ej. <code>api/</code>) para sobre-especificar cuando trabajes allí:</li>
+</ol>
+<pre><code language="language-bash" class="language-bash">mkdir -p api
+cat &gt; api/GEMINI.md &lt;&lt; 'EOF'
+# Contexto API
+- Usa FastAPI y tipado estricto.
+- Resume antes de proponer cambios grandes.
+EOF
+</code></pre>
+<ol type="1" start="3">
+<li>Modulariza si el archivo crece usando imports con <code>@</code>:</li>
+</ol>
+<pre><code language="language-bash" class="language-bash">mkdir -p docs
+cat &gt; docs/guia.md &lt;&lt; 'EOF'
+- Sigue el estilo de commits convencional.
+- Ejecuta pruebas con `npm test` antes de sugerir deploy.
+EOF
+
+cat &gt; GEMINI.md &lt;&lt; 'EOF'
+# Instrucciones del Proyecto
+@./docs/guia.md
+- Mantén las respuestas breves.
+EOF
+</code></pre>
+<p>Refresca y valida que se cargaron todas las capas:</p>
+<pre><code language="language-text" class="language-text">/memory refresh
+/memory show
+</code></pre>
+<p>Haz una pregunta genérica (ej. <code>¿Cómo imprimo texto en la consola?</code>) y notarás que respeta el estilo definido.</p>
+<h2 is-upgraded>Comandos útiles</h2>
+<ul>
+<li><code>/memory show</code>: inspecciona el contexto concatenado que verá el modelo.</li>
+<li><code>/memory add &lt;texto&gt;</code>: añade instrucciones rápidas a <code>~/.gemini/GEMINI.md</code> sin abrir el editor.</li>
+<li><code>/memory refresh</code>: vuelve a escanear todos los <code>GEMINI.md</code> tras editar o mover archivos.</li>
+</ul>
+<p>Tip : Si necesitas usar otro nombre de archivo (ej. <code>CONTEXT.md</code>), puedes configurarlo en <code>settings.json</code> con <code>context.fileName</code> (ver siguiente sección).</p>
+
+
+      </google-codelab-step>
+
+      <google-codelab-step label="Configuración con settings.json" duration="6">
+        <p><code>settings.json</code> controla el comportamiento del CLI (modelos, UI, contexto, seguridad). Puedes tener uno global y otro por proyecto; el del proyecto sobrescribe al global.</p>
+<h2 is-upgraded>Capas y ubicación</h2>
+<ul>
+<li><strong>Usuario</strong>: <code>~/.gemini/settings.json</code> para preferencias generales.</li>
+<li><strong>Proyecto</strong>: <code>.gemini/settings.json</code> para reglas del repo (se aplica al ejecutarse dentro del proyecto).</li>
+<li><strong>Sistema</strong>: (opcional, administradores) <code>/etc/gemini-cli/settings.json</code> o equivalente por OS.</li>
+</ul>
+<h2 is-upgraded>Editar rápido</h2>
+<ul>
+<li>Desde el CLI: ejecuta <code>/settings</code> para abrir el editor interactivo.</li>
+<li>O edita el archivo directamente con tu editor favorito y luego reinicia o usa <code>/memory refresh</code> si cambiaste <code>context</code>.</li>
+</ul>
+<h2 is-upgraded>Ejemplo de configuración mínima</h2>
+<pre><code language="language-json" class="language-json">{
+  "model": { "name": "gemini-2.0-flash-exp" },
+  "ui": { "useFullWidth": true, "showCitations": true },
+  "context": {
+    "fileName": ["GEMINI.md", "CONTEXT.md"],
+    "loadMemoryFromIncludeDirectories": true
+  },
+  "tools": { "autoAccept": false }
+}
+</code></pre>
+<h2 is-upgraded>Checklist rápida</h2>
+<ul>
+<li>Verifica que el JSON sea válido (comas, llaves) antes de guardar.</li>
+<li>Usa variables de entorno en valores: <code>"apiKey": "$GEMINI_API_KEY"</code>.</li>
+<li>Si algo no aplica, bórralo o pon <code>false</code>; evita dejar opciones obsoletas.</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Conclusión" duration="2">
+        <p>¡Felicidades! Has completado el taller avanzado de Gemini CLI.</p>
+<h2 is-upgraded>Resumen de lo aprendido</h2>
+<p>✅ <strong>Gestión:</strong> Instalación, autenticación y comandos básicos ✅ <strong>Archivos:</strong> Lectura (<code>@</code>) y organización automática ✅ <strong>Internet:</strong> Búsqueda y lectura de webs (<code>google_web_search</code>, <code>web_fetch</code>) ✅ <strong>MCP:</strong> Conexión avanzada con datos externos (GitHub, Docs) ✅ <strong>Extensiones:</strong> Ampliación modular de capacidades ✅ <strong>Memoria:</strong> Personalización persistente con <code>GEMINI.md</code></p>
+<h2 is-upgraded>Siguientes pasos</h2>
+<ul>
+<li>Explora crear tus propias extensiones</li>
+<li>Configura servidores MCP para conectar tus bases de datos o APIs privadas</li>
+<li>¡Haz de Gemini tu compañero de pair-programming diario!</li>
+</ul>
+<h2 is-upgraded>Recursos adicionales</h2>
+<ul>
+<li><a href="https://github.com/google-gemini/gemini-cli" target="_blank">Documentación oficial de Gemini CLI</a></li>
+<li><a href="https://modelcontextprotocol.io" target="_blank">MCP Protocol Specification</a></li>
+<li><a href="https://aistudio.google.com" target="_blank">Google AI Studio</a></li>
+</ul>
+<p>Positive : ¡Gracias por participar en este taller! No dudes en experimentar y explorar todas las capacidades de Gemini CLI.</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/claat-public/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/prettify.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/codelab-elements.js"></script>
+  <script src="https://support.google.com/inapp/api.js"></script>
+
+</body>
+</html>
