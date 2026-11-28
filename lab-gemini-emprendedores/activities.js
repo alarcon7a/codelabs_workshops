@@ -4,6 +4,7 @@
     particles: [],
     raf: null,
     burst(count = 95) {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       const canvas = document.getElementById("confetti-canvas");
       if (!canvas) return;
       const ctx = canvas.getContext("2d");
@@ -65,7 +66,7 @@
       .replace(/"/g, "&quot;");
   }
 
-  function slugifyKebab(str, fallback = "mi-skill-comercial") {
+  function slugifyKebab(str, fallback = "mi-playbook-comercial") {
     const cleaned = String(str || "")
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
@@ -105,8 +106,12 @@
       ta.style.left = "-9999px";
       document.body.appendChild(ta);
       ta.select();
-      document.execCommand("copy");
+      const copied = document.execCommand("copy");
       document.body.removeChild(ta);
+      if (!copied) {
+        window.APP?.toast("No se pudo copiar. Selecciona el texto y usa Copiar en tu navegador.");
+        return false;
+      }
     }
     if (btnEl) {
       const prev = btnEl.textContent;
@@ -120,8 +125,8 @@
     window.APP?.toast(msg);
   }
 
-  function downloadFile(filename, content) {
-    const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+  function downloadFile(filename, content, mimeType = "text/markdown;charset=utf-8") {
+    const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -175,7 +180,7 @@
     return node;
   }
 
-  function makeTerminalBox({ title, text, onCopyLabel = "📋 Copiar prompt", showGeminiBtn = true, editable = true }) {
+  function makeTerminalBox({ title, text, onCopyLabel = "Copiar prompt", showGeminiBtn = true, editable = true }) {
     let rawText = String(text || "");
     let isEditing = false;
 
@@ -194,6 +199,7 @@
     pre.innerHTML = highlightPromptHtml(rawText);
 
     const editor = el("textarea", { class: "terminal-editor", style: "display:none;" });
+    editor.setAttribute("aria-label", `Editar ${title}`);
     editor.value = rawText;
 
     editor.addEventListener("input", () => {
@@ -202,14 +208,14 @@
     });
 
     if (editable) {
-      const editBtn = el("button", { class: "btn btn-secondary btn-sm", type: "button", text: "✏️ Editar" });
+      const editBtn = el("button", { class: "btn btn-secondary btn-sm", type: "button", text: "Editar" });
       editBtn.addEventListener("click", () => {
         isEditing = !isEditing;
         if (isEditing) {
           editor.value = rawText;
           pre.style.display = "none";
           editor.style.display = "block";
-          editBtn.textContent = "👁️ Vista";
+          editBtn.textContent = "Vista previa";
           editor.focus();
         } else {
           rawText = editor.value;
@@ -217,7 +223,7 @@
           wordChip.textContent = `${countWords(rawText)} pal.`;
           editor.style.display = "none";
           pre.style.display = "block";
-          editBtn.textContent = "✏️ Editar";
+          editBtn.textContent = "Editar";
         }
       });
       actions.appendChild(editBtn);
@@ -262,120 +268,18 @@
   const QUIZ_KEY_HANDLERS = {};
 
   function buildFullKitMarkdown() {
-    const app = window.APP;
-    const biz = app.getEffectiveBiz();
-    const spec = app.STATE.assistantSpec;
-    const slug = slugifyKebab(spec.assistantName || "cotizador-comercial");
-    const modeLabel =
-      spec.mode === "skill"
-        ? "Skill (@habilidad modular en Gemini / Workspace)"
-        : spec.mode === "antigravity"
-        ? "Paquete abierto SKILL.md (Antigravity + MCP)"
-        : "Skill en Documento Maestro de Google Drive";
-
-    const instructions = buildAssistantInstructions(spec, biz);
-    const testPrompt = buildAssistantTestPrompt(spec, biz);
-    const stackedText = Array.isArray(spec.stackedSkills) && spec.stackedSkills.length
-      ? spec.stackedSkills.join(" + ")
-      : "Ninguno adicional";
-
-    return `# Kit Personalizado — Gemini para Emprendedores
-
-## 1. Ficha de Mi Negocio
-- **Nombre:** ${biz.name}
-- **Qué vendemos:** ${biz.offer}
-- **Cliente ideal:** ${biz.audience}
-- **Diferenciador clave:** ${biz.diff}
-- **Tono de marca:** ${biz.tone}
-- **Tarea prioritaria:** ${biz.pain}
-
-## 2. Mi Skill Personalizado (SKILL.md)
-- **Formato elegido:** ${modeLabel}
-- **Invocación:** @${slug}
-- **Skills apilados (Skill Stacking):** ${stackedText}
-- **Documentos de Drive / references/:** ${spec.driveDocs || "Lista de precios / Guía de marca"}
-
-### Contenido completo de \`SKILL.md\`
-\`\`\`markdown
-${instructions}
-\`\`\`
-
-### Prompt de Prueba #1 (con Skill Stacking)
-\`\`\`text
-${testPrompt}
-\`\`\`
-
-## 3. Flujo Recurrente y Automatización (3 Pasos)
-1. **Cuándo se activa:** ${spec.triggerStep || "Cuando llega una solicitud o inicia la semana"}
-2. **Automatización conectada:** ${spec.automationRule || "Invocación manual con @ o Acción Programada semanal en Gemini"}
-3. **Mi 20% humano antes de enviar/publicar:** ${spec.reviewStep || "Validar cifras, fechas, tono y aprobar envíos"}
-
----
-Generado en el taller **Gemini para Emprendedores (90 min)** · Puntos obtenidos: ${app.calculateScore()} pts
-`;
+    if (window.LAB?.buildKit) return window.LAB.buildKit(window.APP, window.WORKSHOP_DATA);
+    const biz = window.APP.getEffectiveBiz();
+    return `# Kit Comercial — ${biz.name}\n`;
   }
 
   function buildAssistantInstructions(spec, biz) {
-    const slug = slugifyKebab(spec.assistantName || "cotizador-comercial");
-    const tplTrigger = window.APP.interpolateStr(
-      spec.triggerDesc || `Usa este skill cuando trabajes tareas de ${spec.taskType || "ventas"} para ${biz.name}.`
-    ).replace(/\s+/g, " ").trim();
-    const tplRole = window.APP.interpolateStr(spec.role || "");
-    const tplRules = window.APP.interpolateStr(spec.rules || "");
-    const tplOutput = window.APP.interpolateStr(spec.outputFormat || "");
-    const tplAuto = window.APP.interpolateStr(spec.automationRule || "");
-
-    return `---
-name: ${slug}
-description: ${tplTrigger}
----
-
-# @${slug} — Skill de ${biz.name}
-
-## ROL Y OBJETIVO
-${tplRole}
-
-## CONTEXTO FIJO DEL NEGOCIO
-- Negocio: ${biz.name}
-- Oferta principal: ${biz.offer}
-- Cliente ideal: ${biz.audience}
-- Diferenciador clave: ${biz.diff}
-- Tono de comunicación: ${biz.tone}
-${spec.driveDocs ? `- Archivos de referencia (Drive / references/): ${spec.driveDocs}` : ""}
-
-## DIRECTRICES Y REGLAS ÚNICAS
-${tplRules}
-
-## FORMATO ESTÁNDAR DE SALIDA
-${tplOutput}
-${tplAuto ? `\n## AUTOMATIZACIÓN SUGERIDA\n- ${tplAuto}\n` : ""}
-## CONTROL DE CALIDAD (20% HUMANO)
-- Si falta un dato indispensable para dar una respuesta exacta, hazme máximo 3 preguntas breves antes de cerrar la versión final.
-- Marca con [CONFIRMAR] cualquier precio, fecha o condición que deba validar una persona antes de enviar.`;
+    if (window.LAB?.buildInstructions) return window.LAB.buildInstructions(spec, biz);
+    return "";
   }
 
   function buildAssistantTestPrompt(spec, biz) {
-    const slug = slugifyKebab(spec.assistantName || "cotizador-comercial");
-    const stack = Array.isArray(spec.stackedSkills) ? spec.stackedSkills.filter((s) => s !== `@${slug}`) : [];
-    const stackPhrase = stack.length ? ` junto con ${stack.join(" + ")}` : "";
-    const prefix =
-      spec.mode === "doc"
-        ? `Usa @Google Drive (SKILL - ${biz.name})${stackPhrase} para resolver esto:\n\n`
-        : `Usa @${slug}${stackPhrase} para resolver esto:\n\n`;
-
-    if (spec.taskType === "ventas") {
-      return `${prefix}Un prospecto de ${biz.audience} nos escribió: "Hola, me recomendaron ${biz.name}. Queremos cotizar para la próxima semana, ¿me cuentas qué opciones tienen y cuánto cuesta?". Arma la propuesta en 3 opciones respetando nuestra voz.`;
-    }
-    if (spec.taskType === "objeciones") {
-      return `${prefix}Un cliente interesado nos respondió después de ver la cotización: "Me gusta lo que ofrecen en ${biz.name}, pero el precio está por encima de lo que teníamos pensado". Aplica método LAER para responder hoy.`;
-    }
-    if (spec.taskType === "marketing") {
-      return `${prefix}Semilla real de hoy: Muchos clientes dudan antes de comprar ${biz.offer} porque no ven la diferencia frente a opciones más baratas. Crea las piezas de esta semana sin clichés de IA.`;
-    }
-    if (spec.taskType === "prospeccion") {
-      return `${prefix}Tengo estos datos de un prospecto de ${biz.audience}: "Empresa en crecimiento que publicó vacantes de expansión esta semana y busca mejorar su operación actual". Redacta el briefing breve y el rompehielo de 4 líneas para ${biz.name}.`;
-    }
-    return `${prefix}Acabo de recibir 2 correos largos de un cliente pidiendo cambiar fechas, ajustar cantidades y confirmar condiciones de pago para ${biz.name}. Cruza con mi agenda y dame el resumen, riesgos y borrador de respuesta.`;
+    return `Usa el contexto de ${biz.name} (${biz.offer}) para resolver esta solicitud de ${biz.audience}.`;
   }
 
   // ---------------- WIDGET RENDERERS ----------------
@@ -464,13 +368,13 @@ ${tplAuto ? `\n## AUTOMATIZACIÓN SUGERIDA\n- ${tplAuto}\n` : ""}
           <input type="text" id="s5-diff" placeholder="Ej. Tueste fresco semanal y montaje en 30 minutos">
         </label>
         <label class="field span-2">
-          <span>Tarea repetitiva que más quieres automatizar hoy</span>
+          <span>Tarea repetitiva que quieres resolver más rápido</span>
           <input type="text" id="s5-pain" placeholder="Ej. Cotizaciones rápidas y contenido semanal de redes">
         </label>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap;">
         <span id="s5-status" style="font-size:0.84rem;color:var(--emerald);font-weight:600;"></span>
-        <button type="submit" class="btn btn-aurora">Guardar ficha y personalizar taller (+50 pts) →</button>
+        <button type="submit" class="btn btn-aurora">Guardar ficha y personalizar →</button>
       </div>
     `;
 
@@ -485,12 +389,35 @@ ${tplAuto ? `\n## AUTOMATIZACIÓN SUGERIDA\n- ${tplAuto}\n` : ""}
       form.querySelector("#s5-diff").value = b.diff || "";
       form.querySelector("#s5-pain").value = b.painTask || "";
       const eff = window.APP.getEffectiveBiz();
-      previewBox.innerHTML = `<strong>Vista previa en vivo:</strong> Los prompts del taller ahora dicen <em>"${escHtml(eff.name)} (${escHtml(eff.offer)}) para ${escHtml(eff.audience)}"</em>.`;
+      previewBox.innerHTML = "";
+      previewBox.style.display = "flex";
+      previewBox.style.justifyContent = "space-between";
+      previewBox.style.alignItems = "center";
+      previewBox.style.gap = "12px";
+      previewBox.style.flexWrap = "wrap";
+      const txt = el("span", {
+        html: `<strong>Vista previa en vivo:</strong> Los prompts ahora usan <em>"${escHtml(eff.name)} (${escHtml(eff.offer)})"</em>. Llévalo a <strong>Ajustes → Información guardada</strong> en Gemini:`
+      });
+      const actWrap = el("div", { class: "action-row" });
+      const copySaved = el("button", { type: "button", class: "btn btn-primary btn-sm", text: "Copiar para Información guardada" });
+      copySaved.addEventListener("click", () => {
+        const block = window.LAB?.buildSavedInfo ? window.LAB.buildSavedInfo(eff) : `${eff.name} · ${eff.offer}`;
+        copyText(block, "Bloque de Información guardada copiado ✓", copySaved);
+      });
+      const openGem = el("a", {
+        class: "btn btn-secondary btn-sm",
+        href: window.WORKSHOP_DATA.meta.geminiUrl,
+        target: "_blank",
+        rel: "noopener noreferrer",
+        text: "Abrir Gemini ↗"
+      });
+      actWrap.append(copySaved, openGem);
+      previewBox.append(txt, actWrap);
       form.querySelector("#s5-status").textContent = b.name ? "✓ Ficha activa en todo el taller" : "Completa tus datos o elige un ejemplo arriba";
     }
 
     window.WORKSHOP_DATA.presets.forEach((p) => {
-      const chip = el("button", { type: "button", class: "preset-chip", text: `${p.emoji} ${p.label}` });
+      const chip = el("button", { type: "button", class: "preset-chip", text: p.label });
       chip.addEventListener("click", () => {
         window.APP.applyBizData({
           name: p.name,
@@ -524,6 +451,7 @@ ${tplAuto ? `\n## AUTOMATIZACIÓN SUGERIDA\n- ${tplAuto}\n` : ""}
     panel.appendChild(form);
     panel.appendChild(previewBox);
     bodyEl.appendChild(panel);
+    window.LAB?.renderCafeAssetPack?.(bodyEl, { openDetails: false });
     syncInputsFromState();
 
     REFRESHERS[slide.id] = syncInputsFromState;
@@ -724,7 +652,7 @@ ${tplAuto ? `\n## AUTOMATIZACIÓN SUGERIDA\n- ${tplAuto}\n` : ""}
 
     const topRow = el("div", { style: "display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;" });
     topRow.appendChild(el("strong", { style: "font-size:0.94rem;", text: "1. Datos de esta solicitud" }));
-    const exBtn = el("button", { type: "button", class: "btn btn-secondary btn-sm", text: "✨ Cargar caso de ejemplo" });
+    const exBtn = el("button", { type: "button", class: "btn btn-secondary btn-sm", text: "Cargar ejemplo ficticio" });
     topRow.appendChild(exBtn);
     left.appendChild(topRow);
 
@@ -745,12 +673,12 @@ ${tplAuto ? `\n## AUTOMATIZACIÓN SUGERIDA\n- ${tplAuto}\n` : ""}
     const term = makeTerminalBox({
       title: "2. Prompt personalizado (se actualiza en vivo)",
       text: "",
-      onCopyLabel: "📋 Copiar prompt"
+      onCopyLabel: "Copiar prompt"
     });
 
     function updateOut() {
       const biz = window.APP.getEffectiveBiz();
-      term.setText(slide.buildPrompt(values, biz));
+      term.setText(window.LAB.buildProposal(values, biz));
     }
 
     exBtn.addEventListener("click", () => {
@@ -914,7 +842,7 @@ ${tplAuto ? `\n## AUTOMATIZACIÓN SUGERIDA\n- ${tplAuto}\n` : ""}
           drawChecklist();
           if (allDone && !wasDone) {
             Confetti.burst(80);
-            window.APP.toast("🎉 ¡Reto completado! Sumaste puntos.");
+            window.APP.toast("Revisión guardada. Puedes descargar el resultado desde Mi kit.");
           }
         });
         row.appendChild(cb);
@@ -963,8 +891,12 @@ ${tplAuto ? `\n## AUTOMATIZACIÓN SUGERIDA\n- ${tplAuto}\n` : ""}
     drawRight();
     shell.appendChild(left);
     shell.appendChild(right);
+    if (window.LAB) right.appendChild(window.LAB.createWorksheet(slide));
     bodyEl.appendChild(shell);
-    REFRESHERS[slide.id] = drawRight;
+    REFRESHERS[slide.id] = () => {
+      drawRight();
+      if (window.LAB) right.appendChild(window.LAB.createWorksheet(slide));
+    };
   }
 
   function renderQuiz(slide, bodyEl) {
@@ -1542,7 +1474,7 @@ Reglas de voz: Tono ${biz.tone}. Sin frases cliché de IA ("mundo actual", "revo
 
   function renderConnectorHub(slide, bodyEl) {
     let activeMode = slide.modes[0]?.id || "mcp";
-    let activeTool = slide.tools[0]?.id || "treg";
+    let activeTool = slide.tools[0]?.id || "default";
 
     const modeTabs = el("div", { class: "tab-strip" });
     const modeInfo = el("div", { class: "callout-banner cyan" });
@@ -1641,7 +1573,7 @@ Reglas de voz: Tono ${biz.tone}. Sin frases cliché de IA ("mundo actual", "revo
       const { box } = makeTerminalBox({
         title: termTitle,
         text: window.APP.interpolateStr(rawPrompt),
-        onCopyLabel: "📋 Copiar prompt",
+        onCopyLabel: "Copiar prompt",
         showGeminiBtn: activeMode !== "mcp"
       });
 
@@ -1658,7 +1590,7 @@ Reglas de voz: Tono ${biz.tone}. Sin frases cliché de IA ("mundo actual", "revo
   }
 
   function renderComparison(slide, bodyEl) {
-    let selected = window.APP.STATE.assistantSpec.mode || "skill";
+    let selected = slide.options?.[0]?.id || "default";
     const grid = el("div", { class: "compare-grid" });
     const detail = el("div", { class: "panel" });
 
@@ -1813,14 +1745,14 @@ Reglas de voz: Tono ${biz.tone}. Sin frases cliché de IA ("mundo actual", "revo
         if (REFRESHERS[forgeId]) REFRESHERS[forgeId]();
         Confetti.burst(75);
         draw();
-        window.APP.toast(`Rutina '${recObj.title}' vinculada a tu Skill ✓`);
+        window.APP.toast(`Rutina '${recObj.title}' vinculada a tu Playbook ✓`);
       });
 
-      const forgeId = window.APP.getSlideIdByType("assistantForge") || "s42";
+      const forgeId = window.APP.getSlideIdByType("assistantLab") || "s42";
       const goForgeBtn = el("button", {
         type: "button",
         class: "btn btn-secondary btn-sm",
-        text: `Ir a Mi SKILL.md (#${forgeId}) →`
+        text: `Ir a Mi Playbook (#${forgeId}) →`
       });
       goForgeBtn.addEventListener("click", () => window.APP.goToId(forgeId));
 
@@ -1849,348 +1781,19 @@ Reglas de voz: Tono ${biz.tone}. Sin frases cliché de IA ("mundo actual", "revo
   }
 
   function renderAssistantForge(slide, bodyEl) {
-    const spec = window.APP.STATE.assistantSpec;
-    if (!["skill", "antigravity", "doc"].includes(spec.mode)) spec.mode = "skill";
-    if (!Array.isArray(spec.stackedSkills)) spec.stackedSkills = [];
-    let wizardStep = 0; // 0: Formato y Skill, 1: Reglas y Skill Stacking, 2: Flujo y Automatización
-
-    function applyTemplate(taskKey, forceOverwrite = false) {
-      const tpl = slide.templates[taskKey] || slide.templates.ventas;
-      spec.taskType = taskKey;
-      if (forceOverwrite || !spec.role) {
-        spec.assistantName = tpl.defaultName;
-        spec.triggerDesc = tpl.triggerDesc || "";
-        spec.stackedSkills = Array.isArray(tpl.stackSuggestions) ? [tpl.stackSuggestions[0]] : [];
-        spec.role = tpl.role;
-        spec.rules = tpl.rules;
-        spec.outputFormat = tpl.outputFormat;
-        spec.driveDocs = tpl.driveDocs;
-        spec.automationRule = tpl.automationRule || "";
-        spec.triggerStep = tpl.triggerStep;
-        spec.reviewStep = tpl.reviewStep;
-      } else if (!spec.triggerDesc && tpl.triggerDesc) {
-        spec.triggerDesc = tpl.triggerDesc;
-      }
-      window.APP.saveState();
+    if (window.LAB?.renderAssistant) {
+      window.LAB.renderAssistant(slide, bodyEl);
     }
-    applyTemplate(spec.taskType || "ventas", !spec.role);
-
-    const grid = el("div", { class: "forge-grid" });
-    const leftPanel = el("div", { class: "panel", style: "display:flex;flex-direction:column;gap:12px;" });
-    const rightCol = el("div", { style: "display:flex;flex-direction:column;gap:11px;" });
-
-    function drawLeft() {
-      leftPanel.innerHTML = "";
-
-      // Wizard tabs
-      const wTabs = el("div", { class: "wizard-tabs" });
-      ["① Formato y Disparador", "② Reglas y Stacking", "③ Flujo y Automatización"].forEach((lbl, idx) => {
-        const b = el("button", {
-          type: "button",
-          class: `wizard-tab ${wizardStep === idx ? "active" : ""}`,
-          text: lbl
-        });
-        b.addEventListener("click", () => { wizardStep = idx; drawLeft(); });
-        wTabs.appendChild(b);
-      });
-      leftPanel.appendChild(wTabs);
-
-      const mkField = (label, key, isTextarea = false, rows = 2) => {
-        const f = el("label", { class: "field" });
-        f.appendChild(el("span", { text: label }));
-        const input = isTextarea
-          ? el("textarea", { rows: String(rows) })
-          : el("input", { type: "text" });
-        input.value = spec[key] || "";
-        input.addEventListener("input", () => {
-          spec[key] = input.value;
-          window.APP.saveState();
-          drawRight();
-        });
-        f.appendChild(input);
-        return f;
-      };
-
-      const stepBody = el("div", { class: "biz-form", style: "display:flex;flex-direction:column;gap:10px;" });
-
-      if (wizardStep === 0) {
-        stepBody.appendChild(el("strong", { style: "font-size:0.84rem;", text: "Cómo activar este Skill:" }));
-        const modeStrip = el("div", { class: "tab-strip" });
-        [
-          { id: "skill", label: "⚡ Gemini Skills (@)" },
-          { id: "antigravity", label: "🚀 SKILL.md (Antigravity)" },
-          { id: "doc", label: "📄 Doc Maestro Drive" }
-        ].forEach((m) => {
-          const b = el("button", {
-            type: "button",
-            class: `tab-btn ${spec.mode === m.id ? "active" : ""}`,
-            text: m.label
-          });
-          b.addEventListener("click", () => {
-            spec.mode = m.id;
-            window.APP.saveState();
-            drawLeft();
-            drawRight();
-          });
-          modeStrip.appendChild(b);
-        });
-        stepBody.appendChild(modeStrip);
-
-        stepBody.appendChild(el("strong", { style: "font-size:0.84rem;margin-top:4px;", text: "Plantilla base editable:" }));
-        const taskStrip = el("div", { class: "tab-strip" });
-        Object.entries(slide.templates).forEach(([k, t]) => {
-          const b = el("button", {
-            type: "button",
-            class: `tab-btn ${spec.taskType === k ? "active" : ""}`,
-            text: t.label
-          });
-          b.addEventListener("click", () => {
-            applyTemplate(k, true);
-            drawLeft();
-            drawRight();
-            window.APP.toast(`Plantilla '${t.label}' cargada ✓`);
-          });
-          taskStrip.appendChild(b);
-        });
-        stepBody.appendChild(taskStrip);
-        stepBody.appendChild(mkField("Nombre corto (name en minúsculas con guiones)", "assistantName"));
-        stepBody.appendChild(mkField("Descripción disparadora (cuándo debe activarlo Gemini)", "triggerDesc", true, 2));
-      } else if (wizardStep === 1) {
-        stepBody.appendChild(mkField("Misión y rol", "role", true, 2));
-        stepBody.appendChild(mkField("Reglas clave de comportamiento", "rules", true, 3));
-        stepBody.appendChild(mkField("Formato estándar de salida", "outputFormat", true, 2));
-
-        const stackBox = el("div", { style: "display:flex;flex-direction:column;gap:6px;" });
-        stackBox.appendChild(el("strong", { style: "font-size:0.82rem;", text: "🔗 Skill Stacking: apilar con otras habilidades en la prueba:" }));
-        const stackStrip = el("div", { class: "stack-pills" });
-        const curSlug = `@${slugifyKebab(spec.assistantName || "cotizador-comercial")}`;
-        ["@voz-de-marca", "@cotizador-comercial", "@cierre-y-objeciones", "@prospector-comercial", "@asistente-operativo"]
-          .filter((tag) => tag !== curSlug)
-          .forEach((tag) => {
-            const active = Array.isArray(spec.stackedSkills) && spec.stackedSkills.includes(tag);
-            const pill = el("button", {
-              type: "button",
-              class: `stack-pill ${active ? "active" : ""}`,
-              text: `${active ? "✓" : "+"} ${tag}`
-            });
-            pill.addEventListener("click", () => {
-              const cur = Array.isArray(spec.stackedSkills) ? [...spec.stackedSkills] : [];
-              spec.stackedSkills = cur.includes(tag) ? cur.filter((x) => x !== tag) : [...cur, tag];
-              window.APP.saveState();
-              drawLeft();
-              drawRight();
-            });
-            stackStrip.appendChild(pill);
-          });
-        stackBox.appendChild(stackStrip);
-        stepBody.appendChild(stackBox);
-      } else {
-        stepBody.appendChild(mkField("Archivos de referencia (Drive / references/)", "driveDocs"));
-        stepBody.appendChild(mkField("Automatización recurrente (Acción Programada / Workspace Studio)", "automationRule", true, 2));
-        stepBody.appendChild(mkField("1. Disparador manual · Cuándo invocas @skill", "triggerStep", true, 2));
-        stepBody.appendChild(mkField("3. Revisión (20% humano) · Qué validas antes de enviar", "reviewStep", true, 2));
-      }
-
-      leftPanel.appendChild(stepBody);
-
-      const foot = el("div", { class: "wizard-foot" });
-      const prevW = el("button", { type: "button", class: "btn btn-secondary btn-sm", text: "← Anterior" });
-      prevW.disabled = wizardStep === 0;
-      prevW.addEventListener("click", () => { wizardStep = Math.max(0, wizardStep - 1); drawLeft(); });
-
-      const dashId = window.APP.getSlideIdByType("summaryDashboard") || "s44";
-      const nextW = el("button", {
-        type: "button",
-        class: "btn btn-primary btn-sm",
-        text: wizardStep < 2 ? "Siguiente paso →" : `Ir a Mi Tablero (#${dashId}) →`
-      });
-      nextW.addEventListener("click", () => {
-        if (wizardStep < 2) {
-          wizardStep += 1;
-          drawLeft();
-        } else {
-          window.APP.goToId(dashId);
-        }
-      });
-
-      foot.appendChild(prevW);
-      foot.appendChild(el("span", { style: "font-size:0.75rem;color:var(--text-muted);font-weight:600;", text: `Paso ${wizardStep + 1} de 3` }));
-      foot.appendChild(nextW);
-      leftPanel.appendChild(foot);
-    }
-
-    function drawRight() {
-      rightCol.innerHTML = "";
-      const biz = window.APP.getEffectiveBiz();
-      const instructions = buildAssistantInstructions(spec, biz);
-      const testPrompt = buildAssistantTestPrompt(spec, biz);
-
-      const { box: instBox } = makeTerminalBox({
-        title: spec.mode === "doc" ? "SKILL.md para tu Documento Maestro en Drive" : "Archivo SKILL.md (con frontmatter YAML 2026)",
-        text: instructions,
-        onCopyLabel: "📋 Copiar SKILL.md",
-        showGeminiBtn: true
-      });
-      rightCol.appendChild(instBox);
-
-      const { box: testBox } = makeTerminalBox({
-        title: "Prompt de Prueba #1 (con Skill Stacking)",
-        text: testPrompt,
-        onCopyLabel: "📋 Copiar prueba",
-        showGeminiBtn: false
-      });
-      rightCol.appendChild(testBox);
-
-      const slug = slugifyKebab(spec.assistantName || "cotizador-comercial");
-      const stackText = Array.isArray(spec.stackedSkills) && spec.stackedSkills.length ? ` + ${spec.stackedSkills.join(" + ")}` : "";
-      const wfCard = el("div", { class: "panel", style: "display:flex;flex-direction:column;gap:9px;" });
-      wfCard.innerHTML = `
-        <strong style="font-size:0.89rem;">🔁 Tu Flujo con Skill + Automatización</strong>
-        <div style="font-size:0.82rem;color:var(--text-muted);display:flex;flex-direction:column;gap:4px;">
-          <div><strong>1. Disparador / Rutina:</strong> ${escHtml(window.APP.interpolateStr(spec.automationRule || spec.triggerStep || "Al recibir solicitud o iniciar semana"))}</div>
-          <div><strong>2. Invocación apilada:</strong> <code>@${escHtml(slug)}${escHtml(stackText)}</code></div>
-          <div><strong>3. Revisión (20%):</strong> ${escHtml(window.APP.interpolateStr(spec.reviewStep || "Valida precios, fechas y tono"))}</div>
-        </div>
-      `;
-
-      const actionRow = el("div", { style: "display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;" });
-      const isDone = !!window.APP.STATE.challengesDone[slide.id]?.completed;
-      const doneBtn = el("button", {
-        type: "button",
-        class: `btn ${isDone ? "btn-emerald" : "btn-aurora"} btn-sm`,
-        text: isDone ? "✅ SKILL.md completado (+250 pts)" : "✅ Marcar SKILL.md listo (+250 pts)"
-      });
-      doneBtn.addEventListener("click", () => {
-        window.APP.STATE.challengesDone[slide.id] = { checks: { 0: true }, completed: true };
-        window.APP.saveState();
-        window.APP.updateScoreBadge();
-        window.APP.refreshCompletionUI?.();
-        Confetti.burst(110);
-        drawRight();
-        window.APP.toast("🎉 ¡Felicidades! Tu SKILL.md quedó completado.");
-      });
-
-      const dlSkillBtn = el("button", {
-        type: "button",
-        class: "btn btn-secondary btn-sm",
-        text: "⬇️ Descargar SKILL.md"
-      });
-      dlSkillBtn.addEventListener("click", () => {
-        downloadFile("SKILL.md", buildAssistantInstructions(spec, biz));
-      });
-
-      const dlBtn = el("button", {
-        type: "button",
-        class: "btn btn-secondary btn-sm",
-        text: "⬇️ Descargar Kit Completo (.md)"
-      });
-      dlBtn.addEventListener("click", () => {
-        const bizSlug = (biz.name || "mi-negocio").toLowerCase().replace(/[^a-z0-9]+/g, "-");
-        downloadFile(`kit-skill-gemini-${bizSlug}.md`, buildFullKitMarkdown());
-      });
-
-      actionRow.appendChild(doneBtn);
-      actionRow.appendChild(dlSkillBtn);
-      actionRow.appendChild(dlBtn);
-      wfCard.appendChild(actionRow);
-      rightCol.appendChild(wfCard);
-    }
-
-    drawLeft();
-    drawRight();
-    grid.appendChild(leftPanel);
-    grid.appendChild(rightCol);
-    bodyEl.appendChild(grid);
-
-    REFRESHERS[slide.id] = () => {
-      drawLeft();
-      drawRight();
-    };
   }
 
   function renderSummaryDashboard(slide, bodyEl) {
-    const stats = el("div", { class: "stats-strip" });
-    const previewPanel = el("div", { class: "panel", style: "display:flex;flex-direction:column;gap:14px;" });
-
-    function draw() {
-      const app = window.APP;
-      const biz = app.getEffectiveBiz();
-      const spec = app.STATE.assistantSpec;
-      const slug = slugifyKebab(spec.assistantName || "cotizador-comercial");
-      const quizSlides = app.flat.filter((s) => s.type === "quiz").map((s) => s.id);
-      const retoSlides = app.flat
-        .filter((s) => ["reto", "sortActivity", "automationStudio", "assistantForge"].includes(s.type))
-        .map((s) => s.id);
-
-      const quizzesDone = quizSlides.filter((id) => app.STATE.quizzes[id]?.completed).length;
-      const retosDone = retoSlides.filter((id) => app.STATE.challengesDone[id]?.completed).length;
-      const hasBiz = !!app.STATE.biz.name;
-
-      stats.innerHTML = `
-        <div class="stat-tile">
-          <div class="stat-val">${app.calculateScore()}</div>
-          <div class="stat-lbl">Puntos totales</div>
-        </div>
-        <div class="stat-tile">
-          <div class="stat-val">${quizzesDone} / ${quizSlides.length}</div>
-          <div class="stat-lbl">Quizzes superados</div>
-        </div>
-        <div class="stat-tile">
-          <div class="stat-val">${retosDone} / ${retoSlides.length}</div>
-          <div class="stat-lbl">Retos y entregas</div>
-        </div>
-        <div class="stat-tile">
-          <div class="stat-val">${hasBiz ? "✓" : "○"}</div>
-          <div class="stat-lbl">${hasBiz ? escHtml(biz.name) : "Ficha pendiente"}</div>
-        </div>
-      `;
-
-      previewPanel.innerHTML = "";
-      const headerRow = el("div", { style: "display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;" });
-      headerRow.appendChild(el("h3", { style: "font-size:1.05rem;", text: `📦 Kit SKILL.md Listo para ${biz.name}` }));
-
-      const btns = el("div", { class: "no-print", style: "display:flex;gap:8px;flex-wrap:wrap;" });
-      const dlSkillBtn = el("button", { type: "button", class: "btn btn-secondary btn-sm", text: "⚡ Descargar solo SKILL.md" });
-      dlSkillBtn.addEventListener("click", () => {
-        downloadFile("SKILL.md", buildAssistantInstructions(spec, biz));
-      });
-
-      const dlBtn = el("button", { type: "button", class: "btn btn-aurora btn-sm", text: "⬇️ Descargar Kit Completo (.md)" });
-      dlBtn.addEventListener("click", () => {
-        const bizSlug = (biz.name || "emprendimiento").toLowerCase().replace(/[^a-z0-9]+/g, "-");
-        downloadFile(`kit-gemini-${bizSlug}.md`, buildFullKitMarkdown());
-      });
-
-      const printBtn = el("button", { type: "button", class: "btn btn-secondary btn-sm", text: "🖨️ Imprimir / Guardar en PDF" });
-      printBtn.addEventListener("click", () => {
-        const slideEl = bodyEl.closest(".slide");
-        document.querySelectorAll(".slide.print-active").forEach((s) => s.classList.remove("print-active"));
-        if (slideEl) slideEl.classList.add("print-active");
-        window.print();
-      });
-
-      btns.appendChild(dlSkillBtn);
-      btns.appendChild(dlBtn);
-      btns.appendChild(printBtn);
-      headerRow.appendChild(btns);
-      previewPanel.appendChild(headerRow);
-
-      const { box } = makeTerminalBox({
-        title: `Kit de @${slug} (${(spec.mode || "skill").toUpperCase()}) + Automatización`,
-        text: buildFullKitMarkdown(),
-        onCopyLabel: "📋 Copiar todo el Kit",
-        showGeminiBtn: false
-      });
-      previewPanel.appendChild(box);
+    if (window.LAB?.renderPortfolio) {
+      window.LAB.renderPortfolio(slide, bodyEl);
     }
-
-    draw();
-    bodyEl.appendChild(stats);
-    bodyEl.appendChild(previewPanel);
-    REFRESHERS[slide.id] = draw;
   }
 
   window.ACTIVITIES = {
+    makeTerminalBox,
     renderDiagnosticPoll,
     renderBusinessProfile,
     renderTrafficLight,

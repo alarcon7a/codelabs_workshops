@@ -13,12 +13,15 @@
     pollChoice: null,
     quizzes: {},
     challengesDone: {},
+    drafts: {},
+    assistantLab: {},
+    activeSkillId: "custom",
+    skillDrafts: {},
+    creativeBrief: {},
+    metrics: {},
     assistantSpec: {
-      mode: "skill",
       taskType: "ventas",
       assistantName: "cotizador-comercial",
-      triggerDesc: "",
-      stackedSkills: ["@voz-de-marca"],
       role: "",
       rules: "",
       outputFormat: "",
@@ -35,17 +38,20 @@
       if (!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
       const parsed = JSON.parse(raw);
       const spec = { ...DEFAULT_STATE.assistantSpec, ...(parsed.assistantSpec || {}) };
-      if (!["skill", "antigravity", "doc"].includes(spec.mode)) {
-        spec.mode = "skill";
-      }
-      if (!Array.isArray(spec.stackedSkills)) {
-        spec.stackedSkills = [];
-      }
+      const savedDrafts = parsed.skillDrafts && typeof parsed.skillDrafts === "object"
+        ? parsed.skillDrafts
+        : (parsed.playbookDrafts && typeof parsed.playbookDrafts === "object" ? parsed.playbookDrafts : {});
       return {
         biz: { ...DEFAULT_STATE.biz, ...(parsed.biz || {}) },
         pollChoice: parsed.pollChoice ?? null,
         quizzes: parsed.quizzes || {},
         challengesDone: parsed.challengesDone || {},
+        drafts: parsed.drafts && typeof parsed.drafts === "object" ? parsed.drafts : {},
+        assistantLab: parsed.assistantLab && typeof parsed.assistantLab === "object" ? parsed.assistantLab : {},
+        activeSkillId: typeof parsed.activeSkillId === "string" ? parsed.activeSkillId : "custom",
+        skillDrafts: savedDrafts,
+        creativeBrief: parsed.creativeBrief && typeof parsed.creativeBrief === "object" ? parsed.creativeBrief : {},
+        metrics: parsed.metrics && typeof parsed.metrics === "object" ? parsed.metrics : {},
         assistantSpec: spec
       };
     } catch {
@@ -77,8 +83,10 @@
     saveState() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(this.STATE));
+        return true;
       } catch {
-        // Ignore storage quota issues
+        this.toast("No se pudo guardar en este navegador. Descarga tu kit antes de cerrar.");
+        return false;
       }
     },
 
@@ -171,7 +179,7 @@
       if (coverStatus) {
         coverStatus.innerHTML = hasBiz
           ? `<span>✓ Personalizado para: <strong>${escHtml(this.STATE.biz.name)}</strong></span><span>Editar ✎</span>`
-          : `<span>⚡ Configura tu negocio en 30 seg para personalizar prompts</span><span>Configurar →</span>`;
+          : `<span>Personaliza los prompts con tu negocio</span><span>Configurar →</span>`;
       }
     },
 
@@ -191,6 +199,8 @@
         node.textContent = this.interpolateStr(raw);
       });
       window.ACTIVITIES?.refreshAll();
+      window.LAB?.refreshAssistant?.();
+      window.FOUNDER?.refreshAll();
       if (this.menuFilter === "vault") this.renderVault();
     },
 
@@ -217,7 +227,7 @@
       // Update overall progress inside menu
       const progressBox = document.getElementById("menu-progress");
       if (progressBox) {
-        const milestones = this.flat.filter((s) => s.id === "s5" || ["quiz", "reto", "sortActivity", "automationStudio", "assistantForge"].includes(s.type));
+        const milestones = this.flat.filter((s) => s.id === "s5" || ["quiz", "reto", "assistantLab"].includes(s.type));
         const completedCount = milestones.filter((sl) => this.isSlideCompleted(sl)).length;
         const pct = milestones.length ? Math.round((completedCount / milestones.length) * 100) : 0;
         progressBox.innerHTML = `
@@ -279,7 +289,7 @@
             });
           });
         }
-        if (slide.id === "s19" && Array.isArray(slide.cards)) {
+        if (Array.isArray(slide.cards)) {
           slide.cards.forEach((c, idx) => {
             if (c.snippet) {
               items.push({
@@ -287,7 +297,7 @@
                 slideId: slide.id,
                 block: blockTag,
                 title: c.title,
-                tag: "Secuencia / Live",
+                tag: "Ejemplo práctico",
                 getText: () => this.interpolateStr(c.snippet)
               });
             }
@@ -337,22 +347,46 @@
             });
           });
         }
-        if (slide.type === "assistantForge") {
+        if (slide.type === "assistantLab") {
+          items.push({
+            id: `${slide.id}-saved-info`,
+            slideId: "s5",
+            block: "01 · El sistema del founder",
+            title: "Bloque para Información guardada en Gemini",
+            tag: "Info guardada",
+            getText: () =>
+              window.LAB?.buildSavedInfo
+                ? window.LAB.buildSavedInfo(this.getEffectiveBiz())
+                : ""
+          });
           items.push({
             id: `${slide.id}-live-skill`,
             slideId: slide.id,
             block: blockTag,
-            title: "⚡ Tu SKILL.md Personalizado Actual (en vivo)",
+            title: "Tu Skill actual (SKILL.md)",
             tag: "SKILL.md",
             getText: () => {
               const biz = this.getEffectiveBiz();
-              return window.ACTIVITIES?.buildAssistantInstructions
-                ? window.ACTIVITIES.buildAssistantInstructions(this.STATE.assistantSpec, biz)
+              return window.LAB?.buildInstructions
+                ? window.LAB.buildInstructions(window.LAB.getSpec(), biz)
                 : "";
             }
           });
         }
       });
+      (window.WORKSHOP_DATA.skillTemplates || []).forEach(template => items.push({
+        id: `library-${template.id}`, slideId: "s42", block: "Biblioteca de Skills", title: `/${template.name} · ${template.label}`, tag: "SKILL.md",
+        getText: () => window.LAB.buildInstructions((this.STATE.skillDrafts || {})[template.id] || template, this.getEffectiveBiz())
+      }));
+      (window.WORKSHOP_DATA.workspaceApps || []).forEach(app => items.push({
+        id: `workspace-${app.id}`, slideId: "sWorkspaceLab", block: "Workspace", title: `Gemini en ${app.label}`, tag: app.label,
+        getText: () => this.interpolateStr(app.prompt)
+      }));
+      if (window.FOUNDER) {
+        items.push({id:"prospecting-search",slideId:"sTreg",block:"Prospección",title:"Investigar cuentas y señales (Deep Research / web)",tag:"Prospección",getText:()=>window.FOUNDER.buildProspectingPrompt(this.getEffectiveBiz())});
+        items.push({id:"treg-demo",slideId:"sTreg",block:"Bonus Demo",title:"Demo Treg.to en Antigravity (MCP)",tag:"Demo Bonus",getText:()=>window.FOUNDER.buildTregAntigravityPrompt(this.getEffectiveBiz())});
+        ["image", "video"].forEach(mode=>items.push({id:`creative-${mode}`,slideId:"sCreativeStudio",block:"Creatividad",title:mode==="image"?"Prompt de imagen":"Prompt de clip y audio",tag:mode==="image"?"Imagen":"Video",getText:()=>window.FOUNDER.buildCreativePrompt(mode,this.STATE.creativeBrief,this.getEffectiveBiz())}));
+      }
       this.vaultItems = items;
     },
 
@@ -368,7 +402,7 @@
 
       vaultGrid.innerHTML = "";
       if (!filtered.length) {
-        vaultGrid.innerHTML = `<div class="vault-empty">No encontramos prompts ni Skills para "<strong>${escHtml(q)}</strong>". Prueba con <em>treg</em>, <em>calendar</em>, <em>laer</em>, <em>sheets</em> o <em>skill</em>.</div>`;
+        vaultGrid.innerHTML = `<div class="vault-empty">No encontramos resultados para «<strong>${escHtml(q)}</strong>». Prueba con propuesta, contenido, seguimiento o asistente.</div>`;
         return;
       }
 
@@ -408,6 +442,7 @@
       });
 
       if (filterKey === "vault") {
+        document.getElementById("menu-empty").hidden = true;
         if (menuGrid) menuGrid.style.display = "none";
         if (vaultGrid) vaultGrid.style.display = "grid";
         this.renderVault();
@@ -433,6 +468,7 @@
         });
         blockEl.classList.toggle("empty-filtered", visibleInBlock === 0);
       });
+      document.getElementById("menu-empty").hidden = !!document.querySelector("#menu-grid .menu-block:not(.empty-filtered)");
     },
 
     toast(msg) {
@@ -459,24 +495,16 @@
       const totalSlidesCount = data.bloques.reduce((sum, b) => sum + b.slides.length, 0);
       let globalIdx = 0;
 
-      const shortTitles = {
-        b00: "Inicio",
-        b01: "R-C-T-F",
-        b02: "Ventas",
-        b03: "Mkt",
-        b04: "Workspace",
-        b05: "Prospectar",
-        b06: "Skills"
-      };
+      const shortTitles = Object.fromEntries(data.bloques.map(b => [b.id, b.shortTitle || b.title]));
 
       const menuEyebrow = document.getElementById("menu-eyebrow");
       if (menuEyebrow) {
         menuEyebrow.textContent = `Mapa del Taller · 90 Minutos · ${totalSlidesCount} Diapositivas`;
       }
-      const forgeId = data.bloques.flatMap((b) => b.slides).find((s) => s.type === "assistantForge")?.id || "s42";
+      const forgeId = "s44";
       const jumpBtn = document.getElementById("btn-jump-deliverable");
       if (jumpBtn) {
-        jumpBtn.textContent = `⚡ Ir a Mi Skill (#${forgeId})`;
+        jumpBtn.textContent = "Ver mi kit →";
       }
 
       const counts = { all: 0, reto: 0, quiz: 0, sim: 0 };
@@ -519,7 +547,7 @@
           const slideEl = this.createSlideElement(slide, bloque, idx);
           deck.appendChild(slideEl);
 
-          const isInteractive = ["quiz", "reto", "promptBuilder", "objectionArena", "slotGenerator", "sortActivity", "workspaceSimulator", "connectorHub", "automationStudio", "assistantForge", "businessProfile"].includes(slide.type);
+          const isInteractive = ["quiz", "reto", "promptBuilder", "objectionArena", "slotGenerator", "assistantLab", "businessProfile", "prospectingLab", "workspaceLab", "creativeLab"].includes(slide.type);
           const dot = document.createElement("button");
           dot.type = "button";
           dot.className = `dot ${localIdx === 0 ? "block-start" : ""} ${isInteractive ? "is-interactive" : ""}`;
@@ -549,9 +577,9 @@
 
           // Category for menu filters
           let category = "content";
-          if (slide.type === "reto" || slide.type === "sortActivity") category = "reto";
+          if (slide.type === "reto" || slide.type === "assistantLab") category = "reto";
           else if (slide.type === "quiz") category = "quiz";
-          else if (["promptDoctor", "promptBuilder", "objectionArena", "slotGenerator", "workspaceSimulator", "connectorHub", "automationStudio", "assistantForge", "businessProfile", "diagnosticPoll"].includes(slide.type)) {
+          else if (["promptDoctor", "promptBuilder", "objectionArena", "slotGenerator", "workspaceSimulator", "connectorHub", "automationStudio", "assistantForge", "businessProfile", "diagnosticPoll", "prospectingLab", "workspaceLab", "creativeLab"].includes(slide.type)) {
             category = "sim";
           }
 
@@ -575,7 +603,12 @@
             workspaceSimulator: "Workspace",
             connectorHub: "Conectores",
             automationStudio: "Flujos IA",
-            assistantForge: "SKILL.md",
+            assistantLab: "Skills",
+            prospectingLab: "Prospección",
+            workspaceLab: "Workspace",
+            creativeLab: "Creatividad",
+            workflowMap: "Flujo",
+            portfolio: "Tu kit",
             businessProfile: "Perfil",
             promptDoctor: "Comparador",
             section: "Bloque"
@@ -602,11 +635,11 @@
         menuFilters.innerHTML = "";
         [
           { key: "all", label: `Todos (${counts.all})` },
-          { key: "reto", label: `⚡ Retos (${counts.reto})` },
-          { key: "quiz", label: `🧠 Quizzes (${counts.quiz})` },
-          { key: "sim", label: `🛠️ Lab & Apps (${counts.sim})` },
-          { key: "vault", label: `📋 Bóveda de Prompts (${this.vaultItems.length})` }
-        ].forEach((f) => {
+          { key: "reto", label: `Prácticas (${counts.reto})` },
+          { key: "quiz", label: `Quiz (${counts.quiz})` },
+          { key: "sim", label: `Herramientas (${counts.sim})` },
+          { key: "vault", label: `Prompts (${this.vaultItems.length})` }
+        ].filter(f => f.key !== "quiz" || counts.quiz > 0).forEach((f) => {
           const fp = document.createElement("button");
           fp.type = "button";
           fp.className = `filter-pill ${f.key === this.menuFilter ? "active" : ""}`;
@@ -625,6 +658,11 @@
       section.id = slide.id;
       section.className = `slide ${slide.theme === "dark" ? "slide-dark" : "slide-light"}`;
       section.dataset.idx = String(idx);
+      section.dataset.type = slide.type;
+      section.inert = true;
+      section.setAttribute("aria-hidden", "true");
+      section.setAttribute("aria-roledescription", "diapositiva");
+      section.setAttribute("aria-label", `${idx + 1}. ${slide.title}`);
       section.style.setProperty("--block-accent", bloque.color || "#2563EB");
 
       const scroll = document.createElement("div");
@@ -640,14 +678,12 @@
         const head = document.createElement("div");
         head.className = "slide-head";
         head.innerHTML = `
-          <div class="slide-eyebrow-row">
-            <span class="eyebrow-badge ${slide.badgeColor || ""}">${escHtml(slide.badge || bloque.title)}</span>
-            <span class="time-chip">⏱ ${slide.mins} min</span>
-          </div>
           <h2 class="slide-title">${escHtml(slide.title)}</h2>
           ${slide.subtitle ? `<p class="slide-subtitle">${escHtml(slide.subtitle)}</p>` : ""}
+          <div class="slide-context"><span>${escHtml(bloque.title)}</span><span>${slide.mins} min${slide.type === "reto" || slide.type === "assistantLab" ? ` · Práctica en ${escHtml(slide.surface || "Gemini")}` : ""}</span></div>
         `;
         body.appendChild(head);
+        if (slide.pipelineLab) window.FOUNDER.renderPipelineResources(body);
 
         const rendererMap = {
           agenda: () => this.renderAgenda(slide, body),
@@ -671,12 +707,26 @@
           comparison: () => window.ACTIVITIES.renderComparison(slide, body),
           automationStudio: () => window.ACTIVITIES.renderAutomationStudio(slide, body),
           assistantForge: () => window.ACTIVITIES.renderAssistantForge(slide, body),
-          summaryDashboard: () => window.ACTIVITIES.renderSummaryDashboard(slide, body)
+          summaryDashboard: () => window.ACTIVITIES.renderSummaryDashboard(slide, body),
+          assistantLab: () => window.LAB.renderAssistant(slide, body),
+          portfolio: () => window.LAB.renderPortfolio(slide, body),
+          nextSteps: () => window.LAB.renderNextSteps(slide, body),
+          prospectingLab: () => window.FOUNDER.renderProspecting(slide, body),
+          workspaceLab: () => window.FOUNDER.renderWorkspace(slide, body),
+          workflowMap: () => window.FOUNDER.renderWorkflow(slide, body),
+          creativeLab: () => window.FOUNDER.renderCreative(slide, body)
         };
 
         if (rendererMap[slide.type]) {
           rendererMap[slide.type]();
         }
+      }
+
+      if (slide.sources?.length) {
+        const sources = document.createElement("div");
+        sources.className = "slide-sources";
+        sources.innerHTML = slide.sources.map(s => `<a href="${escHtml(s.url)}" target="_blank" rel="noopener noreferrer">${escHtml(s.title)} ↗</a>`).join("");
+        body.appendChild(sources);
       }
 
       scroll.appendChild(body);
@@ -686,108 +736,43 @@
 
     // ---------------- CORE RENDERERS ----------------
     renderCover(slide, body) {
+      body.classList.add("cover-body");
       const grid = document.createElement("div");
       grid.className = "cover-grid";
-
-      const blocksTotal = window.WORKSHOP_DATA.bloques.length;
-      const slidesTotal = window.WORKSHOP_DATA.bloques.reduce((sum, b) => sum + b.slides.length, 0);
-      const interactiveTotal = window.WORKSHOP_DATA.bloques
-        .flatMap((b) => b.slides)
-        .filter((s) => ["quiz", "reto", "sortActivity", "connectorHub", "automationStudio", "assistantForge"].includes(s.type)).length;
-
-      const left = document.createElement("div");
-      left.innerHTML = `
-        <div class="cover-kicker">✦ ${escHtml(slide.badge)}</div>
-        <h1 class="cover-title">${escHtml(slide.title)}: <span class="aurora-text">${escHtml(slide.highlightTitle)}</span></h1>
-        <p class="cover-lead">${escHtml(slide.subtitle)}</p>
-        <div class="pill-row">
-          ${slide.pills.map((p) => `<span class="dark-pill">${escHtml(p)}</span>`).join("")}
-        </div>
-        <div class="cover-metrics">
-          <div class="cover-metric"><strong>90 min</strong><span>Duración total</span></div>
-          <div class="cover-metric"><strong>${blocksTotal} Bloques</strong><span>Paso a paso</span></div>
-          <div class="cover-metric"><strong>${interactiveTotal} Retos</strong><span>Quizzes y práctica</span></div>
-          <div class="cover-metric"><strong>0% Código</strong><span>100% aplicable</span></div>
-        </div>
-      `;
-
-      const ctaRow = document.createElement("div");
-      ctaRow.className = "cover-cta-row";
-
-      const btnStart = document.createElement("button");
-      btnStart.type = "button";
-      btnStart.className = "btn btn-aurora";
-      btnStart.textContent = "Iniciar taller →";
-      btnStart.addEventListener("click", () => this.next());
-
-      const btnBiz = document.createElement("button");
-      btnBiz.type = "button";
-      btnBiz.className = "btn btn-secondary";
-      btnBiz.textContent = "🏪 Personalizar con mi negocio";
-      btnBiz.addEventListener("click", () => this.openBizModal());
-
-      const btnFinal = document.createElement("button");
-      btnFinal.type = "button";
-      btnFinal.className = "btn btn-secondary";
-      btnFinal.textContent = "⚡ Ver entregable SKILL.md";
-      btnFinal.addEventListener("click", () => this.goToId(this.getSlideIdByType("assistantForge") || "s42"));
-
-      ctaRow.appendChild(btnStart);
-      ctaRow.appendChild(btnBiz);
-      ctaRow.appendChild(btnFinal);
-      left.appendChild(ctaRow);
-
-      const right = document.createElement("div");
-      right.className = "cover-showcase";
-      right.innerHTML = `
-        <div class="showcase-header">
-          <span>Lo que vas a dominar hoy</span>
-          <span>${slide.pillars.length} Pilares · ${slidesTotal} Slides</span>
-        </div>
-      `;
-
-      const statusBanner = document.createElement("button");
-      statusBanner.type = "button";
-      statusBanner.id = "cover-biz-status";
-      statusBanner.className = "biz-status-banner";
-      statusBanner.style.cursor = "pointer";
-      statusBanner.style.textAlign = "left";
-      statusBanner.addEventListener("click", () => this.openBizModal());
-      right.appendChild(statusBanner);
-
-      slide.pillars.forEach((p) => {
-        const pBtn = document.createElement("button");
-        pBtn.type = "button";
-        pBtn.className = "pillar-mini";
-        pBtn.innerHTML = `
-          <div class="pillar-icon">${p.icon}</div>
-          <div>
-            <strong>${escHtml(p.title)}</strong>
-            <span>${escHtml(p.desc)}</span>
+      grid.innerHTML = `
+        <div class="cover-intro">
+          <h1 class="cover-title">Gemini para<br>founders.<br><span>Tu negocio.<br>Con más alcance.</span></h1>
+          <p class="cover-lead">${escHtml(slide.subtitle)}</p>
+          <p class="cover-facts">90 minutos <span>·</span> Skills + Google Workspace <span>·</span> Práctica guiada</p>
+          <div class="cover-cta-row">
+            <button class="btn btn-primary" id="cover-start" type="button">Empezar el taller <span aria-hidden="true">→</span></button>
+            <button class="cover-secondary" id="cover-example" type="button">Usar un negocio de ejemplo</button>
           </div>
-          <span style="color:#60A5FA;font-weight:700;">→</span>
-        `;
-        pBtn.addEventListener("click", () => this.goToId(p.targetId));
-        right.appendChild(pBtn);
+          <p class="cover-footnote">Para founders y emprendedores. Prepara tu cuenta de Workspace y sigue el mismo caso en todo el lab.</p>
+        </div>
+        <div class="cover-workbook">
+          <div class="workbook-top"><span>Tu negocio, en práctica</span><span>90 min</span></div>
+          <div class="workbook-conversation"><span class="message-label">El reto de tu negocio</span><p>“Encontrar clientes, operar<br>y crear sin hacerlo todo de cero.”</p></div>
+          <div class="workbook-answer"><span class="message-label">Un sistema para repetir</span><h2>De tu oferta<br>a nuevas oportunidades.</h2></div>
+          <div class="workbook-outcomes"></div>
+          <button id="cover-biz-status" class="biz-status-banner" type="button"></button>
+        </div>`;
+      grid.querySelector("#cover-start").addEventListener("click", () => this.goToId("s2"));
+      grid.querySelector("#cover-example").addEventListener("click", () => this.openBizModal());
+      grid.querySelector("#cover-biz-status").addEventListener("click", () => this.openBizModal());
+      slide.pillars.forEach((p, i) => {
+        const button = document.createElement("button");button.type="button";button.className="outcome-row";
+        button.innerHTML=`<span class="outcome-number">${String(i+1).padStart(2,"0")}</span><span><strong>${escHtml(p.title)}</strong><small>${escHtml(p.desc)}</small></span><span aria-hidden="true">↗</span>`;
+        button.addEventListener("click",()=>this.goToId(p.targetId));
+        grid.querySelector(".workbook-outcomes").appendChild(button);
       });
-
-      grid.appendChild(left);
-      grid.appendChild(right);
       body.appendChild(grid);
-
-      // Kinetic topic ticker ribbon
-      const ticker = document.createElement("div");
-      ticker.className = "cover-ticker";
-      const phrases = "PROPUESTAS 3 OPCIONES ✦ MÉTODO LAER & ROLEPLAY ✦ CALENDAR & GMAIL ✦ PIPELINE & LEAD SCORING ✦ TREG.TO & APOLLO MCP ✦ SKILLS (SKILL.MD) & APILAMIENTO ✦ AUTOMATIZACIÓN DE TAREAS ✦ ";
-      ticker.innerHTML = `<div class="ticker-track"><span>${phrases}</span><span>${phrases}</span></div>`;
-      body.appendChild(ticker);
     },
 
     renderSection(slide, body) {
       const box = document.createElement("div");
       box.className = "section-center";
       box.innerHTML = `
-        <span class="eyebrow-badge" style="margin-bottom:14px;">${escHtml(slide.badge)}</span>
         <div class="section-num">${escHtml(slide.num)}</div>
         <h2 class="section-title">${escHtml(slide.title)}</h2>
         <p class="section-lead">${escHtml(slide.subtitle)}</p>
@@ -995,7 +980,7 @@
       const backDash = document.createElement("button");
       backDash.type = "button";
       backDash.className = "btn btn-aurora";
-      backDash.textContent = `⚡ Volver a Mi Tablero y SKILL.md (#${dashId})`;
+      backDash.textContent = `Volver a Mi Kit y Playbooks (#${dashId})`;
       backDash.addEventListener("click", () => this.goToId(dashId));
 
       const restart = document.createElement("button");
@@ -1019,7 +1004,7 @@
       const deck = document.getElementById("deck");
       const slideEl = deck.children[clamped];
       const targetLeft = slideEl ? slideEl.offsetLeft : clamped * (deck.clientWidth || window.innerWidth);
-      const useInstant = instant || Math.abs(clamped - prevIdx) > 1;
+      const useInstant = instant || Math.abs(clamped - prevIdx) > 1 || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       this.programmaticScrollUntil = Date.now() + (useInstant ? 140 : 620);
 
       if (useInstant) {
@@ -1042,7 +1027,13 @@
         setTimeout(() => { this.ignoreHashOnce = false; }, 50);
       }
 
+      const previousFocus = document.activeElement;
       this.syncChrome();
+      if (prevIdx !== clamped) {
+        slideEl?.querySelector(".slide-scroll")?.scrollTo({top: 0, behavior: "instant"});
+        const focus = previousFocus;
+        if (focus?.closest(".slide") && focus.closest(".slide") !== slideEl) document.getElementById("deck").focus({preventScroll: true});
+      }
     },
 
     goToId(slideId) {
@@ -1104,15 +1095,15 @@
       document.querySelectorAll("#dot-rail .block-chip").forEach((chip) => {
         const isCur = chip.dataset.blockId === slide.block.id;
         chip.classList.toggle("active", isCur);
-        chip.textContent = isCur ? chip.dataset.shortLabel : chip.dataset.code;
+        chip.textContent = chip.dataset.shortLabel;
       });
       document.querySelectorAll("#dot-rail .dot").forEach((d, i) => {
         d.classList.toggle("active", i === this.idx);
       });
-      const activeDot = dotRail?.querySelector(".dot.active");
+      const activeDot = dotRail?.querySelector(".block-chip.active");
       if (dotRail && activeDot && dotRail.scrollWidth > dotRail.clientWidth) {
         const targetScrollLeft = Math.max(0, activeDot.offsetLeft - dotRail.clientWidth / 2 + activeDot.offsetWidth / 2);
-        dotRail.scrollTo({ left: targetScrollLeft, behavior: "smooth" });
+        dotRail.scrollTo({ left: targetScrollLeft, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
       }
 
       // Menu current
@@ -1123,6 +1114,7 @@
       if (slide.type === "summaryDashboard") {
         window.ACTIVITIES?.refreshSlide(slide.id);
       }
+      window.LAB?.syncChrome();
     },
 
     // ---------------- DRAWERS & MODALS ----------------
@@ -1198,7 +1190,7 @@
       document.getElementById("btn-close-menu").addEventListener("click", () => this.toggleMenu(false));
       document.getElementById("btn-jump-deliverable").addEventListener("click", () => {
         this.toggleMenu(false);
-        this.goToId(this.getSlideIdByType("assistantForge") || "s42");
+        this.goToId("s44");
       });
       document.getElementById("menu-search")?.addEventListener("input", (e) => {
         this.menuSearch = e.target.value || "";
@@ -1233,7 +1225,7 @@
         const chip = document.createElement("button");
         chip.type = "button";
         chip.className = "preset-chip";
-        chip.textContent = `${p.emoji} ${p.label}`;
+        chip.textContent = p.label;
         chip.addEventListener("click", () => {
           document.getElementById("m-biz-name").value = p.name;
           document.getElementById("m-biz-tone").value = p.tone;
@@ -1281,9 +1273,11 @@
         if (e.target && e.target.closest('input, textarea, select, [contenteditable="true"]')) {
           return;
         }
-        if (document.getElementById("biz-modal").classList.contains("open")) {
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        if (document.getElementById("biz-modal").classList.contains("open") || document.getElementById("menu").classList.contains("open") || document.getElementById("shortcuts-popover").classList.contains("open")) {
           return;
         }
+        if (e.target?.closest('button, a, summary') && (e.key === " " || e.key === "Enter")) return;
 
         const activeSlide = this.flat[this.idx];
         if (activeSlide && activeSlide.type === "quiz" && !document.getElementById("menu").classList.contains("open")) {
@@ -1410,6 +1404,7 @@
       const hashId = window.location.hash.replace("#", "");
       const startSlide = this.flat.find((s) => s.id === hashId);
       this.goTo(startSlide ? startSlide.idx : 0, true);
+      window.LAB?.init();
     }
   };
 

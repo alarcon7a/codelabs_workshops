@@ -1,0 +1,118 @@
+{
+  "source": "pipeline_prospecccion_ventas.xlsx",
+  "cutoff": "2025-03-13",
+  "currency": "USD",
+  "note": "Adaptación para práctica. Empresas sustituidas por alias y contactos omitidos. Se conservan valores, etapas, fechas, industria, siguiente paso, prioridad y score.",
+  "rows": [
+    {
+      "id": "D-001",
+      "empresa": "Cuenta 01",
+      "industria": "Tecnología / SaaS",
+      "etapa": "Reunión agendada",
+      "valor": 45000,
+      "ultimoContacto": "2025-03-01",
+      "proximoPaso": "Demo del producto - Jueves 10am",
+      "prioridad": "Alta",
+      "score": 82
+    },
+    {
+      "id": "D-002",
+      "empresa": "Cuenta 02",
+      "industria": "Finanzas / Banca",
+      "etapa": "Propuesta enviada",
+      "valor": 120000,
+      "ultimoContacto": "2025-02-28",
+      "proximoPaso": "Seguimiento propuesta - Llamar viernes",
+      "prioridad": "Alta",
+      "score": 91
+    },
+    {
+      "id": "D-003",
+      "empresa": "Cuenta 03",
+      "industria": "Retail",
+      "etapa": "Contactado",
+      "valor": 35000,
+      "ultimoContacto": "2025-02-25",
+      "proximoPaso": "Enviar caso de éxito sector retail",
+      "prioridad": "Media",
+      "score": 65
+    },
+    {
+      "id": "D-004",
+      "empresa": "Cuenta 04",
+      "industria": "Logística",
+      "etapa": "Prospecto",
+      "valor": 28000,
+      "ultimoContacto": "2025-02-20",
+      "proximoPaso": "Llamada de descubrimiento",
+      "prioridad": "Media",
+      "score": 48
+    },
+    {
+      "id": "D-005",
+      "empresa": "Cuenta 05",
+      "industria": "Agroindustria",
+      "etapa": "Negociación",
+      "valor": 52000,
+      "ultimoContacto": "2025-03-02",
+      "proximoPaso": "Revisar contrato legal - Lunes",
+      "prioridad": "Alta",
+      "score": 88
+    },
+    {
+      "id": "D-006",
+      "empresa": "Cuenta 06",
+      "industria": "Tecnología",
+      "etapa": "Reunión agendada",
+      "valor": 67000,
+      "ultimoContacto": "2025-03-03",
+      "proximoPaso": "Preparar demo personalizada",
+      "prioridad": "Alta",
+      "score": 79
+    },
+    {
+      "id": "D-007",
+      "empresa": "Cuenta 07",
+      "industria": "Educación / EdTech",
+      "etapa": "Contactado",
+      "valor": 18000,
+      "ultimoContacto": "2025-02-22",
+      "proximoPaso": "Enviar brochure + pricing",
+      "prioridad": "Baja",
+      "score": 42
+    },
+    {
+      "id": "D-008",
+      "empresa": "Cuenta 08",
+      "industria": "Seguros",
+      "etapa": "Propuesta enviada",
+      "valor": 185000,
+      "ultimoContacto": "2025-03-01",
+      "proximoPaso": "Reunión con comité de compras",
+      "prioridad": "Alta",
+      "score": 94
+    },
+    {
+      "id": "D-009",
+      "empresa": "Cuenta 09",
+      "industria": "Medios / Publicidad",
+      "etapa": "Prospecto",
+      "valor": 22000,
+      "ultimoContacto": "2025-02-18",
+      "proximoPaso": "Investigar cuenta antes de contactar",
+      "prioridad": "Baja",
+      "score": 35
+    },
+    {
+      "id": "D-010",
+      "empresa": "Cuenta 10",
+      "industria": "Salud / Farmacia",
+      "etapa": "Cerrado ganado",
+      "valor": 55000,
+      "ultimoContacto": "2025-02-15",
+      "proximoPaso": "Onboarding - Kick-off call",
+      "prioridad": "Media",
+      "score": 100
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "cutoff": "2025-03-13",
+  "total": 627000,
+  "active": 572000,
+  "totals": [
+    {
+      "stage": "Prospecto",
+      "total": 50000
+    },
+    {
+      "stage": "Contactado",
+      "total": 53000
+    },
+    {
+      "stage": "Reunión agendada",
+      "total": 112000
+    },
+    {
+      "stage": "Propuesta enviada",
+      "total": 305000
+    },
+    {
+      "stage": "Negociación",
+      "total": 52000
+    },
+    {
+      "stage": "Cerrado ganado",
+      "total": 55000
+    }
+  ],
+  "urgent": [
+    {
+      "id": "D-008",
+      "empresa": "Cuenta 08",
+      "valor": 185000,
+      "dias": 12
+    },
+    {
+      "id": "D-002",
+      "empresa": "Cuenta 02",
+      "valor": 120000,
+      "dias": 13
+    },
+    {
+      "id": "D-005",
+      "empresa": "Cuenta 05",
+      "valor": 52000,
+      "dias": 11
+    },
+    {
+      "id": "D-001",
+      "empresa": "Cuenta 01",
+      "valor": 45000,
+      "dias": 12
+    }
+  ],
+  "top3": [
+    "D-008",
+    "D-002",
+    "D-005"
+  ]
+}
