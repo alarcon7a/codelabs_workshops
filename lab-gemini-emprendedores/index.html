@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#F5F7FA">
+  <meta name="description" content="Laboratorio de 90 minutos para founders: Skills, Gemini, Workspace, ventas, imagen y video, y prospección para tu negocio.">
+  <title>Gemini para founders · Skills, Ventas y Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="workshop.css?v=15">
+</head>
+<body class="on-dark">
+  <a class="skip-link" href="#deck">Saltar al contenido</a>
+  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+  <header id="topbar">
+    <div class="topbar-left">
+      <button class="brand-btn" id="brand-home" type="button" title="Volver al inicio">
+        <span class="spark-badge" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2c1.3 5.3 4.7 8.7 10 10-5.3 1.3-8.7 4.7-10 10C10.7 16.7 7.3 13.3 2 12 7.3 10.7 10.7 7.3 12 2Z"/></svg></span>
+        <span class="brand-name">Gemini <span>Lab</span></span>
+      </button>
+      <button class="crumb-pill" id="crumb" type="button" title="Ver el recorrido del taller"><span id="crumb-text">Tu punto de partida</span><span aria-hidden="true">⌄</span></button>
+    </div>
+    <div class="topbar-right">
+      <div class="score-pill" id="score-pill" hidden><span id="score-val">0</span><span id="score-delta"></span></div>
+      <div id="live-clock" hidden></div>
+      <button class="top-btn" id="btn-view" type="button" aria-pressed="false" title="Cambiar tamaño de lectura para proyectar">Vista: Taller</button>
+      <button class="top-btn biz-trigger" id="btn-biz" type="button" aria-expanded="false" aria-controls="biz-modal" title="Personalizar con mi negocio (B)"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 10v10h16V10M3 10l2-6h14l2 6M3 10c0 3 4 3 4 0 0 3 5 3 5 0 0 3 5 3 5 0 0 3 4 3 4 0M9 20v-6h6v6"/></svg><span id="biz-pill-label">Mi negocio</span></button>
+      <button class="top-btn" id="btn-vault" type="button" aria-label="Buscar prompts" title="Buscar prompts (K)"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 4H5v17h14V4h-3M8 3h8v4H8zM8 11h8M8 15h5"/></svg><span class="btn-label-hide">Prompts</span></button>
+      <button class="top-btn" id="btn-kit" type="button" title="Ver y descargar mi cuaderno">Mi kit <span aria-hidden="true">↗</span></button>
+      <button class="top-btn icon-only" id="btn-menu" type="button" aria-label="Abrir índice del taller" aria-expanded="false" aria-controls="menu" title="Recorrido del taller (M)"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <button class="top-btn icon-only" id="btn-shortcuts" type="button" title="Atajos de teclado (?)" aria-label="Atajos de teclado">?</button>
+      <button class="top-btn icon-only" id="btn-fullscreen" type="button" title="Pantalla completa (F)" aria-label="Pantalla completa"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M8 21H3v-5"/></svg></button>
+    </div>
+  </header>
+  <div class="shortcuts-popover" id="shortcuts-popover" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Atajos de teclado" inert>
+    <div class="shortcuts-head"><strong>Atajos del taller</strong><button type="button" class="close-x mini" id="btn-close-shortcuts" aria-label="Cerrar atajos">×</button></div>
+    <div class="shortcuts-list">
+      <div><kbd>←</kbd><kbd>→</kbd><span>Anterior / siguiente</span></div>
+      <div><kbd>M</kbd><span>Índice del taller</span></div><div><kbd>K</kbd><span>Buscar prompts</span></div>
+      <div><kbd>B</kbd><span>Ficha de mi negocio</span></div><div><kbd>F</kbd><span>Pantalla completa</span></div>
+      <div><kbd>Esc</kbd><span>Cerrar paneles</span></div>
+    </div>
+  </div>
+  <main id="deck" tabindex="0" aria-label="Taller de Gemini para founders y emprendedores"></main>
+  <p class="sr-only" id="slide-status" role="status" aria-live="polite" aria-atomic="true"></p>
+  <footer id="bottombar">
+    <div class="dot-tooltip" id="dot-tooltip" role="tooltip" aria-hidden="true"></div>
+    <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div><div id="progress-spark" hidden></div></div>
+    <div class="bottom-inner">
+      <div class="slide-meta"><span class="slide-counter" id="slide-counter">01 / 28</span><span class="slide-duration" id="slide-duration">· 1 min</span><span id="phase-time">00–08 min</span></div>
+      <nav class="dot-rail" id="dot-rail" aria-label="Bloques del taller"></nav>
+      <div class="bottom-navigation"><button class="nav-arrow nav-prev" id="nav-prev" type="button" aria-label="Diapositiva anterior">←</button><button class="nav-arrow nav-next" id="nav-next" type="button" aria-label="Siguiente diapositiva">→</button></div>
+    </div>
+  </footer>
+  <aside class="overlay-drawer" id="menu" aria-hidden="true" aria-modal="true" role="dialog" aria-label="Índice y prompts del taller" inert>
+    <div class="drawer-header"><div><h2>Tu recorrido.</h2><span class="drawer-eyebrow" id="menu-eyebrow">90 minutos · 28 diapositivas</span></div><div class="drawer-actions"><button class="btn btn-primary btn-sm" id="btn-jump-deliverable" type="button">Ver mi kit →</button><button class="close-x" id="btn-close-menu" type="button" aria-label="Cerrar índice">×</button></div></div>
+    <div class="menu-toolbar"><div class="menu-search-wrap"><label class="sr-only" for="menu-search">Buscar diapositivas o prompts</label><input type="search" id="menu-search" placeholder="Buscar Skills, SKILL.md, ventas, Canvas, NotebookLM, Workspace, Sheets, Treg…" autocomplete="off"></div><div class="menu-filters" id="menu-filters"></div><div class="menu-progress" id="menu-progress"></div><p id="menu-empty" hidden>No hay resultados. Prueba otra palabra o cambia el filtro.</p></div>
+    <div class="menu-grid" id="menu-grid"></div><div class="vault-grid" id="vault-grid" style="display:none;"></div>
+  </aside>
+  <div class="modal-backdrop" id="biz-modal" aria-hidden="true" aria-modal="true" role="dialog" aria-labelledby="biz-title" inert>
+    <div class="modal-card"><div class="modal-head"><div><h2 id="biz-title">Tu negocio, tu laboratorio.</h2><p class="modal-sub">Los prompts usarán esta ficha. Elige un ejemplo ficticio o completa tus datos públicos. Se guarda en este navegador.</p></div><button class="close-x" id="btn-close-biz" type="button" aria-label="Cerrar ficha de negocio">×</button></div>
+      <div class="preset-strip" id="modal-presets"></div>
+      <form id="modal-biz-form" class="biz-form"><div class="form-grid">
+        <label class="field"><span>Nombre del negocio *</span><input type="text" id="m-biz-name" placeholder="Ej. Café Origen Andino" required maxlength="100"></label>
+        <label class="field"><span>Tono de comunicación</span><input type="text" id="m-biz-tone" placeholder="Cercano, claro y profesional" maxlength="200"></label>
+        <label class="field span-2"><span>¿Qué vendes? *</span><input type="text" id="m-biz-offer" placeholder="Producto o servicio principal" required maxlength="500"></label>
+        <label class="field"><span>¿Quién es tu cliente ideal? *</span><input type="text" id="m-biz-audience" placeholder="A quién ayudas" required maxlength="300"></label>
+        <label class="field"><span>¿Qué te hace diferente?</span><input type="text" id="m-biz-diff" placeholder="Una diferencia que puedas comprobar" maxlength="400"></label>
+        <label class="field span-2"><span>¿Qué tarea te gustaría resolver más rápido?</span><input type="text" id="m-biz-pain" placeholder="Ej. Preparar propuestas personalizadas" maxlength="400"></label>
+      </div><div class="modal-foot"><button type="button" class="btn btn-ghost" id="btn-reset-biz">Limpiar ficha</button><div class="modal-foot-right"><button type="button" class="btn btn-secondary" id="btn-cancel-biz">Cancelar</button><button type="submit" class="btn btn-primary">Guardar y personalizar →</button></div></div></form>
+    </div>
+  </div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="bloques.js?v=15"></script><script src="activities.js?v=15"></script><script src="lab.js?v=15"></script><script src="founder.js?v=15"></script><script src="app.js?v=15"></script>
+</body>
+</html>
